@@ -1,0 +1,853 @@
+<script setup lang="ts">
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { useAsyncData } from '#app'
+import type { ApiResponse, ListResponse, PaginationMeta } from '~/types/api'
+import { useApi } from '~/composables/useApi'
+import { useBanner } from '~/composables/useBanner'
+
+defineOptions({ name: 'RolesPage' })
+
+type PermissionItem = {
+  id: string
+  name?: string
+  description?: string
+}
+
+const deleteLabelFormatter = (row: Record<string, unknown>) => {
+  const name = row.name
+  if (typeof name === 'string' && name.length > 0) {
+    return name
+  }
+  return String(row.id ?? '-')
+}
+
+const columns = [
+  { key: 'name', label: 'Name' },
+  { key: 'description', label: 'Description' },
+  {
+    key: 'permissions',
+    label: 'Permissions',
+    format: (value: unknown) => {
+      const permissions = value as { id: string }[] | undefined
+      return permissions ? String(permissions.length) : '0'
+    },
+  },
+]
+
+const { apiFetch } = useApi()
+const { show } = useBanner()
+const listKey = ref(0)
+const createOpen = ref(false)
+const createLoading = ref(false)
+const editLoading = ref(false)
+const permissionListQueryInput = ref('')
+const permissionListQuery = ref('')
+let permissionListQueryTimer: ReturnType<typeof setTimeout> | null = null
+const permissionPage = ref(1)
+const permissionLimit = ref(15)
+const createPermissionQueryInput = ref('')
+const createPermissionQuery = ref('')
+let createPermissionQueryTimer: ReturnType<typeof setTimeout> | null = null
+const createPermissionPage = ref(1)
+const createPermissionLimit = ref(15)
+const createPermissionPagination = ref<PaginationMeta | null>(null)
+const createPermissionsLoading = ref(false)
+const createForm = reactive({
+  name: '',
+  description: '',
+  permissionIds: [] as string[],
+})
+const editForm = reactive({
+  id: '',
+  name: '',
+  description: '',
+  permissionIds: [] as string[],
+})
+const createPermissionResults = ref<PermissionItem[]>([])
+const createPermissions = ref<PermissionItem[]>([])
+const editPermissionResults = ref<PermissionItem[]>([])
+const editPermissionItems = ref<PermissionItem[]>([])
+const editPermissionQueryInput = ref('')
+const editPermissionQuery = ref('')
+let editPermissionQueryTimer: ReturnType<typeof setTimeout> | null = null
+
+const { data, pending, error, refresh } = await useAsyncData(
+  'permissions:list',
+  () =>
+    apiFetch<ListResponse<PermissionItem>>('/role-and-permissions/permissions', {
+      query: {
+        page: permissionPage.value,
+        limit: permissionLimit.value,
+        q: permissionListQuery.value || undefined,
+      },
+    }),
+  { server: false },
+)
+
+const permissions = computed(() => {
+  const response = data.value as ApiResponse<ListResponse<PermissionItem>> | undefined
+  return response?.data?.items ?? []
+})
+const permissionPagination = computed(() => {
+  const response = data.value as ApiResponse<ListResponse<PermissionItem>> | undefined
+  return response?.data?.pagination
+})
+const permissionLimitOptions = computed(() =>
+  [10, 15, 25, 50, 100].map((limit) => ({
+    value: limit,
+    label: `${limit} / page`,
+  })),
+)
+const permissionSkeletonRows = computed(() => Math.max(1, Number(permissionLimit.value ?? 1)))
+const loadCreatePermissions = async () => {
+  if (createPermissionQuery.value.trim()) {
+    return
+  }
+  createPermissionsLoading.value = true
+  const response = await apiFetch<ListResponse<PermissionItem>>('/role-and-permissions/permissions', {
+    query: {
+      page: createPermissionPage.value,
+      limit: createPermissionLimit.value,
+    },
+  })
+  createPermissionsLoading.value = false
+  if (!response.success || !response.data) {
+    createPermissions.value = []
+    createPermissionPagination.value = null
+    return
+  }
+  createPermissions.value = response.data.items
+  createPermissionPagination.value = response.data.pagination
+}
+
+const fetchPermissionsByQuery = async (query: string) => {
+  const trimmed = query.trim()
+  if (!trimmed) {
+    return []
+  }
+  const items: PermissionItem[] = []
+  let page = 1
+  let lastPage = 1
+  do {
+    const response = await apiFetch<ListResponse<PermissionItem>>('/role-and-permissions/permissions', {
+      query: {
+        page,
+        limit: 100,
+        q: trimmed,
+      },
+    })
+    if (!response.success || !response.data) {
+      break
+    }
+    items.push(...response.data.items)
+    lastPage = response.data.pagination.last_page
+    page += 1
+  } while (page <= lastPage)
+  return items
+}
+
+const filteredPermissions = computed(() => {
+  const term = createPermissionQuery.value.trim()
+  if (!term) {
+    return createPermissions.value
+  }
+  return createPermissionResults.value
+})
+const createPermissionSkeletonRows = computed(() =>
+  Math.max(1, Number(createPermissionLimit.value ?? 1)),
+)
+const editPermissionOptions = computed(() => {
+  const map = new Map<string, PermissionItem>()
+  permissions.value.forEach((permission) => {
+    map.set(permission.id, permission)
+  })
+  editPermissionResults.value.forEach((permission) => {
+    if (!map.has(permission.id)) {
+      map.set(permission.id, permission)
+    }
+  })
+  editPermissionItems.value.forEach((permission) => {
+    if (!map.has(permission.id)) {
+      map.set(permission.id, permission)
+    }
+  })
+  return Array.from(map.values())
+})
+const editPermissionSearchOptions = computed(() => {
+  if (!editPermissionQuery.value.trim()) {
+    return editPermissionOptions.value
+  }
+  const map = new Map<string, PermissionItem>()
+  editPermissionResults.value.forEach((permission) => {
+    map.set(permission.id, permission)
+  })
+  editPermissionItems.value.forEach((permission) => {
+    if (!map.has(permission.id)) {
+      map.set(permission.id, permission)
+    }
+  })
+  return Array.from(map.values())
+})
+const filteredEditPermissions = computed(() => {
+  const term = editPermissionQuery.value.trim()
+  if (!term) {
+    return editPermissionOptions.value
+  }
+  return editPermissionSearchOptions.value
+})
+
+watch(
+  () => [permissionPage.value, permissionLimit.value, permissionListQuery.value],
+  () => refresh(),
+)
+
+watch(
+  () => permissionLimit.value,
+  (value, previous) => {
+    if (value !== previous) {
+      permissionPage.value = 1
+    }
+  },
+)
+
+watch(
+  () => permissionListQuery.value,
+  (value, previous) => {
+    if (value !== previous) {
+      permissionPage.value = 1
+    }
+  },
+)
+
+watch(
+  () => [createPermissionPage.value, createPermissionLimit.value],
+  () => {
+    if (!createPermissionQuery.value.trim()) {
+      loadCreatePermissions()
+    }
+  },
+)
+
+watch(
+  () => createPermissionLimit.value,
+  (value, previous) => {
+    if (value !== previous) {
+      createPermissionPage.value = 1
+    }
+  },
+)
+
+watch(
+  () => permissionListQueryInput.value,
+  (value) => {
+    if (permissionListQueryTimer) {
+      clearTimeout(permissionListQueryTimer)
+    }
+    permissionListQueryTimer = setTimeout(() => {
+      permissionListQuery.value = value.trim()
+    }, 300)
+  },
+)
+
+watch(
+  () => createPermissionQueryInput.value,
+  (value) => {
+    if (createPermissionQueryTimer) {
+      clearTimeout(createPermissionQueryTimer)
+    }
+    createPermissionQueryTimer = setTimeout(() => {
+      createPermissionQuery.value = value.trim()
+    }, 300)
+  },
+)
+
+watch(
+  () => editPermissionQueryInput.value,
+  (value) => {
+    if (editPermissionQueryTimer) {
+      clearTimeout(editPermissionQueryTimer)
+    }
+    editPermissionQueryTimer = setTimeout(() => {
+      editPermissionQuery.value = value.trim()
+    }, 300)
+  },
+)
+
+watch(
+  () => createPermissionQuery.value,
+  async (value) => {
+    if (!value.trim()) {
+      createPermissionResults.value = []
+      await loadCreatePermissions()
+      return
+    }
+    createPermissionResults.value = await fetchPermissionsByQuery(value)
+  },
+)
+
+watch(
+  () => editPermissionQuery.value,
+  async (value) => {
+    if (!value.trim()) {
+      editPermissionResults.value = []
+      return
+    }
+    editPermissionResults.value = await fetchPermissionsByQuery(value)
+  },
+)
+
+onBeforeUnmount(() => {
+  if (permissionListQueryTimer) {
+    clearTimeout(permissionListQueryTimer)
+  }
+  if (createPermissionQueryTimer) {
+    clearTimeout(createPermissionQueryTimer)
+  }
+  if (editPermissionQueryTimer) {
+    clearTimeout(editPermissionQueryTimer)
+  }
+})
+
+const resetCreate = () => {
+  createOpen.value = false
+  createLoading.value = false
+  createForm.name = ''
+  createForm.description = ''
+  createForm.permissionIds = []
+  createPermissionQueryInput.value = ''
+  createPermissionQuery.value = ''
+  createPermissionResults.value = []
+  createPermissions.value = []
+  createPermissionPagination.value = null
+}
+const resetEdit = () => {
+  editLoading.value = false
+  editForm.id = ''
+  editForm.name = ''
+  editForm.description = ''
+  editForm.permissionIds = []
+  editPermissionItems.value = []
+  editPermissionQueryInput.value = ''
+  editPermissionQuery.value = ''
+  editPermissionResults.value = []
+}
+
+const openCreate = async () => {
+  if (!createPermissions.value.length) {
+    await loadCreatePermissions()
+  }
+  createOpen.value = true
+}
+const handleEditClose = (close: () => void) => {
+  resetEdit()
+  close()
+}
+
+const togglePermission = (id: string) => {
+  if (createForm.permissionIds.includes(id)) {
+    createForm.permissionIds = createForm.permissionIds.filter((item) => item !== id)
+    return
+  }
+  createForm.permissionIds = [...createForm.permissionIds, id]
+}
+const toggleEditPermission = (id: string) => {
+  if (editForm.permissionIds.includes(id)) {
+    editForm.permissionIds = editForm.permissionIds.filter((item) => item !== id)
+    return
+  }
+  editForm.permissionIds = [...editForm.permissionIds, id]
+}
+
+const submitCreate = async () => {
+  const name = createForm.name.trim()
+  if (!name) {
+    show('Role name is required.', 'error')
+    return
+  }
+  const payload: Record<string, unknown> = {
+    name,
+    permissions: createForm.permissionIds,
+  }
+  const description = createForm.description.trim()
+  if (description.length > 0) {
+    payload.description = description
+  }
+  createLoading.value = true
+  const response = await apiFetch('/role-and-permissions/roles', {
+    method: 'POST',
+    body: payload,
+  })
+  createLoading.value = false
+  if (response.success) {
+    show('Role created.', 'success')
+    resetCreate()
+    listKey.value += 1
+  }
+}
+const syncEditForm = (row: Record<string, unknown> | null) => {
+  if (!row) {
+    return false
+  }
+  const id = typeof row.id === 'string' ? row.id : String(row.id ?? '')
+  if (!id || editForm.id === id) {
+    return true
+  }
+  editForm.id = id
+  editForm.name = typeof row.name === 'string' ? row.name : ''
+  editForm.description = typeof row.description === 'string' ? row.description : ''
+  const permissionRows = Array.isArray(row.permissions) ? row.permissions : []
+  const items: PermissionItem[] = []
+  permissionRows.forEach((permission) => {
+    if (!permission || typeof permission !== 'object') {
+      return
+    }
+    const record = permission as Record<string, unknown>
+    const permId = typeof record.id === 'string' ? record.id : null
+    if (!permId) {
+      return
+    }
+    items.push({
+      id: permId,
+      name: typeof record.name === 'string' ? record.name : undefined,
+      description: typeof record.description === 'string' ? record.description : undefined,
+    })
+  })
+  editPermissionItems.value = items
+  editForm.permissionIds = items.map((item) => item.id)
+  editPermissionQueryInput.value = ''
+  editPermissionQuery.value = ''
+  if (!permissions.value.length) {
+    refresh()
+  }
+  return true
+}
+const submitUpdate = async (close: () => void, refreshList: () => Promise<void>) => {
+  const name = editForm.name.trim()
+  if (!name) {
+    show('Role name is required.', 'error')
+    return
+  }
+  if (!editForm.id) {
+    show('Role id is missing.', 'error')
+    return
+  }
+  editLoading.value = true
+  const payload: Record<string, unknown> = {
+    name,
+    description: editForm.description.trim(),
+    permission_ids: editForm.permissionIds,
+  }
+  const response = await apiFetch(`/role-and-permissions/roles/${editForm.id}`, {
+    method: 'PUT',
+    body: payload,
+  })
+  editLoading.value = false
+  if (response.success) {
+    show('Role updated.', 'success')
+    await refreshList()
+    handleEditClose(close)
+  }
+}
+
+const nextPermissionPage = () => {
+  if (permissionPagination.value && permissionPage.value < permissionPagination.value.last_page) {
+    permissionPage.value += 1
+  }
+}
+
+const prevPermissionPage = () => {
+  if (permissionPage.value > 1) {
+    permissionPage.value -= 1
+  }
+}
+
+const nextCreatePermissionPage = () => {
+  if (createPermissionPagination.value && createPermissionPage.value < createPermissionPagination.value.last_page) {
+    createPermissionPage.value += 1
+  }
+}
+
+const prevCreatePermissionPage = () => {
+  if (createPermissionPage.value > 1) {
+    createPermissionPage.value -= 1
+  }
+}
+</script>
+
+<template>
+  <div class="space-y-6">
+    <ResourceList
+      :key="listKey"
+      title="Roles"
+      endpoint="/role-and-permissions/roles"
+      :columns="columns"
+      :search-debounce-ms="1000"
+      loading-variant="skeleton"
+      :delete-label-formatter="deleteLabelFormatter"
+    >
+      <template #header-actions>
+        <Button
+          size="sm"
+          @click="openCreate"
+        >
+          Create role
+        </Button>
+      </template>
+      <template #detail="{ row, loading, close, refresh: refreshList }">
+        <div
+          v-if="syncEditForm(row)"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6 py-8"
+          @click.self="handleEditClose(close)"
+        >
+          <div class="w-full max-w-5xl rounded-lg border bg-card p-6 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div class="text-lg font-semibold">
+                Edit role
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                :disabled="editLoading || loading"
+                @click="handleEditClose(close)"
+              >
+                Close
+              </Button>
+            </div>
+            <div class="mt-4 max-h-[70vh] overflow-auto">
+              <div class="grid gap-4 text-sm">
+                <div
+                  v-if="loading"
+                  class="text-muted-foreground"
+                >
+                  Loading...
+                </div>
+                <div
+                  v-else
+                  class="grid gap-4"
+                >
+                  <div class="grid gap-2">
+                    <Label for="edit-role-name">Role name</Label>
+                    <Input
+                      id="edit-role-name"
+                      v-model="editForm.name"
+                      placeholder="Role name"
+                    />
+                  </div>
+                  <div class="grid gap-2">
+                    <Label for="edit-role-description">Description</Label>
+                    <Input
+                      id="edit-role-description"
+                      v-model="editForm.description"
+                      placeholder="Role description"
+                    />
+                  </div>
+                  <div class="grid gap-2">
+                    <Label>Permissions</Label>
+                    <Input
+                      v-model="editPermissionQueryInput"
+                      placeholder="Search permissions"
+                    />
+                    <div class="max-h-72 overflow-auto rounded-md border p-2">
+                      <div
+                        v-if="filteredEditPermissions.length === 0"
+                        class="text-sm text-muted-foreground"
+                      >
+                        No permissions found.
+                      </div>
+                      <div
+                        v-else
+                        class="grid gap-2"
+                      >
+                        <label
+                          v-for="permission in filteredEditPermissions"
+                          :key="permission.id"
+                          class="flex items-start gap-2 rounded-md px-2 py-1 hover:bg-accent"
+                        >
+                          <input
+                            :checked="editForm.permissionIds.includes(permission.id)"
+                            class="mt-1 h-4 w-4 rounded border border-input bg-background text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            type="checkbox"
+                            @change="toggleEditPermission(permission.id)"
+                          >
+                          <div class="grid">
+                            <span class="text-sm font-medium">
+                              {{ permission.name }}
+                            </span>
+                            <span class="text-xs text-muted-foreground">
+                              {{ permission.description || '-' }}
+                            </span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                :disabled="editLoading || loading"
+                @click="handleEditClose(close)"
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                :disabled="editLoading || loading"
+                @click="submitUpdate(close, refreshList)"
+              >
+                {{ editLoading ? 'Saving...' : 'Save changes' }}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </ResourceList>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>Permissions</CardTitle>
+        <p class="text-sm text-muted-foreground">
+          Permissions are managed by the backend and are read-only here.
+        </p>
+      </CardHeader>
+      <CardContent>
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+          <Input
+            v-model="permissionListQueryInput"
+            placeholder="Search permissions"
+            class="w-56"
+          />
+        </div>
+        <div
+          v-if="error"
+          class="text-sm text-destructive"
+        >
+          Failed to load permissions.
+        </div>
+        <div v-else>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Description</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <template v-if="pending">
+                <TableRow
+                  v-for="index in permissionSkeletonRows"
+                  :key="`permission-table-skeleton-${index}`"
+                >
+                  <TableCell>
+                    <div class="h-4 w-32 rounded bg-muted animate-pulse" />
+                  </TableCell>
+                  <TableCell>
+                    <div class="h-4 w-56 rounded bg-muted/70 animate-pulse" />
+                  </TableCell>
+                </TableRow>
+              </template>
+              <template v-else>
+                <TableRow
+                  v-for="permission in permissions"
+                  :key="permission.id"
+                >
+                  <TableCell>{{ permission.name }}</TableCell>
+                  <TableCell>{{ permission.description }}</TableCell>
+                </TableRow>
+                <TableRow v-if="permissions.length === 0">
+                  <TableCell
+                    colspan="2"
+                    class="text-center text-muted-foreground"
+                  >
+                    No permissions available.
+                  </TableCell>
+                </TableRow>
+              </template>
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+      <CardFooter class="justify-between text-sm">
+        <div class="flex items-center gap-3">
+          <div
+            v-if="permissionPagination"
+            class="text-muted-foreground"
+          >
+            Page {{ permissionPagination.page }} of {{ permissionPagination.last_page }}
+          </div>
+          <SearchableSelect
+            v-model="permissionLimit"
+            :options="permissionLimitOptions"
+            placeholder="Limit"
+            search-placeholder="Search limit"
+            class="w-40"
+          />
+        </div>
+        <div class="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="permissionPage === 1"
+            @click="prevPermissionPage"
+          >
+            Prev
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="!permissionPagination || permissionPage >= permissionPagination.last_page"
+            @click="nextPermissionPage"
+          >
+            Next
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
+  </div>
+
+  <div
+    v-if="createOpen"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+  >
+    <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
+      <div class="flex items-center justify-between">
+        <div class="text-lg font-semibold">
+          Create role
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="createLoading"
+          @click="resetCreate"
+        >
+          Close
+        </Button>
+      </div>
+      <div class="mt-4 grid gap-4">
+        <div class="grid gap-2">
+          <Label for="role-name">Role name</Label>
+          <Input
+            id="role-name"
+            v-model="createForm.name"
+            placeholder="Role name"
+          />
+        </div>
+        <div class="grid gap-2">
+          <Label for="role-description">Description</Label>
+          <Input
+            id="role-description"
+            v-model="createForm.description"
+            placeholder="Role description"
+          />
+        </div>
+        <div class="grid gap-2">
+          <Label>Permissions</Label>
+          <Input
+            v-model="createPermissionQueryInput"
+            placeholder="Search permissions"
+          />
+          <div
+            class="max-h-72 overflow-auto rounded-md border p-2"
+            :class="createPermissionsLoading ? 'pointer-events-none opacity-60' : ''"
+          >
+            <div
+              v-if="createPermissionsLoading"
+              class="grid gap-2"
+            >
+              <div
+                v-for="index in createPermissionSkeletonRows"
+                :key="`permission-skeleton-${index}`"
+                class="flex items-start gap-2 rounded-md px-2 py-1"
+              >
+                <div class="mt-1 h-4 w-4 rounded-sm bg-muted animate-pulse" />
+                <div class="grid gap-1">
+                  <div class="h-4 w-32 rounded bg-muted animate-pulse" />
+                  <div class="h-3 w-44 rounded bg-muted/70 animate-pulse" />
+                </div>
+              </div>
+            </div>
+            <div
+              v-else-if="filteredPermissions.length === 0"
+              class="text-sm text-muted-foreground"
+            >
+              No permissions found.
+            </div>
+            <div
+              v-else
+              class="grid gap-2"
+            >
+              <label
+                v-for="permission in filteredPermissions"
+                :key="permission.id"
+                class="flex items-start gap-2 rounded-md px-2 py-1 hover:bg-accent"
+              >
+                <input
+                  :checked="createForm.permissionIds.includes(permission.id)"
+                  class="mt-1 h-4 w-4 rounded border border-input bg-background text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  type="checkbox"
+                  @change="togglePermission(permission.id)"
+                >
+                <div class="grid">
+                  <span class="text-sm font-medium">
+                    {{ permission.name }}
+                  </span>
+                  <span class="text-xs text-muted-foreground">
+                    {{ permission.description || '-' }}
+                  </span>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div
+            v-if="!createPermissionQuery && createPermissionPagination"
+            class="flex items-center justify-between text-sm"
+          >
+            <div
+              class="text-muted-foreground"
+            >
+              Page {{ createPermissionPagination.page }} of {{ createPermissionPagination.last_page }}
+            </div>
+            <div class="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                :disabled="createPermissionPage === 1"
+                @click="prevCreatePermissionPage"
+              >
+                Prev
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                :disabled="createPermissionPage >= createPermissionPagination.last_page"
+                @click="nextCreatePermissionPage"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="createLoading"
+          @click="resetCreate"
+        >
+          Cancel
+        </Button>
+        <Button
+          size="sm"
+          :disabled="createLoading"
+          @click="submitCreate"
+        >
+          {{ createLoading ? 'Saving...' : 'Create role' }}
+        </Button>
+      </div>
+    </div>
+  </div>
+</template>
