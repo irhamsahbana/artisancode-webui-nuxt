@@ -10,8 +10,9 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 
 const form = reactive({
-  username: '',
+  email: '',
   password: '',
+  tenant_id: '',
 })
 
 const submit = async () => {
@@ -35,43 +36,89 @@ const submit = async () => {
 
 <template>
   <div class="flex min-h-screen items-center justify-center bg-muted/30 px-6">
-    <Card class="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Sign in</CardTitle>
+    <!-- Decorative background elements -->
+    <div class="pointer-events-none fixed inset-0 overflow-hidden">
+      <div class="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
+      <div class="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+    </div>
+
+    <Card class="relative w-full max-w-md shadow-lg">
+      <CardHeader class="space-y-1 text-center">
+        <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">
+          AC
+        </div>
+        <CardTitle class="text-2xl">
+          Welcome back
+        </CardTitle>
         <p class="text-sm text-muted-foreground">
-          Use your API credentials to continue.
+          Sign in to your ArtisanCode account
         </p>
       </CardHeader>
       <CardContent class="space-y-4">
         <div class="space-y-2">
-          <Label>Username</Label>
+          <Label for="login-email">
+            Email
+          </Label>
           <Input
-            v-model="form.username"
-            placeholder="username"
+            id="login-email"
+            v-model="form.email"
+            type="email"
+            placeholder="you@company.com"
+            @keyup.enter="submit"
           />
         </div>
         <div class="space-y-2">
-          <Label>Password</Label>
+          <Label for="login-password">
+            Password
+          </Label>
           <Input
+            id="login-password"
             v-model="form.password"
             type="password"
             placeholder="••••••••"
+            @keyup.enter="submit"
+          />
+        </div>
+        <div class="space-y-2">
+          <Label for="login-tenant-id">
+            Tenant ID
+          </Label>
+          <Input
+            id="login-tenant-id"
+            v-model="form.tenant_id"
+            placeholder="your-tenant-id"
+            @keyup.enter="submit"
           />
         </div>
         <div
           v-if="errorMessage"
-          class="text-sm text-destructive"
+          class="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
         >
           {{ errorMessage }}
         </div>
       </CardContent>
-      <CardFooter class="justify-end">
+      <CardFooter class="flex-col gap-4">
         <Button
+          id="login-submit"
+          class="w-full"
           :disabled="isLoading"
           @click="submit"
         >
+          <span
+            v-if="isLoading"
+            class="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+          />
           {{ isLoading ? 'Signing in...' : 'Sign in' }}
         </Button>
+        <p class="text-center text-sm text-muted-foreground">
+          Don't have an account?
+          <NuxtLink
+            to="/register"
+            class="font-medium text-primary underline-offset-4 transition-colors hover:underline"
+          >
+            Create one
+          </NuxtLink>
+        </p>
       </CardFooter>
     </Card>
   </div>

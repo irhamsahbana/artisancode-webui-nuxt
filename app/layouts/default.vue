@@ -5,7 +5,7 @@ import { useRoute } from '#app'
 defineOptions({ name: 'DefaultLayout' })
 
 const route = useRoute()
-const isAuthPage = computed(() => route.path === '/login')
+const isAuthPage = computed(() => route.path === '/login' || route.path === '/register')
 const { visible, message, variant, hide } = useBanner()
 const theme = useState<'light' | 'dark'>('ui_theme', () => 'light')
 
@@ -119,6 +119,12 @@ watch(theme, () => {
                 to="/resources/branches"
               >
                 Branches
+              </NuxtLink>
+              <NuxtLink
+                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                to="/resources/org-units"
+              >
+                Org Units
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"

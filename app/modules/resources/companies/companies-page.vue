@@ -14,8 +14,8 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
 }
 
 const columns = [
+  { key: 'code', label: 'Code' },
   { key: 'name', label: 'Name' },
-  { key: 'status', label: 'Status' },
   { key: 'created_at', label: 'Created At' },
 ]
 
@@ -28,8 +28,8 @@ const listKey = ref(0)
 const editLoading = ref(false)
 const editId = ref<string | null>(null)
 const editForm = reactive({
+  code: '',
   name: '',
-  status: 'active',
 })
 
 const { apiFetch } = useApi()
@@ -38,8 +38,8 @@ const { show } = useBanner()
 const resetEdit = () => {
   editLoading.value = false
   editId.value = null
+  editForm.code = ''
   editForm.name = ''
-  editForm.status = 'active'
 }
 
 const syncEditForm = (row: Record<string, unknown> | null) => {
@@ -56,9 +56,8 @@ const syncEditForm = (row: Record<string, unknown> | null) => {
     return true
   }
   editId.value = idValue
+  editForm.code = typeof row.code === 'string' ? row.code : ''
   editForm.name = typeof row.name === 'string' ? row.name : ''
-  const status = typeof row.status === 'string' ? row.status : ''
-  editForm.status = statusOptions.includes(status) ? status : 'active'
   return true
 }
 
@@ -72,9 +71,15 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
     show('Name is required.', 'error')
     return
   }
-  const payload: Record<string, unknown> = { name }
-  if (statusOptions.includes(editForm.status)) {
-    payload.status = editForm.status
+  const code = editForm.code.trim()
+  if (!code) {
+    show('Code is required.', 'error')
+    return
+  }
+
+  const payload: Record<string, unknown> = { 
+    code,
+    name,
   }
   editLoading.value = true
   const response = await apiFetch(`/companies/${editId.value}`, {
@@ -100,6 +105,9 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
     loading-variant="skeleton"
     :delete-label-formatter="deleteLabelFormatter"
   >
+    <template #cell:created_at="{ item }">
+      {{ item.created_at ? new Date(item.created_at).toLocaleString() : '-' }}
+    </template>
     <template #detail="{ row, loading, close, refresh: refreshList }">
       <div
         v-if="syncEditForm(row)"
@@ -132,20 +140,20 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
               class="grid gap-4"
             >
               <div class="grid gap-2">
+                <Label for="company-code">Code</Label>
+                <Input
+                  id="company-code"
+                  v-model="editForm.code"
+                  placeholder="Company code"
+                />
+              </div>
+              
+              <div class="grid gap-2">
                 <Label for="company-name">Name</Label>
                 <Input
                   id="company-name"
                   v-model="editForm.name"
                   placeholder="Company name"
-                />
-              </div>
-              <div class="grid gap-2">
-                <Label for="company-status">Status</Label>
-                <SearchableSelect
-                  id="company-status"
-                  v-model="editForm.status"
-                  :options="statusOptionList"
-                  placeholder="Select status"
                 />
               </div>
             </div>
