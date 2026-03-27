@@ -52,21 +52,21 @@ watch(theme, () => {
   <div class="min-h-screen bg-background text-foreground">
     <div
       v-if="visible"
-      class="fixed left-1/2 top-4 z-50 w-[90vw] max-w-2xl -translate-x-1/2 rounded-md border px-4 py-3 text-sm shadow-lg"
-      :class="variant === 'error' ? 'border-destructive bg-destructive text-destructive-foreground' : (variant === 'success' ? 'border-primary bg-primary text-primary-foreground' : 'border-accent bg-accent text-accent-foreground')"
+      class="fixed left-1/2 top-4 z-[100] w-[90vw] max-w-2xl -translate-x-1/2 rounded-md border px-4 py-3 text-sm shadow-lg"
+      :class="variant === 'error' ? 'border-destructive bg-destructive text-white' : (variant === 'success' ? 'border-primary bg-primary text-primary-foreground' : 'border-accent bg-accent text-accent-foreground')"
       role="alert"
     >
       <div class="flex items-center justify-between gap-3">
         <div class="font-medium">
           {{ message }}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
+        <button
+          type="button"
+          class="shrink-0 rounded-md px-2 py-1 text-xs font-medium underline underline-offset-2 hover:opacity-80"
           @click="hide"
         >
           Close
-        </Button>
+        </button>
       </div>
     </div>
     <div
@@ -162,6 +162,20 @@ watch(theme, () => {
                 to="/resources/invoices"
               >
                 Invoices
+              </NuxtLink>
+              <NuxtLink
+                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/org-units') }"
+                to="/resources/org-units"
+              >
+                Organization Units
+              </NuxtLink>
+              <NuxtLink
+                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/work-locations') }"
+                to="/resources/work-locations"
+              >
+                Work Locations
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
