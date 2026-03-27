@@ -90,59 +90,17 @@ const toggleTheme = () => {
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/categories') }"
-                to="/resources/categories"
-              >
-                Categories
-              </NuxtLink>
-              <NuxtLink
-                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/programs') }"
-                to="/resources/programs"
-              >
-                Programs
-              </NuxtLink>
-              <NuxtLink
-                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/students') }"
-                to="/resources/students"
-              >
-                Students
-              </NuxtLink>
-              <NuxtLink
-                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/teachers') }"
-                to="/resources/teachers"
-              >
-                Teachers
-              </NuxtLink>
-              <NuxtLink
-                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/enrollments') }"
-                to="/resources/enrollments"
-              >
-                Enrollments
-              </NuxtLink>
-              <NuxtLink
-                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/invoices') }"
-                to="/resources/invoices"
-              >
-                Invoices
-              </NuxtLink>
-              <NuxtLink
-                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/org-units') }"
-                to="/resources/org-units"
-              >
-                Organization Units
-              </NuxtLink>
-              <NuxtLink
-                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/work-locations') }"
                 to="/resources/work-locations"
               >
                 Work Locations
+              </NuxtLink>
+              <NuxtLink
+                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/work-shifts') }"
+                to="/resources/work-shifts"
+              >
+                Work Shifts
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
