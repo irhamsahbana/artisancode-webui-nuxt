@@ -3,7 +3,7 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
-import { ArrowLeft, Building2, Network } from 'lucide-vue-next'
+import { ArrowLeft, Building2, Network, Settings } from 'lucide-vue-next'
 import TreeView from '~/components/resource/tree-view.vue'
 
 defineOptions({ name: 'CompaniesManagePage' })
@@ -23,8 +23,23 @@ const editForm = reactive({
   name: '',
 })
 
+// Config form state
+const configLoading = ref(false)
+const configForm = reactive({
+  attendance_radius_meters: 50,
+  attendance_check_in_start: '08:00',
+  attendance_check_in_end: '09:00',
+  attendance_check_out_start: '17:00',
+  attendance_check_out_end: '23:59',
+  leave_allowance_annual: 12,
+  overtime_rate_multiplier: 1.5,
+  timezone: 'Asia/Jakarta',
+  date_format: 'YYYY-MM-DD',
+  time_format: 'HH:mm:ss',
+})
+
 // Org tree state
-const activeTab = ref<'edit' | 'orgtree'>('edit')
+const activeTab = ref<'edit' | 'orgtree' | 'config'>('edit')
 const orgTreeLoading = ref(false)
 
 interface TreeNode {
@@ -62,10 +77,22 @@ const categoryHierarchy: Record<string, string[]> = {
 // Load company data
 const loadCompany = async () => {
   pageLoading.value = true
-  const response = await apiFetch<{ code: string; name: string }>(`/companies/${companyId.value}`)
+  const response = await apiFetch<{ code: string; name: string; config: Record<string, unknown> }>(`/companies/${companyId.value}`)
   if (response.success && response.data) {
     editForm.code = response.data.code ?? ''
     editForm.name = response.data.name ?? ''
+    // Populate config form from API response
+    const cfg = response.data.config ?? {}
+    if (cfg.attendance_radius_meters != null) configForm.attendance_radius_meters = Number(cfg.attendance_radius_meters)
+    if (cfg.attendance_check_in_start) configForm.attendance_check_in_start = String(cfg.attendance_check_in_start)
+    if (cfg.attendance_check_in_end) configForm.attendance_check_in_end = String(cfg.attendance_check_in_end)
+    if (cfg.attendance_check_out_start) configForm.attendance_check_out_start = String(cfg.attendance_check_out_start)
+    if (cfg.attendance_check_out_end) configForm.attendance_check_out_end = String(cfg.attendance_check_out_end)
+    if (cfg.leave_allowance_annual != null) configForm.leave_allowance_annual = Number(cfg.leave_allowance_annual)
+    if (cfg.overtime_rate_multiplier != null) configForm.overtime_rate_multiplier = Number(cfg.overtime_rate_multiplier)
+    if (cfg.timezone) configForm.timezone = String(cfg.timezone)
+    if (cfg.date_format) configForm.date_format = String(cfg.date_format)
+    if (cfg.time_format) configForm.time_format = String(cfg.time_format)
   }
   pageLoading.value = false
 }
@@ -194,6 +221,23 @@ const submitOrgUnit = async () => {
   }
 }
 
+// Submit config form
+const submitConfig = async () => {
+  configLoading.value = true
+  const response = await apiFetch(`/companies/${companyId.value}`, {
+    method: 'PUT',
+    body: {
+      code: editForm.code,
+      name: editForm.name,
+      config: { ...configForm },
+    },
+  })
+  configLoading.value = false
+  if (response.success) {
+    show('Company configuration updated.', 'success')
+  }
+}
+
 // Submit edit form
 const submitEdit = async () => {
   const name = editForm.name.trim()
@@ -267,6 +311,14 @@ onMounted(async () => {
         <Network class="mr-2 h-4 w-4" />
         Organization Structure
       </Button>
+      <Button
+        :variant="activeTab === 'config' ? 'default' : 'ghost'"
+        size="sm"
+        @click="activeTab = 'config'"
+      >
+        <Settings class="mr-2 h-4 w-4" />
+        Configuration
+      </Button>
     </div>
 
     <!-- Loading -->
@@ -315,6 +367,144 @@ onMounted(async () => {
             @click="submitEdit"
           >
             {{ editLoading ? 'Saving...' : 'Save changes' }}
+          </Button>
+        </CardFooter>
+      </Card>
+
+      <!-- Config Tab -->
+      <Card v-if="activeTab === 'config'">
+        <CardHeader>
+          <CardTitle>Company Configuration</CardTitle>
+        </CardHeader>
+        <CardContent class="grid gap-6">
+          <!-- Attendance Settings -->
+          <div>
+            <h3 class="text-sm font-semibold mb-3">
+              Attendance
+            </h3>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="grid gap-2">
+                <Label for="cfg-radius">Attendance Radius (meters)</Label>
+                <Input
+                  id="cfg-radius"
+                  v-model.number="configForm.attendance_radius_meters"
+                  type="number"
+                  min="0"
+                  placeholder="50"
+                />
+              </div>
+              <div class="grid gap-2">
+                <Label for="cfg-leave">Leave Allowance (days/year)</Label>
+                <Input
+                  id="cfg-leave"
+                  v-model.number="configForm.leave_allowance_annual"
+                  type="number"
+                  min="0"
+                  placeholder="12"
+                />
+              </div>
+              <div class="grid gap-2">
+                <Label for="cfg-checkin-start">Check-in Start</Label>
+                <Input
+                  id="cfg-checkin-start"
+                  v-model="configForm.attendance_check_in_start"
+                  type="time"
+                />
+              </div>
+              <div class="grid gap-2">
+                <Label for="cfg-checkin-end">Check-in End</Label>
+                <Input
+                  id="cfg-checkin-end"
+                  v-model="configForm.attendance_check_in_end"
+                  type="time"
+                />
+              </div>
+              <div class="grid gap-2">
+                <Label for="cfg-checkout-start">Check-out Start</Label>
+                <Input
+                  id="cfg-checkout-start"
+                  v-model="configForm.attendance_check_out_start"
+                  type="time"
+                />
+              </div>
+              <div class="grid gap-2">
+                <Label for="cfg-checkout-end">Check-out End</Label>
+                <Input
+                  id="cfg-checkout-end"
+                  v-model="configForm.attendance_check_out_end"
+                  type="time"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Overtime Settings -->
+          <div>
+            <h3 class="text-sm font-semibold mb-3">
+              Overtime
+            </h3>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="grid gap-2">
+                <Label for="cfg-overtime">Overtime Rate Multiplier</Label>
+                <Input
+                  id="cfg-overtime"
+                  v-model.number="configForm.overtime_rate_multiplier"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  placeholder="1.5"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Locale Settings -->
+          <div>
+            <h3 class="text-sm font-semibold mb-3">
+              Locale
+            </h3>
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div class="grid gap-2">
+                <Label for="cfg-timezone">Timezone</Label>
+                <Input
+                  id="cfg-timezone"
+                  v-model="configForm.timezone"
+                  placeholder="Asia/Jakarta"
+                />
+              </div>
+              <div class="grid gap-2">
+                <Label for="cfg-date-format">Date Format</Label>
+                <Input
+                  id="cfg-date-format"
+                  v-model="configForm.date_format"
+                  placeholder="YYYY-MM-DD"
+                />
+              </div>
+              <div class="grid gap-2">
+                <Label for="cfg-time-format">Time Format</Label>
+                <Input
+                  id="cfg-time-format"
+                  v-model="configForm.time_format"
+                  placeholder="HH:mm:ss"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter class="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            @click="activeTab = 'edit'"
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            :disabled="configLoading"
+            @click="submitConfig"
+          >
+            {{ configLoading ? 'Saving...' : 'Save configuration' }}
           </Button>
         </CardFooter>
       </Card>

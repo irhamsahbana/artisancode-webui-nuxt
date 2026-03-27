@@ -123,13 +123,6 @@ watch(theme, () => {
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/branches') }"
-                to="/resources/branches"
-              >
-                Branches
-              </NuxtLink>
-              <NuxtLink
-                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/categories') }"
                 to="/resources/categories"
               >
