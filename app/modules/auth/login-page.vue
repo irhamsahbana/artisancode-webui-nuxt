@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { navigateTo } from '#app'
 import { useAuth } from '~/composables/useAuth'
 
@@ -12,7 +12,17 @@ const errorMessage = ref('')
 const form = reactive({
   email: '',
   password: '',
-  tenant_id: '',
+  tenant_code: '',
+})
+
+// Ensure tenant code is always uppercase alphanumeric
+watch(() => form.tenant_code, (newVal) => {
+  const cleaned = newVal
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+  if (cleaned !== newVal) {
+    form.tenant_code = cleaned
+  }
 })
 
 const submit = async () => {
@@ -80,15 +90,19 @@ const submit = async () => {
           />
         </div>
         <div class="space-y-2">
-          <Label for="login-tenant-id">
-            Tenant ID
+          <Label for="login-tenant-code">
+            Tenant Code
           </Label>
           <Input
-            id="login-tenant-id"
-            v-model="form.tenant_id"
-            placeholder="your-tenant-id"
+            id="login-tenant-code"
+            v-model="form.tenant_code"
+            placeholder="your tenant code"
+            maxlength="5"
             @keyup.enter="submit"
           />
+          <p class="text-xs text-muted-foreground">
+            Maximum 5 characters, case insensitive
+          </p>
         </div>
         <div
           v-if="errorMessage"

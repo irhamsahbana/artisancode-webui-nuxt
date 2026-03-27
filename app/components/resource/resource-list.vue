@@ -148,6 +148,27 @@ const formatValue = (value: unknown) => {
   if (value === null || value === undefined) {
     return '-'
   }
+  
+  // Auto format ISO 8601 datetime strings to local timezone
+  if (typeof value === 'string') {
+    // Check if string matches ISO datetime format (with T and Z, including microseconds)
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(value)) {
+      try {
+        return new Date(value).toLocaleString('id-ID', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      } catch {
+        // Fallback to original string if date parsing fails
+        return value
+      }
+    }
+    return value
+  }
+  
   if (typeof value === 'object') {
     try {
       return JSON.stringify(value)
@@ -155,6 +176,7 @@ const formatValue = (value: unknown) => {
       return String(value)
     }
   }
+  
   return String(value)
 }
 
@@ -215,6 +237,16 @@ const openDetail = async (row: Record<string, unknown>) => {
   }
   const idString = String(id)
   const basePath = getBasePath()
+
+  // When no detail slot is provided, always navigate to a separate page
+  // (page-based navigation). Never open a modal.
+  if (!hasDetailSlot.value) {
+    await router.push(`${basePath}/${idString}`)
+    return
+  }
+
+  // When a detail slot is provided, use the modal pattern:
+  // push route if not already there, then load data into the modal.
   if (getRouteId() !== idString) {
     await router.push(`${basePath}/${idString}`)
     return
@@ -305,6 +337,13 @@ watch(
     if (!import.meta.client) {
       return
     }
+
+    // When no detail slot is provided, skip modal handling entirely.
+    // Navigation to detail pages is handled by openDetail() directly.
+    if (!hasDetailSlot.value) {
+      return
+    }
+
     const idParam = typeof value === 'string' ? value : null
     if (idParam) {
       if (detailId.value !== idParam) {
@@ -428,12 +467,13 @@ watch(
           @delete="requestDelete"
           @selection-change="updateSelection"
         >
+          <!-- Pass through all custom cell slots -->
           <template
-            v-if="hasRowActions"
-            #row-actions="slotProps"
+            v-for="(_, name) in $slots"
+            #[name]="slotProps"
           >
             <slot
-              name="row-actions"
+              :name="name"
               v-bind="slotProps"
             />
           </template>

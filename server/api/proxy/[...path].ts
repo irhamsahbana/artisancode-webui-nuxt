@@ -17,14 +17,49 @@ export default defineEventHandler(async (event) => {
   const base = config.apiBase.endsWith('/') ? config.apiBase.slice(0, -1) : config.apiBase
   const url = `${base}/${path}`
 
-  const response = await $fetch.raw(url, {
-    method,
-    query,
-    body,
-    headers,
-    ignoreResponseError: true,
-  })
+  try {
+    const response = await $fetch.raw(url, {
+      method,
+      query,
+      body,
+      headers,
+      ignoreResponseError: true,
+    })
 
-  setResponseStatus(event, response.status)
-  return response._data
+    setResponseStatus(event, response.status)
+    return response._data
+  }
+  catch (error: unknown) {
+    // Walk the cause chain to detect ECONNREFUSED
+    // ofetch wraps the original TypeError in a FetchError
+    let isConnectionError = false
+    let cause: unknown = error
+    while (cause) {
+      const err = cause as NodeJS.ErrnoException
+      if (err?.code === 'ECONNREFUSED') {
+        isConnectionError = true
+        break
+      }
+      cause = err?.cause
+    }
+
+    const status = isConnectionError ? 502 : 500
+    const message = isConnectionError
+      ? 'Backend service is unavailable. Please try again later.'
+      : 'An unexpected error occurred while contacting the backend service.'
+
+    // Use console.warn so Nitro doesn't show it as a loud ERROR
+    console.warn(
+      `[proxy] ${method} ${url} failed:`,
+      isConnectionError ? 'ECONNREFUSED' : (error instanceof Error ? error.message : error),
+    )
+
+    setResponseStatus(event, status)
+    return {
+      success: false,
+      message,
+      data: null,
+      errors: null,
+    }
+  }
 })

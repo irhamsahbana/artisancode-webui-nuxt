@@ -6,7 +6,7 @@ import { useApi } from './useApi'
 type LoginPayload = {
   email: string
   password: string
-  tenant_id: string
+  tenant_code: string
 }
 
 type RegisterPayload = {

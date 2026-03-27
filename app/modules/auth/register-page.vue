@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, watch } from 'vue'
 import { navigateTo } from '#app'
 import { useAuth } from '~/composables/useAuth'
 
@@ -16,6 +16,16 @@ const form = reactive({
   password: '',
   tenant_code: '',
   tenant_name: '',
+})
+
+// Ensure tenant code is always uppercase alphanumeric
+watch(() => form.tenant_code, (newVal) => {
+  const cleaned = newVal
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+  if (cleaned !== newVal) {
+    form.tenant_code = cleaned
+  }
 })
 
 // Client-side password strength feedback
@@ -111,8 +121,12 @@ const submit = async () => {
               <Input
                 id="register-tenant-code"
                 v-model="form.tenant_code"
-                placeholder="my-company"
+                placeholder="MYCOMP"
+                maxlength="5"
               />
+              <p class="text-xs text-muted-foreground">
+                Maximum 5 characters, uppercase letters and numbers only
+              </p>
             </div>
           </div>
         </div>

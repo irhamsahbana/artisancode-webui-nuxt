@@ -44,6 +44,40 @@ const allSelected = computed(
   () => rowKeys.value.length > 0 && rowKeys.value.every((key) => selectedKeys.value.has(key)),
 )
 
+const formatCellValue = (value: unknown) => {
+  if (value === null || value === undefined) {
+    return '-'
+  }
+  
+  // Auto format ISO 8601 datetime strings to local timezone
+  if (typeof value === 'string') {
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(value)) {
+      try {
+        return new Date(value).toLocaleString('id-ID', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      } catch {
+        return value
+      }
+    }
+    return value
+  }
+  
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value)
+    } catch {
+      return String(value)
+    }
+  }
+  
+  return String(value)
+}
+
 const getRowKey = (row: Record<string, unknown>, index: number) => {
   const id = row.id ?? row.uuid ?? row.code
   if (typeof id === 'string' || typeof id === 'number') {
@@ -226,7 +260,7 @@ watch(
             {{ column.format(row[column.key], row) }}
           </span>
           <span v-else>
-            {{ row[column.key] }}
+            {{ formatCellValue(row[column.key]) }}
           </span>
         </TableCell>
         <TableCell
@@ -252,7 +286,7 @@ watch(
                 class="w-full rounded px-3 py-2 text-left hover:bg-accent"
                 @click="viewDetail(row)"
               >
-                View detail
+                Manage
               </button>
               <slot
                 name="row-actions"
