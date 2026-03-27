@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { useRoute } from '#app'
-
 defineOptions({ name: 'DefaultLayout' })
 
 const route = useRoute()
@@ -11,41 +8,11 @@ const isAuthPage = computed(() => route.path === '/login' || route.path === '/re
 const isActive = (path: string) => route.path === path || route.path.startsWith(path + '/')
 
 const { visible, message, variant, hide } = useBanner()
-const theme = useState<'light' | 'dark'>('ui_theme', () => 'light')
-
-const applyTheme = () => {
-  if (!import.meta.client) {
-    return
-  }
-  const root = document.documentElement
-  if (theme.value === 'dark') {
-    root.classList.add('dark')
-  } else {
-    root.classList.remove('dark')
-  }
-  localStorage.setItem('ui_theme', theme.value)
-}
+const colorMode = useColorMode()
 
 const toggleTheme = () => {
-  theme.value = theme.value === 'dark' ? 'light' : 'dark'
+  colorMode.preference = colorMode.preference === 'dark' ? 'light' : 'dark'
 }
-
-onMounted(() => {
-  if (!import.meta.client) {
-    return
-  }
-  const stored = localStorage.getItem('ui_theme')
-  if (stored === 'light' || stored === 'dark') {
-    theme.value = stored
-  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    theme.value = 'dark'
-  }
-  applyTheme()
-})
-
-watch(theme, () => {
-  applyTheme()
-})
 </script>
 
 <template>
@@ -207,7 +174,7 @@ watch(theme, () => {
                   size="sm"
                   @click="toggleTheme"
                 >
-                  {{ theme === 'dark' ? 'Light' : 'Dark' }}
+                  {{ colorMode.preference === 'dark' ? 'Light' : 'Dark' }}
                 </Button>
                 <div class="md:hidden">
                   <AuthMenu />
