@@ -404,123 +404,131 @@ watch(
         </div>
       </div>
     </CardHeader>
-    <CardContent>
-      <div
-        v-if="error"
-        class="text-sm text-destructive"
-      >
-        Failed to load data.
-      </div>
-      <div v-else>
-        <div v-if="pending">
-          <Table v-if="props.loadingVariant === 'skeleton'">
-            <TableHeader>
-              <TableRow>
-                <TableHead
-                  v-for="column in columns"
-                  :key="column.key"
+    <ClientOnly>
+      <CardContent>
+        <div
+          v-if="error"
+          class="text-sm text-destructive"
+        >
+          Failed to load data.
+        </div>
+        <div v-else>
+          <div v-if="pending">
+            <Table v-if="props.loadingVariant === 'skeleton'">
+              <TableHeader>
+                <TableRow>
+                  <TableHead
+                    v-for="column in columns"
+                    :key="column.key"
+                  >
+                    {{ column.label }}
+                  </TableHead>
+                  <TableHead
+                    v-if="props.canViewDetail || props.canDelete"
+                    class="w-10 text-right"
+                  >
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow
+                  v-for="index in skeletonRows"
+                  :key="`resource-skeleton-${index}`"
                 >
-                  {{ column.label }}
-                </TableHead>
-                <TableHead
-                  v-if="props.canViewDetail || props.canDelete"
-                  class="w-10 text-right"
-                >
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow
-                v-for="index in skeletonRows"
-                :key="`resource-skeleton-${index}`"
-              >
-                <TableCell
-                  v-for="column in columns"
-                  :key="`resource-skeleton-cell-${column.key}-${index}`"
-                >
-                  <div
-                    class="h-4 rounded bg-muted animate-pulse"
-                    :class="column.key === 'description' ? 'w-48' : 'w-32'"
-                  />
-                </TableCell>
-                <TableCell v-if="props.canViewDetail || props.canDelete">
-                  <div class="ml-auto h-4 w-8 rounded bg-muted animate-pulse" />
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-          <div
+                  <TableCell
+                    v-for="column in columns"
+                    :key="`resource-skeleton-cell-${column.key}-${index}`"
+                  >
+                    <div
+                      class="h-4 rounded bg-muted animate-pulse"
+                      :class="column.key === 'description' ? 'w-48' : 'w-32'"
+                    />
+                  </TableCell>
+                  <TableCell v-if="props.canViewDetail || props.canDelete">
+                    <div class="ml-auto h-4 w-8 rounded bg-muted animate-pulse" />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+            <div
+              v-else
+              class="text-sm text-muted-foreground"
+            >
+              Loading...
+            </div>
+          </div>
+          <ResourceTable
             v-else
-            class="text-sm text-muted-foreground"
+            :columns="columns"
+            :rows="rows"
+            :can-view-detail="props.canViewDetail"
+            :can-delete="props.canDelete"
+            @view="openDetail"
+            @delete="requestDelete"
+            @selection-change="updateSelection"
           >
-            Loading...
+            <template
+              v-for="(_, name) in $slots"
+              #[name]="slotProps"
+            >
+              <slot
+                :name="name"
+                v-bind="slotProps"
+              />
+            </template>
+          </ResourceTable>
+        </div>
+      </CardContent>
+      <CardFooter class="flex flex-wrap items-center justify-between gap-4 text-sm">
+        <div class="text-muted-foreground">
+          {{ selectedCount }} of {{ rows.length }} row(s) selected
+        </div>
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex items-center gap-2">
+            <span class="text-muted-foreground">Rows per page</span>
+            <SearchableSelect
+              v-model="query.limit"
+              :options="limitOptionList"
+              placeholder="Limit"
+              search-placeholder="Search limit"
+              class="w-32"
+            />
+          </div>
+          <div
+            v-if="pagination"
+            class="text-muted-foreground"
+          >
+            Page {{ pagination.page }} of {{ pagination.last_page }}
+          </div>
+          <div class="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              :disabled="query.page === 1"
+              @click="prevPage"
+            >
+              Prev
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              :disabled="!pagination || query.page >= pagination.last_page"
+              @click="nextPage"
+            >
+              Next
+            </Button>
           </div>
         </div>
-        <ResourceTable
-          v-else
-          :columns="columns"
-          :rows="rows"
-          :can-view-detail="props.canViewDetail"
-          :can-delete="props.canDelete"
-          @view="openDetail"
-          @delete="requestDelete"
-          @selection-change="updateSelection"
-        >
-          <!-- Pass through all custom cell slots -->
-          <template
-            v-for="(_, name) in $slots"
-            #[name]="slotProps"
-          >
-            <slot
-              :name="name"
-              v-bind="slotProps"
-            />
-          </template>
-        </ResourceTable>
-      </div>
-    </CardContent>
-    <CardFooter class="flex flex-wrap items-center justify-between gap-4 text-sm">
-      <div class="text-muted-foreground">
-        {{ selectedCount }} of {{ rows.length }} row(s) selected
-      </div>
-      <div class="flex flex-wrap items-center gap-4">
-        <div class="flex items-center gap-2">
-          <span class="text-muted-foreground">Rows per page</span>
-          <SearchableSelect
-            v-model="query.limit"
-            :options="limitOptionList"
-            placeholder="Limit"
-            search-placeholder="Search limit"
-            class="w-32"
-          />
-        </div>
-        <div
-          v-if="pagination"
-          class="text-muted-foreground"
-        >
-          Page {{ pagination.page }} of {{ pagination.last_page }}
-        </div>
-        <div class="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            :disabled="query.page === 1"
-            @click="prevPage"
-          >
-            Prev
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            :disabled="!pagination || query.page >= pagination.last_page"
-            @click="nextPage"
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    </CardFooter>
+      </CardFooter>
+      <template #fallback>
+        <CardContent>
+          <div class="text-sm text-muted-foreground">
+            Loading...
+          </div>
+        </CardContent>
+      </template>
+    </ClientOnly>
   </Card>
   <slot
     v-if="detailOpen && hasDetailSlot"

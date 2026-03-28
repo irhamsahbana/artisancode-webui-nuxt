@@ -9,7 +9,7 @@ This document outlines how the AI Agent should handle git commits. The primary g
    - Do not assume; verify exactly what was modified, added, or deleted.
 
 2. **Determine Scope**:
-   - Identify which part of the codebase is affected (e.g., `ui`, `pages`, `components`, `docs`).
+   - Identify which part of the codebase is affected (e.g., `auth`, `layout`, `resources`, `components`, `docs`).
    - If changes span multiple distinct areas, consider splitting them into separate commits if possible, or use a broader scope/description.
 
 3. **Format Message**:
@@ -31,7 +31,15 @@ This document outlines how the AI Agent should handle git commits. The primary g
 ### Scope
 - The scope provides additional context to the commit type.
 - It should be a noun describing a section of the codebase.
-- Examples: `ui`, `pages`, `components`, `deps`.
+- Common scopes in this repo:
+  - `auth`
+  - `layout`
+  - `resources`
+  - `components`
+  - `proxy`
+  - `types`
+  - `docs`
+  - `deps`
 
 ### Description
 - Use the imperative, present tense: "change" not "changed" nor "changes".
@@ -40,9 +48,10 @@ This document outlines how the AI Agent should handle git commits. The primary g
 
 ## Examples
 
-- **Good**: `feat(ui): add top navigation`
-- **Good**: `fix(pages): resolve hydration mismatch`
-- **Good**: `docs(readme): update installation instructions`
+- **Good**: `feat(resources): add attendance logs page`
+- **Good**: `fix(components): resolve resource table menu error`
+- **Good**: `fix(layout): prevent hydration mismatch on resource pages`
+- **Good**: `docs(architecture): update resource page patterns`
 - **Good**: `chore(deps): upgrade nuxt`
 
 - **Bad**: `Fixed the login bug`
@@ -52,3 +61,4 @@ This document outlines how the AI Agent should handle git commits. The primary g
 ## Auto-Commit Behavior
 - When the user asks to "commit", apply these rules automatically.
 - Ensure the commit message is derived strictly from the **staged changes**.
+- If both docs and product code changed, prefer separate commits when the documentation update is independently meaningful.

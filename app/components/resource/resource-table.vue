@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useSlots, watch, type ComponentPublicInstance } from 'vue'
 
 type Column = {
   key: string
@@ -35,8 +35,8 @@ const slots = useSlots()
 const hasCustomActions = computed(() => Boolean(slots['row-actions']))
 const openMenuKey = ref<string | number | null>(null)
 const menuPosition = ref<{ top: number; left: number } | null>(null)
-const menuRef = ref<HTMLElement | null>(null)
-const menuAnchorRef = ref<HTMLElement | null>(null)
+const menuRefs = ref<Record<string, HTMLElement | null>>({})
+const menuAnchorRefs = ref<Record<string, HTMLElement | null>>({})
 const hasActions = computed(() => props.canViewDetail || props.canDelete || hasCustomActions.value)
 const selectedKeys = ref<Set<string | number>>(new Set())
 const rowKeys = computed(() => resolvedRows.value.map((row, index) => getRowKey(row, index)))
@@ -117,7 +117,24 @@ const toggleRow = (key: string | number) => {
 const closeMenu = () => {
   openMenuKey.value = null
   menuPosition.value = null
-  menuAnchorRef.value = null
+}
+
+const resolveElement = (element: Element | ComponentPublicInstance | null) => {
+  if (element instanceof HTMLElement) {
+    return element
+  }
+  if (element && '$el' in element && element.$el instanceof HTMLElement) {
+    return element.$el
+  }
+  return null
+}
+
+const setMenuRef = (key: string | number, element: Element | ComponentPublicInstance | null) => {
+  menuRefs.value[String(key)] = resolveElement(element)
+}
+
+const setMenuAnchorRef = (key: string | number, element: Element | ComponentPublicInstance | null) => {
+  menuAnchorRefs.value[String(key)] = resolveElement(element)
 }
 
 const toggleMenu = (key: string | number, event: MouseEvent) => {
@@ -129,10 +146,10 @@ const toggleMenu = (key: string | number, event: MouseEvent) => {
   if (!(target instanceof HTMLElement) || !import.meta.client) {
     openMenuKey.value = key
     menuPosition.value = null
-    menuAnchorRef.value = null
+    setMenuAnchorRef(key, null)
     return
   }
-  menuAnchorRef.value = target
+  setMenuAnchorRef(key, target)
   const rect = target.getBoundingClientRect()
   const optionCount =
     (props.canViewDetail ? 1 : 0)
@@ -172,11 +189,12 @@ const handleClickOutside = (event: MouseEvent) => {
     return
   }
   const target = event.target as Node
-  const menuEl = menuRef.value
+  const activeKey = String(openMenuKey.value)
+  const menuEl = menuRefs.value[activeKey]
   if (menuEl && menuEl.contains(target)) {
     return
   }
-  const buttonEl = menuAnchorRef.value
+  const buttonEl = menuAnchorRefs.value[activeKey]
   if (buttonEl && buttonEl.contains(target)) {
     return
   }
@@ -270,6 +288,7 @@ watch(
           <Button
             variant="ghost"
             size="sm"
+            :ref="(el) => setMenuAnchorRef(getRowKey(row, index), el)"
             @click="toggleMenu(getRowKey(row, index), $event)"
           >
             ⋯
@@ -277,7 +296,7 @@ watch(
           <Teleport to="body">
             <div
               v-if="openMenuKey === getRowKey(row, index) && menuPosition"
-              ref="menuRef"
+              :ref="(el) => setMenuRef(getRowKey(row, index), el)"
               class="fixed z-50 w-40 rounded-md border bg-popover p-1 text-sm shadow-md"
               :style="{ top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }"
             >

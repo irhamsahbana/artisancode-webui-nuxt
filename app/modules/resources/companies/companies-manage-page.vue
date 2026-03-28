@@ -38,6 +38,14 @@ const configForm = reactive({
   time_format: 'HH:mm:ss',
 })
 
+const updateConfigNumber = (
+  key: 'attendance_radius_meters' | 'leave_allowance_annual' | 'overtime_rate_multiplier',
+  value: string | number,
+) => {
+  const nextValue = Number(value)
+  configForm[key] = Number.isFinite(nextValue) ? nextValue : 0
+}
+
 // Org tree state
 const activeTab = ref<'edit' | 'orgtree' | 'config'>('edit')
 const orgTreeLoading = ref(false)
@@ -387,20 +395,22 @@ onMounted(async () => {
                 <Label for="cfg-radius">Attendance Radius (meters)</Label>
                 <Input
                   id="cfg-radius"
-                  v-model.number="configForm.attendance_radius_meters"
+                  :model-value="String(configForm.attendance_radius_meters)"
                   type="number"
                   min="0"
                   placeholder="50"
+                  @update:model-value="updateConfigNumber('attendance_radius_meters', $event)"
                 />
               </div>
               <div class="grid gap-2">
                 <Label for="cfg-leave">Leave Allowance (days/year)</Label>
                 <Input
                   id="cfg-leave"
-                  v-model.number="configForm.leave_allowance_annual"
+                  :model-value="String(configForm.leave_allowance_annual)"
                   type="number"
                   min="0"
                   placeholder="12"
+                  @update:model-value="updateConfigNumber('leave_allowance_annual', $event)"
                 />
               </div>
               <div class="grid gap-2">
@@ -448,11 +458,12 @@ onMounted(async () => {
                 <Label for="cfg-overtime">Overtime Rate Multiplier</Label>
                 <Input
                   id="cfg-overtime"
-                  v-model.number="configForm.overtime_rate_multiplier"
+                  :model-value="String(configForm.overtime_rate_multiplier)"
                   type="number"
                   min="0"
                   step="0.1"
                   placeholder="1.5"
+                  @update:model-value="updateConfigNumber('overtime_rate_multiplier', $event)"
                 />
               </div>
             </div>

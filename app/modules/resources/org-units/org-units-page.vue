@@ -175,7 +175,9 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
         <Button
           size="sm"
           :disabled="createLoading"
-          @click="submitCreate(() => { listKey++; return Promise.resolve(); })"
+          @click="submitCreate(async () => {
+            listKey++
+          })"
         >
           {{ createLoading ? 'Creating...' : 'Create' }}
         </Button>

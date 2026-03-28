@@ -22,6 +22,11 @@ const categoryOptionList = categoryOptions.map((category) => ({
 const parentOptions = ref<{ value: string, label: string }[]>([])
 const loading = ref(false)
 const saveLoading = ref(false)
+type OrgUnitDetail = {
+  name?: string
+  category?: string
+  parent_id?: string | null
+}
 const editForm = reactive({
   name: '',
   category: 'company',
@@ -44,11 +49,11 @@ const fetchParentOptions = async () => {
 const fetchOrgUnit = async () => {
   loading.value = true
 
-  const response = await apiFetch(`/org-units/${orgUnitId.value}`)
+  const response = await apiFetch<OrgUnitDetail>(`/org-units/${orgUnitId.value}`)
 
   if (response.success && response.data) {
     editForm.name = response.data.name ?? ''
-    editForm.category = categoryOptions.includes(response.data.category)
+    editForm.category = response.data.category && categoryOptions.includes(response.data.category)
       ? response.data.category
       : 'company'
     editForm.parent_id = response.data.parent_id ?? ''

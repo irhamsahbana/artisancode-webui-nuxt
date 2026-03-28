@@ -1,54 +1,91 @@
-# User Preferences
+# Web UI Agent Guide
+
+## Core Expectations
 
 - Be objective and truthful, even if it may be difficult to hear.
 - When editing files, always use absolute paths.
 - When making changes to a file, explain why the change is being made.
 - When generating code, add comments in English.
-- **Shell & Package Manager**:
-  - Use `fish` (preferred) or `bash` for shell commands.
-  - Use `pnpm` for package management (installing dependencies).
-  - **Running the App**: Use `pnpm dev` for local development, `pnpm build` for production builds, and `pnpm preview` for local previews.
-- **UI System**:
-  - Use shadcn/ui patterns with Tailwind CSS utilities.
-  - Reuse components under `app/components/` before creating new ones.
-  - Keep shared classnames in `app/utils/utils.ts` via the `cn` helper.
-- **Tech Stack**:
-  - Nuxt 4 + Vue 3 + TypeScript + Tailwind CSS are the primary UI stack.
-  - Prefer existing utilities/composables over adding new dependencies.
-- **App Structure**:
-  - Use the Nuxt 4 `app/` directory for pages, components, composables, middleware, assets, and modules.
-  - Place feature logic under `app/modules/` and keep `app/pages/` as thin route wrappers.
-  - Centralize shared `.types.ts` under `app/types/`.
-  - The `~` alias points to the `app/` root; avoid `~/app/...` to prevent double paths.
-  - Prefer `~` alias imports over `../` relative imports inside `app/` to avoid deep relative paths.
-- **Component Auto-Registration**:
-  - Nuxt config uses `pathPrefix: false` for components, meaning the directory prefix is **not** included in the component name.
-  - `app/components/ui/searchable-select.vue` → `<SearchableSelect>` (NOT `<UiSearchableSelect>`)
-  - `app/components/ui/button.vue` → `<Button>`
-  - `app/components/searchable-tree-select.vue` → `<SearchableTreeSelect>`
-  - `app/components/resource/resource-list.vue` → `<ResourceList>`
-  - Always use the **filename only** (PascalCase) as the component tag.
-- **Module Page Pattern**:
-  - Each resource page follows: `app/modules/resources/{resource-name}/{resource-name}-page.vue`
-  - Route file is a thin wrapper: `app/pages/resources/{resource-name}.vue`
-  - Example: `app/modules/resources/employees/employees-page.vue` + `app/pages/resources/employees.vue`
-- **Reusable Components**:
-  - `SearchableSelect` — searchable flat dropdown for simple key-value options
-  - `SearchableTreeSelect` — searchable hierarchical tree dropdown (for org units with `parent_id`)
-  - `ResourceList` — generic CRUD list with pagination, search, and delete support
-- **Composables**:
-  - `useApi` — wrapper for API calls with auth token (`apiFetch`)
-  - `useAuth` — authentication state and login/logout
-  - `useBanner` — toast-style notification banner (`show`, `hide`)
-- **Documentation Maintenance**:
-  - The AI agent is authorized to update `docs/` files to keep them accurate.
-  - **Protocol**:
-    1. **Inform**: When making documentation changes, explicitly mention them in the final response.
-    2. **Suggest**: If the AI detects that the codebase patterns (e.g., new folder structure, new library) deviate from the existing docs, it must proactively suggest updating the relevant documentation file.
 
-# Quick Summary
+## Shell And Commands
 
-- **Framework**: Nuxt 4 (Vue 3)
-- **UI**: shadcn/ui + Tailwind CSS
-- **Component Registration**: `pathPrefix: false` — use filename as tag name (e.g., `<SearchableSelect>`)
-- **Module Pattern**: Feature logic in `app/modules/`, thin route wrappers in `app/pages/`
+- Use `fish` (preferred) or `bash` for shell commands.
+- Use `pnpm` for package management.
+- Common commands:
+  - `pnpm dev`
+  - `pnpm build`
+  - `pnpm preview`
+  - `pnpm lint`
+  - `pnpm exec nuxi typecheck`
+
+## Stack And Structure
+
+- Primary stack: Nuxt 4, Vue 3, TypeScript, Tailwind CSS.
+- Use the Nuxt `app/` directory for pages, components, composables, middleware, assets, and modules.
+- Place feature logic under `app/modules/`.
+- Keep `app/pages/` as thin route wrappers whenever possible.
+- Centralize shared types under `app/types/` when they are reused across features.
+- The `~` alias points to the `app/` root. Avoid `~/app/...`.
+- Prefer `~` imports over deep relative imports inside `app/`.
+
+## UI System
+
+- Use the existing shadcn-style component patterns with Tailwind utilities.
+- Reuse components under `app/components/` before creating new ones.
+- Keep shared class composition in `app/utils/utils.ts` via `cn` when class merging is needed.
+- Prefer utility-first styling. Add scoped CSS only when Tailwind utilities are not enough.
+
+## Component Registration
+
+- Nuxt config uses `pathPrefix: false`.
+- Always use the filename only as the PascalCase component tag.
+- Examples:
+  - `app/components/ui/button.vue` -> `<Button>`
+  - `app/components/ui/input.vue` -> `<Input>`
+  - `app/components/ui/searchable-select.vue` -> `<SearchableSelect>`
+  - `app/components/searchable-tree-select.vue` -> `<SearchableTreeSelect>`
+  - `app/components/resource/resource-list.vue` -> `<ResourceList>`
+
+## Resource Page Patterns
+
+- Standard list page:
+  - module file: `app/modules/resources/{resource-name}/{resource-name}-page.vue`
+  - route wrapper: `app/pages/resources/{resource-name}.vue`
+- The repo also uses explicit detail/manage pages when needed:
+  - `app/pages/resources/companies/[id].vue` -> `companies-manage-page.vue`
+  - `app/pages/resources/org-units/[id].vue` -> `org-unit-detail-page.vue`
+  - `app/pages/resources/students/[id].vue` -> `student-detail-page.vue`
+- Prefer matching the existing pattern for the feature you are editing rather than forcing everything into one template.
+
+## Data And API Patterns
+
+- Use `useApi().apiFetch(...)` for app API calls.
+- Frontend calls the Nuxt proxy under `server/api/proxy/[...path].ts`, not the backend directly.
+- `useAuth` handles token storage and login/logout.
+- `useBanner` is the standard user-facing feedback mechanism for success and error messages.
+- `ResourceList` is client-fetched and is suitable for common CRUD-style resource pages.
+
+## Reusable Components
+
+- `SearchableSelect`: searchable flat dropdown for `{ value, label }` options.
+- `SearchableTreeSelect`: searchable hierarchical selector for tree-shaped items with `parent_id`.
+- `ResourceList`: shared list shell with search, pagination, selection, and delete flow.
+- `ResourceTable`: table rendering with row actions and selection support.
+
+## Verification Checklist
+
+- After meaningful UI changes, run the smallest relevant checks first.
+- Default verification order:
+  1. `pnpm exec nuxi typecheck`
+  2. `pnpm lint`
+  3. browser smoke test for the affected route
+- If a page uses client-only fetching or interactive overlays, explicitly check for:
+  - hydration warnings
+  - console errors
+  - loading, empty, and error states
+
+## Documentation Maintenance
+
+- The AI agent is authorized to update `docs/` files to keep them accurate.
+- When documentation is updated, explicitly mention it in the final response.
+- If codebase patterns drift from the docs, proactively update the relevant documentation instead of leaving it stale.
