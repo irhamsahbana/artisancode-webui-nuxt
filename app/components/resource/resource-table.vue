@@ -286,9 +286,9 @@ watch(
           class="relative text-right"
         >
           <Button
+            :ref="(el) => setMenuAnchorRef(getRowKey(row, index), el)"
             variant="ghost"
             size="sm"
-            :ref="(el) => setMenuAnchorRef(getRowKey(row, index), el)"
             @click="toggleMenu(getRowKey(row, index), $event)"
           >
             ⋯
