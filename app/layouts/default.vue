@@ -90,6 +90,20 @@ const toggleTheme = () => {
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/employees') }"
+                to="/resources/employees"
+              >
+                Employees
+              </NuxtLink>
+              <NuxtLink
+                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/job-positions') }"
+                to="/resources/job-positions"
+              >
+                Job Positions
+              </NuxtLink>
+              <NuxtLink
+                class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/work-locations') }"
                 to="/resources/work-locations"
               >

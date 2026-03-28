@@ -18,6 +18,10 @@ const emit = defineEmits<{
 const isExpanded = () => props.expandedIds.has(props.node.id)
 const isSelected = () => props.selectedId === props.node.id
 const hasChildren = () => props.node.children.length > 0
+const formattedLabel = computed(() => {
+  const category = props.node.category?.trim()
+  return category ? `${props.node.name} (${category})` : props.node.name
+})
 </script>
 
 <template>
@@ -47,12 +51,7 @@ const hasChildren = () => props.node.children.length > 0
         class="truncate"
         :class="{ 'font-medium': isSelected() }"
       >
-        {{ node.name }}
-      </span>
-
-      <!-- Category badge -->
-      <span class="ml-auto text-xs text-muted-foreground shrink-0">
-        {{ node.category }}
+        {{ formattedLabel }}
       </span>
     </div>
 

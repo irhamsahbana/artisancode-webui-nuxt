@@ -60,6 +60,10 @@ const toggleExpand = (id: string) => {
 }
 
 const isExpanded = (id: string) => expanded.value.has(id)
+const formatNodeLabel = (item: TreeNode) => {
+  const category = item.category?.trim()
+  return category ? `${item.name} (${category})` : item.name
+}
 </script>
 
 <template>
@@ -91,10 +95,7 @@ const isExpanded = (id: string) => expanded.value.has(id)
           />
         </span>
         <span class="font-medium">
-          {{ item.name }}
-        </span>
-        <span class="text-xs text-muted-foreground ml-2">
-          {{ item.category }}
+          {{ formatNodeLabel(item) }}
         </span>
 
         <!-- Node Actions -->

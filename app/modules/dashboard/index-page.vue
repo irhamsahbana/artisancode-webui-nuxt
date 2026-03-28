@@ -4,7 +4,6 @@ defineOptions({ name: 'IndexPage' })
 const cards = [
   { label: 'Users', href: '/resources/users' },
   { label: 'Companies', href: '/resources/companies' },
-  { label: 'Branches', href: '/resources/branches' },
   { label: 'Categories', href: '/resources/categories' },
   { label: 'Programs', href: '/resources/programs' },
   { label: 'Students', href: '/resources/students' },

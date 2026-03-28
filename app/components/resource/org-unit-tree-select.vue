@@ -38,6 +38,11 @@ const open = ref(false)
 const expanded = ref<Set<string>>(new Set())
 const rootRef = ref<HTMLElement | null>(null)
 
+const formatOrgUnitLabel = (item: Pick<OrgUnitItem, 'name' | 'category'>) => {
+  const category = item.category?.trim()
+  return category ? `${item.name} (${category})` : item.name
+}
+
 // Build tree from flat list
 const buildTree = (items: OrgUnitItem[]): OrgUnitNode[] => {
   const map = new Map<string, OrgUnitNode>()
@@ -67,7 +72,7 @@ const selectedPath = computed(() => {
   const parts: string[] = []
   let current = flatItems.value.find((item) => item.id === props.modelValue)
   while (current) {
-    parts.unshift(current.name)
+    parts.unshift(formatOrgUnitLabel(current))
     current = current.parent_id
       ? flatItems.value.find((item) => item.id === current!.parent_id)
       : undefined

@@ -7,15 +7,74 @@ Project root: `webui/`
 
 1. **app/**: Nuxt app entry (e.g., `app.vue`), layouts, and app-level UI.
 2. **app/pages/**: File-based routing. Each `.vue` file becomes a route.
-3. **app/components/**: Reusable UI components.
-4. **app/composables/**: Reusable composition functions (`useXxx`).
-5. **app/middleware/**: Route middleware for auth/guards.
-6. **app/assets/**: Uncompiled assets (SCSS, images used by CSS).
-7. **public/**: Static files served as-is.
-8. **server/**: Optional Nitro server routes and server utilities.
+3. **app/modules/**: Feature module pages (business logic per resource).
+4. **app/components/**: Reusable UI components.
+   - `app/components/ui/` — Base UI components (Button, Input, Label, SearchableSelect, etc.)
+   - `app/components/resource/` — Shared resource components (ResourceList)
+   - `app/components/searchable-tree-select.vue` — Tree dropdown component
+5. **app/composables/**: Reusable composition functions (`useApi`, `useAuth`, `useBanner`).
+6. **app/middleware/**: Route middleware for auth/guards.
+7. **app/assets/**: Uncompiled assets (CSS, images used by CSS).
+8. **app/layouts/**: Layout components (`default.vue` with sidebar navigation).
+9. **public/**: Static files served as-is.
+10. **server/**: Optional Nitro server routes and server utilities.
 
 ## Path Aliases
 
 - `~` maps to the `app/` root for this project.
 - Use `~/assets/...` for assets under `app/assets/`.
+- Use `~/composables/...` for composables under `app/composables/`.
 - Avoid `~/app/...` to prevent double `app/` paths.
+
+## Component Auto-Registration
+
+Nuxt config uses `pathPrefix: false`, meaning the directory prefix is **not** included in the component name. Always use the **filename only** (PascalCase) as the component tag:
+
+| File | Tag Name |
+|------|----------|
+| `components/ui/button.vue` | `<Button>` |
+| `components/ui/input.vue` | `<Input>` |
+| `components/ui/label.vue` | `<Label>` |
+| `components/ui/searchable-select.vue` | `<SearchableSelect>` |
+| `components/searchable-tree-select.vue` | `<SearchableTreeSelect>` |
+| `components/resource/resource-list.vue` | `<ResourceList>` |
+| `components/auth-menu.vue` | `<AuthMenu>` |
+
+## Module Page Pattern
+
+Each resource page follows a consistent pattern:
+
+- **Feature module**: `app/modules/resources/{resource-name}/{resource-name}-page.vue`
+- **Route file** (thin wrapper): `app/pages/resources/{resource-name}.vue`
+
+### Current Resource Pages
+
+| Resource | Route | Module File |
+|----------|-------|-------------|
+| Dashboard | `/` | `modules/dashboard/...` |
+| Users | `/resources/users` | `modules/resources/users/users-page.vue` |
+| Companies | `/resources/companies` | `modules/resources/companies/companies-page.vue` |
+| Employees | `/resources/employees` | `modules/resources/employees/employees-page.vue` |
+| Job Positions | `/resources/job-positions` | `modules/resources/job-positions/job-positions-page.vue` |
+| Org Units | `/resources/org-units` | `modules/resources/org-units/org-units-page.vue` |
+| Work Locations | `/resources/work-locations` | `modules/resources/work-locations/work-locations-page.vue` |
+| Work Shifts | `/resources/work-shifts` | `modules/resources/work-shifts/work-shifts-page.vue` |
+| Roles | `/resources/roles` | `modules/resources/roles/roles-page.vue` |
+
+## Reusable Components
+
+### SearchableSelect
+Flat searchable dropdown for simple key-value options.
+- **Props**: `modelValue`, `options` (array of `{ value, label }`), `placeholder`, `searchPlaceholder`, `disabled`
+- **Usage**: For Job Positions, Work Locations, Work Shifts, Status fields
+
+### SearchableTreeSelect
+Hierarchical searchable tree dropdown for items with `parent_id`.
+- **Props**: `modelValue`, `items` (array of `{ id, name, parent_id }`), `placeholder`, `searchPlaceholder`, `disabled`
+- **Usage**: For Org Units (tree structure with parent-child relationships)
+- **Features**: Indented tree display, search with ancestor preservation, clear button
+
+### ResourceList
+Generic CRUD list with pagination, search, and delete support.
+- **Props**: `title`, `endpoint`, `columns`, `loadingVariant`, `deleteLabelFormatter`, `canViewDetail`
+- **Slots**: `header-actions`, `row-actions`
