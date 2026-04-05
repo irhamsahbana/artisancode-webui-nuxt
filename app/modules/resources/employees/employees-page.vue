@@ -7,6 +7,56 @@ defineOptions({ name: 'EmployeesPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
+const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+
+const formatJoinDateForTable = (value: unknown) => {
+  if (value == null) {
+    return '-'
+  }
+
+  const raw = String(value).trim()
+  if (!raw) {
+    return '-'
+  }
+
+  const dateOnlyMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!dateOnlyMatch) {
+    return raw
+  }
+
+  const [, year, month, day] = dateOnlyMatch
+  const utcDate = new Date(`${year}-${month}-${day}T00:00:00Z`)
+
+  try {
+    return utcDate.toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'UTC',
+    })
+  }
+  catch {
+    return `${day}/${month}/${year}`
+  }
+}
+
+const normalizeJoinDateForInput = (value: unknown) => {
+  if (value == null) {
+    return ''
+  }
+
+  const raw = String(value).trim()
+  if (!raw) {
+    return ''
+  }
+
+  const dateOnlyMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!dateOnlyMatch) {
+    return ''
+  }
+
+  return `${dateOnlyMatch[1]}-${dateOnlyMatch[2]}-${dateOnlyMatch[3]}`
+}
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -32,7 +82,7 @@ const columns = [
   {
     key: 'join_date',
     label: 'Join Date',
-    format: (value: unknown) => (value == null ? '-' : String(value)),
+    format: (value: unknown) => formatJoinDateForTable(value),
   },
 ]
 
@@ -47,6 +97,7 @@ const form = ref({
   employee_no: '',
   full_name: '',
   email: '',
+  password: '',
   org_unit_id: '',
   job_position_id: '',
   location_id: '',
@@ -61,6 +112,7 @@ const resetForm = () => {
     employee_no: '',
     full_name: '',
     email: '',
+    password: '',
     org_unit_id: '',
     job_position_id: '',
     location_id: '',
@@ -128,12 +180,13 @@ const openEditModal = async (row: Record<string, unknown>) => {
     form.value.employee_no = String(d.employee_no ?? '')
     form.value.full_name = String(d.full_name ?? '')
     form.value.email = String(d.email ?? '')
+    form.value.password = ''
     form.value.org_unit_id = d.org_unit_id == null ? '' : String(d.org_unit_id)
     form.value.job_position_id = d.job_position_id == null ? '' : String(d.job_position_id)
     form.value.location_id = d.location_id == null ? '' : String(d.location_id)
     form.value.shift_id = d.shift_id == null ? '' : String(d.shift_id)
     form.value.status = String(d.status ?? 'active')
-    form.value.join_date = d.join_date == null ? '' : String(d.join_date)
+    form.value.join_date = normalizeJoinDateForInput(d.join_date)
   }
   modalLoading.value = false
 }
@@ -150,7 +203,9 @@ const buildPayload = () => {
     full_name: form.value.full_name.trim(),
     email: form.value.email.trim(),
     status: form.value.status,
+    join_date_timezone: browserTimezone,
   }
+  if (form.value.password.trim()) payload.password = form.value.password.trim()
   if (form.value.org_unit_id) payload.org_unit_id = form.value.org_unit_id
   if (form.value.job_position_id) payload.job_position_id = form.value.job_position_id
   if (form.value.location_id) payload.location_id = form.value.location_id
@@ -170,6 +225,14 @@ const handleSubmit = async () => {
   }
   if (!form.value.email.trim()) {
     show('Email is required', 'error')
+    return
+  }
+  if (modalMode.value === 'create' && form.value.password.trim() && form.value.password.trim().length < 8) {
+    show('Password must be at least 8 characters', 'error')
+    return
+  }
+  if (modalMode.value === 'edit' && form.value.password.trim() && form.value.password.trim().length < 8) {
+    show('Password must be at least 8 characters', 'error')
     return
   }
 
@@ -292,6 +355,19 @@ const handleSubmit = async () => {
             v-model="form.email"
             type="email"
             placeholder="e.g. john@example.com"
+            class="mt-1"
+          />
+        </div>
+
+        <div>
+          <Label for="emp-password">
+            {{ modalMode === 'create' ? 'Password' : 'Reset Password' }}
+          </Label>
+          <Input
+            id="emp-password"
+            v-model="form.password"
+            type="password"
+            :placeholder="modalMode === 'create' ? 'Optional, min. 8 characters' : 'Optional, leave blank to keep current password'"
             class="mt-1"
           />
         </div>
