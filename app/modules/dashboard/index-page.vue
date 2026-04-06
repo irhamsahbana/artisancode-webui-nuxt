@@ -49,6 +49,7 @@ const cards = [
 const trendOptions = [7, 14, 30] as const
 const { user } = useAuth()
 const { apiFetch } = useApi()
+const browserTimezone = ref('')
 
 const today = (() => {
   const now = new Date()
@@ -63,16 +64,21 @@ const canSeeOwnerDashboard = computed(() => {
   return roles.includes('owner') || roles.includes('admin')
 })
 
+onMounted(() => {
+  browserTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+})
+
 const { data, pending, refresh, error } = await useAsyncData(
   'owner-attendance-dashboard',
   async () => {
-    if (!canSeeOwnerDashboard.value) {
+    if (!canSeeOwnerDashboard.value || !browserTimezone.value) {
       return null
     }
 
     const response = await apiFetch<DashboardPayload>('/attendance-summary/owner-dashboard', {
       query: {
         date: selectedDate.value,
+        timezone: browserTimezone.value,
         trend_days: trendDays.value,
       },
     })
@@ -82,7 +88,7 @@ const { data, pending, refresh, error } = await useAsyncData(
   { server: false, default: () => null },
 )
 
-watch([selectedDate, trendDays, canSeeOwnerDashboard], () => {
+watch([selectedDate, trendDays, canSeeOwnerDashboard, browserTimezone], () => {
   refresh()
 })
 
@@ -178,6 +184,9 @@ const buildLogLink = (params: Record<string, string>) => ({
               </h1>
               <p class="max-w-2xl text-sm text-muted-foreground">
                 Keep an eye on today’s attendance health, follow short-term trends, and jump into attendance logs when the team needs closer audit.
+              </p>
+              <p class="text-xs text-muted-foreground">
+                Browser timezone: {{ browserTimezone || 'Detecting...' }}
               </p>
             </div>
           </div>
