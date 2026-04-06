@@ -17,6 +17,7 @@ const props = withDefaults(
     title: string
     endpoint: string
     columns: Column[]
+    extraQuery?: Record<string, unknown>
     searchKey?: string | null
     searchPlaceholder?: string
     searchDebounceMs?: number
@@ -27,6 +28,7 @@ const props = withDefaults(
     deleteLabelFormatter?: (row: Record<string, unknown>) => string
   }>(),
   {
+    extraQuery: undefined,
     searchKey: 'q',
     searchPlaceholder: 'Search...',
     searchDebounceMs: 0,
@@ -71,6 +73,14 @@ const buildQuery = () => {
     limit: query.limit,
   }
 
+  if (props.extraQuery) {
+    for (const [key, value] of Object.entries(props.extraQuery)) {
+      if (value !== '' && value !== null && value !== undefined) {
+        base[key] = value
+      }
+    }
+  }
+
   if (props.searchKey && query.q) {
     base[props.searchKey] = query.q
   }
@@ -92,6 +102,14 @@ const { data, pending, refresh, error } = await useAsyncData(
 watch(
   () => [query.page, query.limit],
   () => refresh(),
+)
+
+watch(
+  () => JSON.stringify(props.extraQuery ?? {}),
+  () => {
+    query.page = 1
+    refresh()
+  },
 )
 
 watch(

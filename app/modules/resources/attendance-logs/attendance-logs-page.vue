@@ -1,6 +1,8 @@
 <script setup lang="ts">
 defineOptions({ name: 'AttendanceLogsPage' })
 
+const route = useRoute()
+
 const getSelfieUrl = (row: Record<string, unknown> | null | undefined) => {
   if (!row) {
     return ''
@@ -54,12 +56,28 @@ const columns = [
     format: (value: unknown) => (typeof value === 'string' && value.length > 0 ? 'Available' : '-'),
   },
 ]
+
+const listQuery = computed(() => {
+  const query = route.query
+  const result: Record<string, string> = {}
+
+  const supportedKeys = ['attendance_date', 'date_from', 'date_to', 'type', 'source', 'employee_id']
+  for (const key of supportedKeys) {
+    const value = query[key]
+    if (typeof value === 'string' && value.length > 0) {
+      result[key] = value
+    }
+  }
+
+  return result
+})
 </script>
 
 <template>
   <ResourceList
     title="Attendance Logs"
     endpoint="/attendance-logs"
+    :extra-query="listQuery"
     :columns="columns"
     loading-variant="skeleton"
     :can-delete="false"
