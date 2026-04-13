@@ -16,6 +16,7 @@ type RegisterPayload = {
   password: string
   tenant_code: string
   tenant_name: string
+  language: 'id' | 'en'
 }
 
 type AuthTokenResponse = {

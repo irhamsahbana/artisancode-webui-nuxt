@@ -11,12 +11,14 @@ type ApiFetchOptions = {
 export const useApi = () => {
   const token = useCookie<string | null>('sb_token')
   const { show } = useBanner()
+  const { locale, t } = useLocale()
 
   const apiFetch = async <T>(path: string, options: ApiFetchOptions = {}) => {
     const headers: Record<string, string> = {}
     if (token.value) {
       headers.Authorization = `Bearer ${token.value}`
     }
+    headers['Accept-Language'] = locale.value
     const normalizedPath = path.startsWith('/') ? path : `/${path}`
 
     try {
@@ -31,18 +33,18 @@ export const useApi = () => {
       const data = response._data
       const status = response.status
       const hasSuccessFlag = typeof data?.success === 'boolean'
-      const message = hasSuccessFlag ? data?.message : `Request failed (${status})`
+      const message = hasSuccessFlag ? data?.message : `${t('api.requestFailed')} (${status})`
 
       if (status === 401 || status === 403) {
         token.value = null
         const user = useState<unknown | null>('auth_user', () => null)
         user.value = null
-        show('Session expired. Please sign in again.', 'error')
+        show(t('api.sessionExpired'), 'error')
         await navigateTo('/login')
       }
 
       if (status >= 400 || (hasSuccessFlag && data?.success === false)) {
-        show(message ?? 'Request failed', 'error')
+        show(message ?? t('api.requestFailed'), 'error')
       }
 
       if (hasSuccessFlag) {
@@ -51,12 +53,12 @@ export const useApi = () => {
 
       return {
         success: false,
-        message: message ?? 'Request failed',
+        message: message ?? t('api.requestFailed'),
         data: null,
         errors: data ?? null,
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Network error'
+      const message = error instanceof Error ? error.message : t('api.networkError')
       show(message, 'error')
       return {
         success: false,

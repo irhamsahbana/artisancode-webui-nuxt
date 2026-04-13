@@ -3,6 +3,7 @@ defineOptions({ name: 'DefaultLayout' })
 
 const route = useRoute()
 const isAuthPage = computed(() => route.path === '/login' || route.path === '/register')
+const { locale, options: localeOptions, setLocale, t } = useLocale()
 
 // Check if a sidebar link is active (exact match or sub-page)
 const isActive = (path: string) => route.path === path || route.path.startsWith(path + '/')
@@ -32,7 +33,7 @@ const toggleTheme = () => {
           class="shrink-0 rounded-md px-2 py-1 text-xs font-medium underline underline-offset-2 hover:opacity-80"
           @click="hide"
         >
-          Close
+          {{ t('layout.close') }}
         </button>
       </div>
     </div>
@@ -67,11 +68,11 @@ const toggleTheme = () => {
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/') && route.path === '/' }"
                 to="/"
               >
-                Dashboard
+                {{ t('layout.dashboard') }}
               </NuxtLink>
             </nav>
             <div class="px-3 pb-2 pt-6 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Resources
+              {{ t('layout.resources') }}
             </div>
             <nav class="space-y-1 text-sm">
               <NuxtLink
@@ -79,62 +80,62 @@ const toggleTheme = () => {
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/users') }"
                 to="/resources/users"
               >
-                Users
+                {{ t('layout.users') }}
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/companies') }"
                 to="/resources/companies"
               >
-                Companies
+                {{ t('layout.companies') }}
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/employees') }"
                 to="/resources/employees"
               >
-                Employees
+                {{ t('layout.employees') }}
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/attendance-logs') }"
                 to="/resources/attendance-logs"
               >
-                Attendance Logs
+                {{ t('layout.attendanceLogs') }}
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/job-positions') }"
                 to="/resources/job-positions"
               >
-                Job Positions
+                {{ t('layout.jobPositions') }}
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/work-locations') }"
                 to="/resources/work-locations"
               >
-                Work Locations
+                {{ t('layout.workLocations') }}
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/work-shifts') }"
                 to="/resources/work-shifts"
               >
-                Work Shifts
+                {{ t('layout.workShifts') }}
               </NuxtLink>
               <NuxtLink
                 class="flex items-center rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 :class="{ 'bg-sidebar-accent text-sidebar-accent-foreground font-medium': isActive('/resources/roles') }"
                 to="/resources/roles"
               >
-                Roles & Permissions
+                {{ t('layout.rolesPermissions') }}
               </NuxtLink>
             </nav>
           </div>
           <div class="mt-auto border-t border-sidebar-border px-4 py-4">
             <div class="text-xs text-muted-foreground">
-              Signed in
+              {{ t('layout.signedIn') }}
             </div>
             <div class="mt-1 text-sm font-medium">
               <AuthMenu />
@@ -148,12 +149,25 @@ const toggleTheme = () => {
                 Academy
               </div>
               <div class="flex items-center gap-2">
+                <select
+                  :value="locale"
+                  class="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  @change="setLocale(($event.target as HTMLSelectElement).value as 'id' | 'en')"
+                >
+                  <option
+                    v-for="option in localeOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select>
                 <Button
                   variant="outline"
                   size="sm"
                   @click="toggleTheme"
                 >
-                  {{ colorMode.preference === 'dark' ? 'Light' : 'Dark' }}
+                  {{ colorMode.preference === 'dark' ? t('layout.themeLight') : t('layout.themeDark') }}
                 </Button>
                 <div class="md:hidden">
                   <AuthMenu />

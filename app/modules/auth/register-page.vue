@@ -6,6 +6,7 @@ import { useAuth } from '~/composables/useAuth'
 defineOptions({ name: 'RegisterPage' })
 
 const { register } = useAuth()
+const { locale, options: localeOptions, setLocale, t } = useLocale()
 const isLoading = ref(false)
 const errorMessage = ref('')
 
@@ -16,6 +17,7 @@ const form = reactive({
   password: '',
   tenant_code: '',
   tenant_name: '',
+  language: locale.value,
 })
 
 // Ensure tenant code is always uppercase alphanumeric
@@ -26,6 +28,10 @@ watch(() => form.tenant_code, (newVal) => {
   if (cleaned !== newVal) {
     form.tenant_code = cleaned
   }
+})
+
+watch(locale, (newLocale) => {
+  form.language = newLocale
 })
 
 // Client-side password strength feedback
@@ -44,10 +50,10 @@ const passwordStrength = computed(() => {
 
 const passwordStrengthLabel = computed(() => {
   if (form.password.length === 0) return ''
-  if (passwordStrength.value <= 1) return 'Weak'
-  if (passwordStrength.value <= 2) return 'Fair'
-  if (passwordStrength.value <= 3) return 'Good'
-  return 'Strong'
+  if (passwordStrength.value <= 1) return t('auth.passwordWeak')
+  if (passwordStrength.value <= 2) return t('auth.passwordFair')
+  if (passwordStrength.value <= 3) return t('auth.passwordGood')
+  return t('auth.passwordStrong')
 })
 
 const passwordStrengthColor = computed(() => {
@@ -70,7 +76,7 @@ const submit = async () => {
       await navigateTo('/')
     }
   } catch {
-    errorMessage.value = 'Registration failed'
+    errorMessage.value = t('auth.registrationFailed')
   } finally {
     isLoading.value = false
   }
@@ -91,22 +97,33 @@ const submit = async () => {
           AC
         </div>
         <CardTitle class="text-2xl">
-          Create your account
+          {{ t('auth.createAccount') }}
         </CardTitle>
         <p class="text-sm text-muted-foreground">
-          Set up your organization on ArtisanCode
+          {{ t('auth.registerDescription') }}
         </p>
       </CardHeader>
       <CardContent class="space-y-4">
+        <div class="space-y-2">
+          <Label for="register-language">
+            {{ t('common.language') }}
+          </Label>
+          <SearchableSelect
+            id="register-language"
+            :model-value="locale"
+            :options="localeOptions"
+            @update:model-value="setLocale(($event || 'id') as 'id' | 'en')"
+          />
+        </div>
         <!-- Tenant section -->
         <div class="space-y-3 rounded-lg border border-border/50 bg-muted/30 p-4">
           <p class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Organization
+            {{ t('auth.organization') }}
           </p>
           <div class="grid gap-3 sm:grid-cols-2">
             <div class="space-y-2">
               <Label for="register-tenant-name">
-                Tenant Name
+                {{ t('auth.tenantName') }}
               </Label>
               <Input
                 id="register-tenant-name"
@@ -116,7 +133,7 @@ const submit = async () => {
             </div>
             <div class="space-y-2">
               <Label for="register-tenant-code">
-                Tenant Code
+                {{ t('auth.tenantCode') }}
               </Label>
               <Input
                 id="register-tenant-code"
@@ -125,7 +142,7 @@ const submit = async () => {
                 maxlength="5"
               />
               <p class="text-xs text-muted-foreground">
-                Maximum 5 characters, uppercase letters and numbers only
+                {{ t('auth.tenantCodeHint') }}
               </p>
             </div>
           </div>
@@ -136,7 +153,7 @@ const submit = async () => {
           <div class="grid gap-3 sm:grid-cols-2">
             <div class="space-y-2">
               <Label for="register-name">
-                Full Name
+                {{ t('auth.fullName') }}
               </Label>
               <Input
                 id="register-name"
@@ -146,7 +163,7 @@ const submit = async () => {
             </div>
             <div class="space-y-2">
               <Label for="register-username">
-                Username
+                {{ t('auth.username') }}
               </Label>
               <Input
                 id="register-username"
@@ -157,7 +174,7 @@ const submit = async () => {
           </div>
           <div class="space-y-2">
             <Label for="register-email">
-              Business Email
+              {{ t('auth.businessEmail') }}
             </Label>
             <Input
               id="register-email"
@@ -166,12 +183,12 @@ const submit = async () => {
               placeholder="you@company.com"
             />
             <p class="text-xs text-muted-foreground">
-              Free email providers (Gmail, Yahoo, etc.) are not allowed.
+              {{ t('auth.businessEmailHint') }}
             </p>
           </div>
           <div class="space-y-2">
             <Label for="register-password">
-              Password
+              {{ t('auth.password') }}
             </Label>
             <Input
               id="register-password"
@@ -208,16 +225,16 @@ const submit = async () => {
               </div>
               <ul class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                 <li :class="passwordChecks.minLength ? 'text-green-600' : 'text-muted-foreground'">
-                  {{ passwordChecks.minLength ? '✓' : '○' }} Min 8 characters
+                  {{ passwordChecks.minLength ? '✓' : '○' }} {{ t('auth.passwordMin') }}
                 </li>
                 <li :class="passwordChecks.hasUpper ? 'text-green-600' : 'text-muted-foreground'">
-                  {{ passwordChecks.hasUpper ? '✓' : '○' }} Uppercase letter
+                  {{ passwordChecks.hasUpper ? '✓' : '○' }} {{ t('auth.passwordUpper') }}
                 </li>
                 <li :class="passwordChecks.hasLower ? 'text-green-600' : 'text-muted-foreground'">
-                  {{ passwordChecks.hasLower ? '✓' : '○' }} Lowercase letter
+                  {{ passwordChecks.hasLower ? '✓' : '○' }} {{ t('auth.passwordLower') }}
                 </li>
                 <li :class="passwordChecks.hasNumber ? 'text-green-600' : 'text-muted-foreground'">
-                  {{ passwordChecks.hasNumber ? '✓' : '○' }} Number
+                  {{ passwordChecks.hasNumber ? '✓' : '○' }} {{ t('auth.passwordNumber') }}
                 </li>
               </ul>
             </div>
@@ -242,15 +259,15 @@ const submit = async () => {
             v-if="isLoading"
             class="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
           />
-          {{ isLoading ? 'Creating account...' : 'Create account' }}
+          {{ isLoading ? t('auth.creatingAccount') : t('auth.createAccount') }}
         </Button>
         <p class="text-center text-sm text-muted-foreground">
-          Already have an account?
+          {{ t('auth.alreadyHaveAccount') }}
           <NuxtLink
             to="/login"
             class="font-medium text-primary underline-offset-4 transition-colors hover:underline"
           >
-            Sign in
+            {{ t('auth.signIn') }}
           </NuxtLink>
         </p>
       </CardFooter>

@@ -6,6 +6,7 @@ import { useAuth } from '~/composables/useAuth'
 defineOptions({ name: 'LoginPage' })
 
 const { login } = useAuth()
+const { locale, options: localeOptions, setLocale, t } = useLocale()
 const isLoading = ref(false)
 const errorMessage = ref('')
 
@@ -37,7 +38,7 @@ const submit = async () => {
       await navigateTo('/')
     }
   } catch {
-    errorMessage.value = 'Login failed'
+    errorMessage.value = t('auth.loginFailed')
   } finally {
     isLoading.value = false
   }
@@ -58,16 +59,27 @@ const submit = async () => {
           AC
         </div>
         <CardTitle class="text-2xl">
-          Welcome back
+          {{ t('auth.welcomeBack') }}
         </CardTitle>
         <p class="text-sm text-muted-foreground">
-          Sign in to your ArtisanCode account
+          {{ t('auth.signInDescription') }}
         </p>
       </CardHeader>
       <CardContent class="space-y-4">
         <div class="space-y-2">
+          <Label for="login-language">
+            {{ t('common.language') }}
+          </Label>
+          <SearchableSelect
+            id="login-language"
+            :model-value="locale"
+            :options="localeOptions"
+            @update:model-value="setLocale(($event || 'id') as 'id' | 'en')"
+          />
+        </div>
+        <div class="space-y-2">
           <Label for="login-email">
-            Email
+            {{ t('auth.email') }}
           </Label>
           <Input
             id="login-email"
@@ -79,7 +91,7 @@ const submit = async () => {
         </div>
         <div class="space-y-2">
           <Label for="login-password">
-            Password
+            {{ t('auth.password') }}
           </Label>
           <Input
             id="login-password"
@@ -91,7 +103,7 @@ const submit = async () => {
         </div>
         <div class="space-y-2">
           <Label for="login-tenant-code">
-            Tenant Code
+            {{ t('auth.tenantCode') }}
           </Label>
           <Input
             id="login-tenant-code"
@@ -101,7 +113,7 @@ const submit = async () => {
             @keyup.enter="submit"
           />
           <p class="text-xs text-muted-foreground">
-            Maximum 5 characters, case insensitive
+            {{ t('auth.tenantCodeHint') }}
           </p>
         </div>
         <div
@@ -122,15 +134,15 @@ const submit = async () => {
             v-if="isLoading"
             class="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
           />
-          {{ isLoading ? 'Signing in...' : 'Sign in' }}
+          {{ isLoading ? t('auth.signingIn') : t('auth.signIn') }}
         </Button>
         <p class="text-center text-sm text-muted-foreground">
-          Don't have an account?
+          {{ t('auth.noAccount') }}
           <NuxtLink
             to="/register"
             class="font-medium text-primary underline-offset-4 transition-colors hover:underline"
           >
-            Create one
+            {{ t('auth.createOne') }}
           </NuxtLink>
         </p>
       </CardFooter>

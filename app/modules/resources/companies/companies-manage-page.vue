@@ -12,6 +12,7 @@ const route = useRoute()
 const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
+const { t, format } = useLocale()
 
 const companyId = computed(() => route.params.id as string)
 
@@ -33,6 +34,8 @@ const configForm = reactive({
   attendance_check_out_end: '23:59',
   leave_allowance_annual: 12,
   overtime_rate_multiplier: 1.5,
+  preferred_language: 'id',
+  supported_languages: ['id', 'en'],
   timezone: 'Asia/Jakarta',
   date_format: 'YYYY-MM-DD',
   time_format: 'HH:mm:ss',
@@ -98,6 +101,10 @@ const loadCompany = async () => {
     if (cfg.attendance_check_out_end) configForm.attendance_check_out_end = String(cfg.attendance_check_out_end)
     if (cfg.leave_allowance_annual != null) configForm.leave_allowance_annual = Number(cfg.leave_allowance_annual)
     if (cfg.overtime_rate_multiplier != null) configForm.overtime_rate_multiplier = Number(cfg.overtime_rate_multiplier)
+    if (cfg.preferred_language) configForm.preferred_language = String(cfg.preferred_language)
+    if (Array.isArray(cfg.supported_languages) && cfg.supported_languages.length > 0) {
+      configForm.supported_languages = cfg.supported_languages.map(item => String(item))
+    }
     if (cfg.timezone) configForm.timezone = String(cfg.timezone)
     if (cfg.date_format) configForm.date_format = String(cfg.date_format)
     if (cfg.time_format) configForm.time_format = String(cfg.time_format)
@@ -160,14 +167,14 @@ const handleEditNode = (node: TreeNode) => {
 }
 
 const handleDeleteNode = async (node: TreeNode) => {
-  if (!confirm(`Delete "${node.name}"? This cannot be undone.`)) {
+  if (!confirm(format('company.deleteOrgUnitConfirm', { name: node.name }))) {
     return
   }
   const response = await apiFetch(`/org-units/${node.id}`, {
     method: 'DELETE',
   })
   if (response.success) {
-    show('Organization unit deleted.', 'success')
+    show(t('company.orgUnitDeleted'), 'success')
     await loadOrgUnitTree()
   }
 }
@@ -185,13 +192,13 @@ const closeOrgUnitDialog = () => {
 const submitOrgUnit = async () => {
   const code = orgUnitForm.code.trim()
   if (!code) {
-    show('Code is required.', 'error')
+    show(format('common.requiredField', { field: t('common.code') }), 'error')
     return
   }
 
   const name = orgUnitForm.name.trim()
   if (!name) {
-    show('Name is required.', 'error')
+    show(format('common.requiredField', { field: t('common.name') }), 'error')
     return
   }
 
@@ -223,7 +230,12 @@ const submitOrgUnit = async () => {
   orgUnitDialogLoading.value = false
 
   if (response.success) {
-    show(`Organization unit ${orgUnitDialogMode.value === 'create' ? 'created' : 'updated'}.`, 'success')
+    show(
+      orgUnitDialogMode.value === 'create'
+        ? t('company.orgUnitCreated')
+        : t('company.orgUnitUpdated'),
+      'success',
+    )
     closeOrgUnitDialog()
     await loadOrgUnitTree()
   }
@@ -231,6 +243,11 @@ const submitOrgUnit = async () => {
 
 // Submit config form
 const submitConfig = async () => {
+  if (!configForm.supported_languages.includes(configForm.preferred_language)) {
+    show(t('company.supportedLanguagesMustIncludePreferred'), 'error')
+    return
+  }
+
   configLoading.value = true
   const response = await apiFetch(`/companies/${companyId.value}`, {
     method: 'PUT',
@@ -242,7 +259,30 @@ const submitConfig = async () => {
   })
   configLoading.value = false
   if (response.success) {
-    show('Company configuration updated.', 'success')
+    show(t('company.configurationUpdated'), 'success')
+  }
+}
+
+const languageOptions = computed(() => [
+  { value: 'id', label: t('common.indonesian') },
+  { value: 'en', label: t('common.english') },
+])
+
+const toggleSupportedLanguage = (language: 'id' | 'en', checked: boolean) => {
+  if (checked) {
+    if (!configForm.supported_languages.includes(language)) {
+      configForm.supported_languages = [...configForm.supported_languages, language]
+    }
+    return
+  }
+
+  if (configForm.supported_languages.length === 1) {
+    return
+  }
+
+  configForm.supported_languages = configForm.supported_languages.filter(item => item !== language)
+  if (!configForm.supported_languages.includes(configForm.preferred_language)) {
+    configForm.preferred_language = configForm.supported_languages[0] || 'id'
   }
 }
 
@@ -250,12 +290,12 @@ const submitConfig = async () => {
 const submitEdit = async () => {
   const name = editForm.name.trim()
   if (!name) {
-    show('Name is required.', 'error')
+    show(format('common.requiredField', { field: t('common.name') }), 'error')
     return
   }
   const code = editForm.code.trim()
   if (!code) {
-    show('Code is required.', 'error')
+    show(format('common.requiredField', { field: t('common.code') }), 'error')
     return
   }
 
@@ -266,7 +306,7 @@ const submitEdit = async () => {
   })
   editLoading.value = false
   if (response.success) {
-    show('Company updated.', 'success')
+    show(t('company.updated'), 'success')
   }
 }
 
@@ -289,14 +329,14 @@ onMounted(async () => {
         @click="goBack"
       >
         <ArrowLeft class="mr-1 h-4 w-4" />
-        Back
+        {{ t('company.backToList') }}
       </Button>
       <div>
         <h1 class="text-xl font-semibold">
-          {{ editForm.name || 'Company' }}
+          {{ editForm.name || t('company.company') }}
         </h1>
         <p class="text-sm text-muted-foreground">
-          Manage company details and organization structure
+          {{ t('company.manageDescription') }}
         </p>
       </div>
     </div>
@@ -309,7 +349,7 @@ onMounted(async () => {
         @click="activeTab = 'edit'"
       >
         <Building2 class="mr-2 h-4 w-4" />
-        Company Details
+        {{ t('company.companyDetails') }}
       </Button>
       <Button
         :variant="activeTab === 'orgtree' ? 'default' : 'ghost'"
@@ -317,7 +357,7 @@ onMounted(async () => {
         @click="activeTab = 'orgtree'; loadOrgUnitTree()"
       >
         <Network class="mr-2 h-4 w-4" />
-        Organization Structure
+        {{ t('company.organizationStructure') }}
       </Button>
       <Button
         :variant="activeTab === 'config' ? 'default' : 'ghost'"
@@ -325,7 +365,7 @@ onMounted(async () => {
         @click="activeTab = 'config'"
       >
         <Settings class="mr-2 h-4 w-4" />
-        Configuration
+        {{ t('company.configuration') }}
       </Button>
     </div>
 
@@ -334,14 +374,14 @@ onMounted(async () => {
       v-if="pageLoading"
       class="text-sm text-muted-foreground py-8"
     >
-      Loading company data...
+      {{ t('company.loading') }}
     </div>
 
     <template v-else>
       <!-- Edit Tab -->
       <Card v-if="activeTab === 'edit'">
         <CardHeader>
-          <CardTitle>Edit Company</CardTitle>
+          <CardTitle>{{ t('company.editCompany') }}</CardTitle>
         </CardHeader>
         <CardContent class="grid gap-4">
           <div class="grid gap-2">
@@ -475,6 +515,40 @@ onMounted(async () => {
               Locale
             </h3>
             <div class="grid gap-4 sm:grid-cols-3">
+              <div class="grid gap-2 sm:col-span-3">
+                <h4 class="text-sm font-medium">
+                  {{ t('company.languageSection') }}
+                </h4>
+                <p class="text-xs text-muted-foreground">
+                  {{ t('company.languageHint') }}
+                </p>
+              </div>
+              <div class="grid gap-2">
+                <Label for="cfg-preferred-language">{{ t('company.preferredLanguage') }}</Label>
+                <SearchableSelect
+                  id="cfg-preferred-language"
+                  v-model="configForm.preferred_language"
+                  :options="languageOptions"
+                  :placeholder="t('common.selectLanguage')"
+                />
+              </div>
+              <div class="grid gap-2 sm:col-span-2">
+                <Label>{{ t('company.supportedLanguages') }}</Label>
+                <div class="flex flex-wrap gap-4 rounded-md border p-3">
+                  <label
+                    v-for="option in languageOptions"
+                    :key="option.value"
+                    class="flex items-center gap-2 text-sm"
+                  >
+                    <input
+                      :checked="configForm.supported_languages.includes(option.value)"
+                      type="checkbox"
+                      @change="toggleSupportedLanguage(option.value as 'id' | 'en', ($event.target as HTMLInputElement).checked)"
+                    >
+                    <span>{{ option.label }}</span>
+                  </label>
+                </div>
+              </div>
               <div class="grid gap-2">
                 <Label for="cfg-timezone">Timezone</Label>
                 <Input

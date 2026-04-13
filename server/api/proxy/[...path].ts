@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
   const path = Array.isArray(param) ? param.join('/') : param ?? ''
   const base = config.apiBase.endsWith('/') ? config.apiBase.slice(0, -1) : config.apiBase
   const url = `${base}/${path}`
+  const locale = String(rawHeaders['accept-language'] ?? '').toLowerCase().startsWith('en') ? 'en' : 'id'
 
   try {
     const response = await $fetch.raw(url, {
@@ -45,8 +46,12 @@ export default defineEventHandler(async (event) => {
 
     const status = isConnectionError ? 502 : 500
     const message = isConnectionError
-      ? 'Backend service is unavailable. Please try again later.'
-      : 'An unexpected error occurred while contacting the backend service.'
+      ? (locale === 'en'
+          ? 'Backend service is unavailable. Please try again later.'
+          : 'Layanan backend tidak tersedia. Silakan coba lagi nanti.')
+      : (locale === 'en'
+          ? 'An unexpected error occurred while contacting the backend service.'
+          : 'Terjadi kesalahan saat menghubungi layanan backend.')
 
     // Use console.warn so Nitro doesn't show it as a loud ERROR
     console.warn(
