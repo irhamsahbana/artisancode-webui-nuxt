@@ -64,6 +64,11 @@
 - `useAuth` handles token storage and login/logout.
 - `useBanner` is the standard user-facing feedback mechanism for success and error messages.
 - `ResourceList` is client-fetched and is suitable for common CRUD-style resource pages.
+- Multi-language already exists. Read `docs/localization.md` before changing locale behavior, translated UI copy, or request language headers.
+- UI locale source of truth is `app/composables/useLocale.ts`.
+- Persist locale changes through `useLocale().setLocale(...)` so cookie `ac_locale` stays in sync.
+- `useApi` already sends `Accept-Language` to backend. Do not reimplement language headers per feature.
+- For app-level copy, use `useLocale().t(...)`. For raw UI/library labels still stored as plain strings, use `app/utils/ui-localization.ts`.
 
 ## Reusable Components
 
