@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { localizeUiText } from '~/utils/ui-localization'
+
 defineOptions({ name: 'IndexPage' })
 
 type DashboardSummary = {
@@ -49,7 +51,9 @@ const cards = [
 const trendOptions = [7, 14, 30] as const
 const { user } = useAuth()
 const { apiFetch } = useApi()
+const { locale } = useLocale()
 const browserTimezone = ref('')
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 const today = (() => {
   const now = new Date()
@@ -106,12 +110,12 @@ const exceptionRows = computed(() => dashboard.value?.today_exceptions ?? [])
 const trendRows = computed(() => dashboard.value?.daily_trend ?? [])
 
 const metricCards = computed(() => [
-  { label: 'Active Employees', value: summary.value.active_employee_count, tone: 'bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100' },
-  { label: 'Checked In', value: summary.value.checked_in_count, tone: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100' },
-  { label: 'Checked Out', value: summary.value.checked_out_count, tone: 'bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-100' },
-  { label: 'Pending Check In', value: summary.value.pending_check_in_count, tone: 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100' },
-  { label: 'Pending Check Out', value: summary.value.pending_check_out_count, tone: 'bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-100' },
-  { label: 'Late Check In', value: summary.value.late_check_in_count, tone: 'bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-100' },
+  { label: uiText('Active Employees'), value: summary.value.active_employee_count, tone: 'bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100' },
+  { label: uiText('Checked In'), value: summary.value.checked_in_count, tone: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100' },
+  { label: uiText('Checked Out'), value: summary.value.checked_out_count, tone: 'bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-100' },
+  { label: uiText('Pending Check In'), value: summary.value.pending_check_in_count, tone: 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100' },
+  { label: uiText('Pending Check Out'), value: summary.value.pending_check_out_count, tone: 'bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-100' },
+  { label: uiText('Late Check In'), value: summary.value.late_check_in_count, tone: 'bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-100' },
 ])
 
 const maxTrendValue = computed(() => {
@@ -131,7 +135,7 @@ const formatShortDate = (value: string) => {
     return '-'
   }
 
-  return new Date(`${value}T00:00:00`).toLocaleDateString('id-ID', {
+  return new Date(`${value}T00:00:00`).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'id-ID', {
     day: '2-digit',
     month: 'short',
   })
@@ -142,17 +146,17 @@ const formatDateTime = (value: string | null) => {
     return '-'
   }
 
-  return new Date(value).toLocaleString('id-ID', {
+  return new Date(value).toLocaleString(locale.value === 'en' ? 'en-US' : 'id-ID', {
     dateStyle: 'medium',
     timeStyle: 'short',
   })
 }
 
-const exceptionLabelMap: Record<DashboardException['exception_type'], string> = {
-  late_check_in: 'Late check in',
-  missing_check_in: 'Missing check in',
-  missing_check_out: 'Missing check out',
-}
+const exceptionLabelMap = computed<Record<DashboardException['exception_type'], string>>(() => ({
+  late_check_in: uiText('Late check in'),
+  missing_check_in: uiText('Missing check in'),
+  missing_check_out: uiText('Missing check out'),
+}))
 
 const exceptionToneMap: Record<DashboardException['exception_type'], string> = {
   late_check_in: 'bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-100',
@@ -176,24 +180,24 @@ const buildLogLink = (params: Record<string, string>) => ({
         <CardContent class="flex flex-col gap-6 p-6 lg:flex-row lg:items-end lg:justify-between">
           <div class="space-y-2">
             <div class="inline-flex rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-foreground/80 dark:bg-white/10">
-              Owner Attendance Dashboard
+              {{ uiText('Owner Attendance Dashboard') }}
             </div>
             <div class="space-y-1">
               <h1 class="text-2xl font-semibold tracking-tight">
-                Attendance overview for {{ dashboard?.attendance_date ?? selectedDate }}
+                {{ uiText(`Attendance overview for ${dashboard?.attendance_date ?? selectedDate}`) }}
               </h1>
               <p class="max-w-2xl text-sm text-muted-foreground">
-                Keep an eye on today’s attendance health, follow short-term trends, and jump into attendance logs when the team needs closer audit.
+                {{ uiText('Keep an eye on today’s attendance health, follow short-term trends, and jump into attendance logs when the team needs closer audit.') }}
               </p>
               <p class="text-xs text-muted-foreground">
-                Browser timezone: {{ browserTimezone || 'Detecting...' }}
+                {{ uiText('Browser timezone') }}: {{ browserTimezone || uiText('Detecting...') }}
               </p>
             </div>
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div class="space-y-2">
-              <Label for="attendance-date">Attendance Date</Label>
+              <Label for="attendance-date">{{ uiText('Attendance Date') }}</Label>
               <Input
                 id="attendance-date"
                 v-model="selectedDate"
@@ -201,7 +205,7 @@ const buildLogLink = (params: Record<string, string>) => ({
               />
             </div>
             <div class="space-y-2">
-              <Label for="trend-days">Trend Window</Label>
+              <Label for="trend-days">{{ uiText('Trend Window') }}</Label>
               <select
                 id="trend-days"
                 v-model.number="trendDays"
@@ -212,7 +216,7 @@ const buildLogLink = (params: Record<string, string>) => ({
                   :key="option"
                   :value="option"
                 >
-                  Last {{ option }} days
+                  {{ uiText(`Last ${option} days`) }}
                 </option>
               </select>
             </div>
@@ -235,7 +239,7 @@ const buildLogLink = (params: Record<string, string>) => ({
                 class="rounded-full px-2.5 py-1 text-xs font-medium"
                 :class="item.tone"
               >
-                Live
+                {{ uiText('Live') }}
               </div>
             </div>
             <div class="text-3xl font-semibold tracking-tight">
@@ -253,9 +257,9 @@ const buildLogLink = (params: Record<string, string>) => ({
         <Card class="shadow-sm">
           <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0">
             <div class="space-y-1">
-              <CardTitle>Attendance Trend</CardTitle>
+              <CardTitle>{{ uiText('Attendance Trend') }}</CardTitle>
               <p class="text-sm text-muted-foreground">
-                Checked in, checked out, late check in, and missing check out counts for the last {{ trendDays }} days.
+                {{ uiText(`Checked in, checked out, late check in, and missing check out counts for the last ${trendDays} days.`) }}
               </p>
             </div>
             <NuxtLink :to="buildLogLink({ date_from: selectedDate, date_to: selectedDate })">
@@ -263,7 +267,7 @@ const buildLogLink = (params: Record<string, string>) => ({
                 variant="outline"
                 size="sm"
               >
-                Open Logs
+                {{ uiText('Open Logs') }}
               </Button>
             </NuxtLink>
           </CardHeader>
@@ -282,7 +286,7 @@ const buildLogLink = (params: Record<string, string>) => ({
               v-else-if="trendRows.length === 0"
               class="rounded-xl border border-dashed p-6 text-sm text-muted-foreground"
             >
-              No trend data is available yet for the selected period.
+              {{ uiText('No trend data is available yet for the selected period.') }}
             </div>
             <div
               v-else
@@ -305,7 +309,7 @@ const buildLogLink = (params: Record<string, string>) => ({
                 <div class="mt-4 space-y-3">
                   <div class="space-y-1">
                     <div class="flex items-center justify-between text-xs">
-                      <span>Checked in</span>
+                      <span>{{ uiText('Checked in') }}</span>
                       <span>{{ day.checked_in_count }}</span>
                     </div>
                     <div class="h-2 rounded-full bg-muted">
@@ -317,7 +321,7 @@ const buildLogLink = (params: Record<string, string>) => ({
                   </div>
                   <div class="space-y-1">
                     <div class="flex items-center justify-between text-xs">
-                      <span>Checked out</span>
+                      <span>{{ uiText('Checked out') }}</span>
                       <span>{{ day.checked_out_count }}</span>
                     </div>
                     <div class="h-2 rounded-full bg-muted">
@@ -329,7 +333,7 @@ const buildLogLink = (params: Record<string, string>) => ({
                   </div>
                   <div class="space-y-1">
                     <div class="flex items-center justify-between text-xs">
-                      <span>Late</span>
+                      <span>{{ uiText('Late') }}</span>
                       <span>{{ day.late_check_in_count }}</span>
                     </div>
                     <div class="h-2 rounded-full bg-muted">
@@ -341,7 +345,7 @@ const buildLogLink = (params: Record<string, string>) => ({
                   </div>
                   <div class="space-y-1">
                     <div class="flex items-center justify-between text-xs">
-                      <span>Missing checkout</span>
+                      <span>{{ uiText('Missing checkout') }}</span>
                       <span>{{ day.missing_check_out_count }}</span>
                     </div>
                     <div class="h-2 rounded-full bg-muted">
@@ -360,9 +364,9 @@ const buildLogLink = (params: Record<string, string>) => ({
         <Card class="shadow-sm">
           <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0">
             <div class="space-y-1">
-              <CardTitle>Needs Attention Today</CardTitle>
+              <CardTitle>{{ uiText('Needs Attention Today') }}</CardTitle>
               <p class="text-sm text-muted-foreground">
-                Team members who are missing attendance actions or checked in late.
+                {{ uiText('Team members who are missing attendance actions or checked in late.') }}
               </p>
             </div>
             <NuxtLink :to="buildLogLink({ attendance_date: selectedDate })">
@@ -370,7 +374,7 @@ const buildLogLink = (params: Record<string, string>) => ({
                 variant="outline"
                 size="sm"
               >
-                Audit Today
+                {{ uiText('Audit Today') }}
               </Button>
             </NuxtLink>
           </CardHeader>
@@ -389,7 +393,7 @@ const buildLogLink = (params: Record<string, string>) => ({
               v-else-if="exceptionRows.length === 0"
               class="rounded-xl border border-dashed p-6 text-sm text-muted-foreground"
             >
-              No attendance exceptions for the selected day.
+              {{ uiText('No attendance exceptions for the selected day.') }}
             </div>
             <div
               v-else
@@ -419,10 +423,10 @@ const buildLogLink = (params: Record<string, string>) => ({
 
                 <div class="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
                   <div>
-                    First check in: {{ formatDateTime(item.first_check_in_at) }}
+                    {{ uiText('First check in') }}: {{ formatDateTime(item.first_check_in_at) }}
                   </div>
                   <div>
-                    Last check out: {{ formatDateTime(item.last_check_out_at) }}
+                    {{ uiText('Last check out') }}: {{ formatDateTime(item.last_check_out_at) }}
                   </div>
                 </div>
               </div>
@@ -434,9 +438,9 @@ const buildLogLink = (params: Record<string, string>) => ({
       <Card class="shadow-sm">
         <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0">
           <div class="space-y-1">
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle>{{ uiText('Quick Actions') }}</CardTitle>
             <p class="text-sm text-muted-foreground">
-              Use the owner dashboard as the overview, then open resource pages for deeper operations.
+              {{ uiText('Use the owner dashboard as the overview, then open resource pages for deeper operations.') }}
             </p>
           </div>
         </CardHeader>
@@ -446,10 +450,10 @@ const buildLogLink = (params: Record<string, string>) => ({
             class="rounded-2xl border bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5"
           >
             <div class="text-sm font-medium">
-              Attendance Logs
+              {{ uiText('Attendance Logs') }}
             </div>
             <div class="mt-1 text-sm text-muted-foreground">
-              Review detailed logs for {{ selectedDate }}.
+              {{ uiText(`Review detailed logs for ${selectedDate}.`) }}
             </div>
           </NuxtLink>
           <NuxtLink
@@ -457,10 +461,10 @@ const buildLogLink = (params: Record<string, string>) => ({
             class="rounded-2xl border bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5"
           >
             <div class="text-sm font-medium">
-              Check-in Records
+              {{ uiText('Check-in Records') }}
             </div>
             <div class="mt-1 text-sm text-muted-foreground">
-              Focus on arrival records for the selected day.
+              {{ uiText('Focus on arrival records for the selected day.') }}
             </div>
           </NuxtLink>
           <NuxtLink
@@ -468,10 +472,10 @@ const buildLogLink = (params: Record<string, string>) => ({
             class="rounded-2xl border bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5"
           >
             <div class="text-sm font-medium">
-              Employees
+              {{ uiText('Employees') }}
             </div>
             <div class="mt-1 text-sm text-muted-foreground">
-              Manage employee profile and attendance assignments.
+              {{ uiText('Manage employee profile and attendance assignments.') }}
             </div>
           </NuxtLink>
           <NuxtLink
@@ -479,10 +483,10 @@ const buildLogLink = (params: Record<string, string>) => ({
             class="rounded-2xl border bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5"
           >
             <div class="text-sm font-medium">
-              Work Shifts
+              {{ uiText('Work Shifts') }}
             </div>
             <div class="mt-1 text-sm text-muted-foreground">
-              Review shift timing and grace periods.
+              {{ uiText('Review shift timing and grace periods.') }}
             </div>
           </NuxtLink>
         </CardContent>
@@ -491,9 +495,9 @@ const buildLogLink = (params: Record<string, string>) => ({
 
     <Card v-else>
       <CardHeader>
-        <CardTitle>API Dashboard</CardTitle>
+        <CardTitle>{{ uiText('API Dashboard') }}</CardTitle>
         <p class="text-sm text-muted-foreground">
-          Quick access to the main API resources.
+          {{ uiText('Quick access to the main API resources.') }}
         </p>
       </CardHeader>
       <CardContent class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -503,14 +507,14 @@ const buildLogLink = (params: Record<string, string>) => ({
         >
           <CardContent class="flex items-center justify-between">
             <div class="text-sm font-medium">
-              {{ card.label }}
+              {{ uiText(card.label) }}
             </div>
             <NuxtLink :to="card.href">
               <Button
                 variant="ghost"
                 size="sm"
               >
-                Open
+                {{ uiText('Open') }}
               </Button>
             </NuxtLink>
           </CardContent>
@@ -523,7 +527,7 @@ const buildLogLink = (params: Record<string, string>) => ({
       class="border-destructive/40"
     >
       <CardContent class="p-5 text-sm text-muted-foreground">
-        The dashboard could not be refreshed just now. Please try again or inspect the attendance logs directly.
+        {{ uiText('The dashboard could not be refreshed just now. Please try again or inspect the attendance logs directly.') }}
       </CardContent>
     </Card>
   </div>

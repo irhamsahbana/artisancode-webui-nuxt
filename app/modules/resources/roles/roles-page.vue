@@ -4,8 +4,11 @@ import { useAsyncData } from '#app'
 import type { ApiResponse, ListResponse, PaginationMeta } from '~/types/api'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'RolesPage' })
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 type PermissionItem = {
   id: string
@@ -490,7 +493,7 @@ const prevCreatePermissionPage = () => {
           size="sm"
           @click="openCreate"
         >
-          Create role
+          {{ uiText('Create role') }}
         </Button>
       </template>
       <template #detail="{ row, loading, close, refresh: refreshList }">
@@ -591,14 +594,14 @@ const prevCreatePermissionPage = () => {
                 :disabled="editLoading || loading"
                 @click="handleEditClose(close)"
               >
-                Cancel
+                {{ uiText('Cancel') }}
               </Button>
               <Button
                 size="sm"
                 :disabled="editLoading || loading"
                 @click="submitUpdate(close, refreshList)"
               >
-                {{ editLoading ? 'Saving...' : 'Save changes' }}
+                {{ editLoading ? uiText('Saving...') : uiText('Save Changes') }}
               </Button>
             </div>
           </div>
@@ -610,7 +613,7 @@ const prevCreatePermissionPage = () => {
       <CardHeader>
         <CardTitle>Permissions</CardTitle>
         <p class="text-sm text-muted-foreground">
-          Permissions are managed by the backend and are read-only here.
+          {{ uiText('Permissions are managed by the backend and are read-only here.') }}
         </p>
       </CardHeader>
       <CardContent>
@@ -715,7 +718,7 @@ const prevCreatePermissionPage = () => {
     <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          Create role
+          {{ uiText('Create role') }}
         </div>
         <Button
           variant="outline"
@@ -845,7 +848,7 @@ const prevCreatePermissionPage = () => {
           :disabled="createLoading"
           @click="submitCreate"
         >
-          {{ createLoading ? 'Saving...' : 'Create role' }}
+          {{ createLoading ? uiText('Saving...') : uiText('Create role') }}
         </Button>
       </div>
     </div>

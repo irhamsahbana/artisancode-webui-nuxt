@@ -2,11 +2,14 @@
 import { ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'JobPositionsPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -90,7 +93,7 @@ const buildPayload = () => {
 
 const handleSubmit = async () => {
   if (!form.value.name.trim()) {
-    show('Name is required', 'error')
+    show(uiText('Name is required'), 'error')
     return
   }
 
@@ -102,7 +105,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show('Job position created successfully', 'success')
+      show(uiText('Job position created successfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -112,7 +115,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show('Job position updated successfully', 'success')
+      show(uiText('Job position updated successfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -137,7 +140,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        + Add Job Position
+        + {{ uiText('Add Job Position') }}
       </Button>
     </template>
 
@@ -146,7 +149,7 @@ const handleSubmit = async () => {
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
       >
-        Edit
+        {{ uiText('Edit') }}
       </button>
     </template>
   </ResourceList>
@@ -160,7 +163,7 @@ const handleSubmit = async () => {
     <div class="w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          {{ modalMode === 'create' ? 'Add Job Position' : 'Edit Job Position' }}
+          {{ modalMode === 'create' ? uiText('Add Job Position') : uiText('Edit Job Position') }}
         </div>
         <Button
           variant="outline"
@@ -175,7 +178,7 @@ const handleSubmit = async () => {
         v-if="modalLoading"
         class="mt-6 text-sm text-muted-foreground"
       >
-        Loading...
+        {{ uiText('Loading...') }}
       </div>
 
       <form
@@ -213,14 +216,14 @@ const handleSubmit = async () => {
             :disabled="submitLoading"
             @click="closeModal"
           >
-            Cancel
+            {{ uiText('Cancel') }}
           </Button>
           <Button
             size="sm"
             :disabled="submitLoading"
             type="submit"
           >
-            {{ submitLoading ? 'Saving...' : (modalMode === 'create' ? 'Create' : 'Update') }}
+            {{ submitLoading ? uiText('Saving...') : (modalMode === 'create' ? uiText('Create') : uiText('Update')) }}
           </Button>
         </div>
       </form>

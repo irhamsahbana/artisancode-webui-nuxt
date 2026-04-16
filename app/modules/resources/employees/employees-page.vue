@@ -2,11 +2,14 @@
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'EmployeesPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 
 const formatJoinDateForTable = (value: unknown) => {
@@ -216,23 +219,23 @@ const buildPayload = () => {
 
 const handleSubmit = async () => {
   if (!form.value.employee_no.trim()) {
-    show('Employee number is required', 'error')
+    show(uiText('Employee number is required'), 'error')
     return
   }
   if (!form.value.full_name.trim()) {
-    show('Full name is required', 'error')
+    show(uiText('Full name is required'), 'error')
     return
   }
   if (!form.value.email.trim()) {
-    show('Email is required', 'error')
+    show(uiText('Email is required'), 'error')
     return
   }
   if (modalMode.value === 'create' && form.value.password.trim() && form.value.password.trim().length < 8) {
-    show('Password must be at least 8 characters', 'error')
+    show(uiText('Password must be at least 8 characters'), 'error')
     return
   }
   if (modalMode.value === 'edit' && form.value.password.trim() && form.value.password.trim().length < 8) {
-    show('Password must be at least 8 characters', 'error')
+    show(uiText('Password must be at least 8 characters'), 'error')
     return
   }
 
@@ -244,7 +247,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show('Employee created successfully', 'success')
+      show(uiText('Employee created successfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -254,7 +257,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show('Employee updated successfully', 'success')
+      show(uiText('Employee updated successfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -279,7 +282,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        + Add Employee
+        + {{ uiText('Add Employee') }}
       </Button>
     </template>
 
@@ -288,7 +291,7 @@ const handleSubmit = async () => {
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
       >
-        Edit
+        {{ uiText('Edit') }}
       </button>
     </template>
   </ResourceList>
@@ -302,7 +305,7 @@ const handleSubmit = async () => {
     <div class="w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          {{ modalMode === 'create' ? 'Add Employee' : 'Edit Employee' }}
+          {{ modalMode === 'create' ? uiText('Add Employee') : uiText('Edit Employee') }}
         </div>
         <Button
           variant="outline"
@@ -317,7 +320,7 @@ const handleSubmit = async () => {
         v-if="modalLoading"
         class="mt-6 text-sm text-muted-foreground"
       >
-        Loading...
+        {{ uiText('Loading...') }}
       </div>
 
       <form
@@ -361,24 +364,24 @@ const handleSubmit = async () => {
 
         <div>
           <Label for="emp-password">
-            {{ modalMode === 'create' ? 'Password' : 'Reset Password' }}
+            {{ modalMode === 'create' ? uiText('Password') : uiText('Reset Password') }}
           </Label>
           <Input
             id="emp-password"
             v-model="form.password"
             type="password"
-            :placeholder="modalMode === 'create' ? 'Optional, min. 8 characters' : 'Optional, leave blank to keep current password'"
+            :placeholder="modalMode === 'create' ? uiText('Optional, min. 8 characters') : uiText('Optional, leave blank to keep current password')"
             class="mt-1"
           />
         </div>
 
         <!-- Org Unit -->
         <div>
-          <Label>Organization Unit</Label>
+          <Label>{{ uiText('Organization Unit') }}</Label>
           <SearchableTreeSelect
             v-model="form.org_unit_id"
             :items="orgUnits"
-            placeholder="Not assigned"
+            :placeholder="uiText('Not assigned')"
             search-placeholder="Search org units..."
             class="mt-1"
           />
@@ -386,11 +389,11 @@ const handleSubmit = async () => {
 
         <!-- Job Position -->
         <div>
-          <Label>Job Position</Label>
+          <Label>{{ uiText('Job Position') }}</Label>
           <SearchableSelect
             v-model="form.job_position_id"
             :options="jobPositionOptions"
-            placeholder="Not assigned"
+            :placeholder="uiText('Not assigned')"
             search-placeholder="Search job positions..."
             class="mt-1"
           />
@@ -398,11 +401,11 @@ const handleSubmit = async () => {
 
         <!-- Work Location -->
         <div>
-          <Label>Work Location</Label>
+          <Label>{{ uiText('Work Location') }}</Label>
           <SearchableSelect
             v-model="form.location_id"
             :options="workLocationOptions"
-            placeholder="Not assigned"
+            :placeholder="uiText('Not assigned')"
             search-placeholder="Search work locations..."
             class="mt-1"
           />
@@ -410,11 +413,11 @@ const handleSubmit = async () => {
 
         <!-- Work Shift -->
         <div>
-          <Label>Work Shift</Label>
+          <Label>{{ uiText('Work Shift') }}</Label>
           <SearchableSelect
             v-model="form.shift_id"
             :options="workShiftOptions"
-            placeholder="Not assigned"
+            :placeholder="uiText('Not assigned')"
             search-placeholder="Search work shifts..."
             class="mt-1"
           />
@@ -426,7 +429,7 @@ const handleSubmit = async () => {
           <SearchableSelect
             v-model="form.status"
             :options="statusOptions"
-            placeholder="Select status"
+            :placeholder="uiText('Select status')"
             search-placeholder="Search status..."
             class="mt-1"
           />
@@ -451,14 +454,14 @@ const handleSubmit = async () => {
             :disabled="submitLoading"
             @click="closeModal"
           >
-            Cancel
+            {{ uiText('Cancel') }}
           </Button>
           <Button
             size="sm"
             :disabled="submitLoading"
             type="submit"
           >
-            {{ submitLoading ? 'Saving...' : (modalMode === 'create' ? 'Create' : 'Update') }}
+            {{ submitLoading ? uiText('Saving...') : (modalMode === 'create' ? uiText('Create') : uiText('Update')) }}
           </Button>
         </div>
       </form>

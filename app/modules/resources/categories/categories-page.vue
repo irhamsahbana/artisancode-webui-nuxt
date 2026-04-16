@@ -2,8 +2,11 @@
 import { reactive, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'CategoriesPage' })
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const name = row.name
@@ -177,7 +180,7 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
         size="sm"
         @click="openCreate"
       >
-        Create category
+        {{ uiText('Create category') }}
       </Button>
     </template>
     <template #detail="{ row, loading, close, refresh: refreshList }">
@@ -205,7 +208,7 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
               v-if="loading"
               class="text-muted-foreground"
             >
-              Loading...
+              {{ uiText('Loading...') }}
             </div>
             <div
               v-else
@@ -253,14 +256,14 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
               :disabled="editLoading || loading"
               @click="close"
             >
-              Cancel
+              {{ uiText('Cancel') }}
             </Button>
             <Button
               size="sm"
               :disabled="editLoading || loading"
               @click="submitEdit(refreshList, close)"
             >
-              {{ editLoading ? 'Saving...' : 'Save changes' }}
+              {{ editLoading ? uiText('Saving...') : uiText('Save Changes') }}
             </Button>
           </div>
         </div>
@@ -275,7 +278,7 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
     <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          Create category
+          {{ uiText('Create category') }}
         </div>
         <Button
           variant="outline"
@@ -330,14 +333,14 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
           :disabled="createLoading"
           @click="resetCreate"
         >
-          Cancel
+          {{ uiText('Cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="createLoading"
           @click="submitCreate"
         >
-          {{ createLoading ? 'Saving...' : 'Create category' }}
+          {{ createLoading ? uiText('Saving...') : uiText('Create category') }}
         </Button>
       </div>
     </div>

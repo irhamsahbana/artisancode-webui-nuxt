@@ -7,8 +7,11 @@ import { z } from 'zod'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'StudentsPage' })
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const firstName = row.first_name
@@ -405,7 +408,7 @@ const submitUpdate = handleSubmit(async (values) => {
         size="sm"
         @click="openCreate"
       >
-        Create student
+        {{ uiText('Create student') }}
       </Button>
     </template>
     <template #detail="{ loading, close }">
@@ -429,7 +432,7 @@ const submitUpdate = handleSubmit(async (values) => {
               v-if="loading || detailLoading"
               class="text-muted-foreground"
             >
-              Loading...
+              {{ uiText('Loading...') }}
             </div>
             <div
               v-else-if="!detailData"
@@ -708,7 +711,7 @@ const submitUpdate = handleSubmit(async (values) => {
               :disabled="saveLoading || detailLoading"
               @click="submitUpdate"
             >
-              {{ saveLoading ? 'Saving...' : 'Save changes' }}
+              {{ saveLoading ? uiText('Saving...') : uiText('Save Changes') }}
             </Button>
           </div>
         </div>
@@ -723,7 +726,7 @@ const submitUpdate = handleSubmit(async (values) => {
     <div class="w-full max-w-4xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          Create student
+          {{ uiText('Create student') }}
         </div>
         <Button
           variant="outline"
@@ -890,14 +893,14 @@ const submitUpdate = handleSubmit(async (values) => {
           :disabled="createLoading"
           @click="resetCreate"
         >
-          Cancel
+          {{ uiText('Cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="createLoading"
           @click="submitCreate"
         >
-          {{ createLoading ? 'Saving...' : 'Create student' }}
+          {{ createLoading ? uiText('Saving...') : uiText('Create student') }}
         </Button>
       </div>
     </div>

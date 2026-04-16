@@ -5,6 +5,7 @@ import { useAsyncData, useRoute, useRouter } from '#app'
 import type { ApiResponse, ListResponse } from '~/types/api'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 type Column = {
   key: string
@@ -19,7 +20,7 @@ const props = withDefaults(
     columns: Column[]
     extraQuery?: Record<string, unknown>
     searchKey?: string | null
-    searchPlaceholder?: string
+    searchPlaceholder?: string | null
     searchDebounceMs?: number
     loadingVariant?: 'text' | 'skeleton'
     canViewDetail?: boolean
@@ -30,7 +31,7 @@ const props = withDefaults(
   {
     extraQuery: undefined,
     searchKey: 'q',
-    searchPlaceholder: 'Search...',
+    searchPlaceholder: null,
     searchDebounceMs: 0,
     loadingVariant: 'text',
     canViewDetail: true,
@@ -50,11 +51,12 @@ const { apiFetch } = useApi()
 const { show } = useBanner()
 const route = useRoute()
 const router = useRouter()
+const { locale, t, format } = useLocale()
 const limitOptions = [10, 15, 25, 50, 100]
 const limitOptionList = computed(() =>
   limitOptions.map((limit) => ({
     value: limit,
-    label: `${limit} / page`,
+    label: `${limit} / ${t('common.page').toLowerCase()}`,
   })),
 )
 
@@ -154,6 +156,14 @@ const slots = useSlots()
 const hasDetailSlot = computed(() => Boolean(slots.detail))
 const hasHeaderActions = computed(() => Boolean(slots['header-actions']))
 const hasRowActions = computed(() => Boolean(slots['row-actions']))
+const resolvedSearchPlaceholder = computed(() => {
+  if (props.searchPlaceholder) {
+    return localizeUiText(locale.value, props.searchPlaceholder)
+  }
+
+  return `${t('common.search')}...`
+})
+const localizedTitle = computed(() => localizeUiText(locale.value, props.title))
 
 const detailEntries = computed(() => {
   if (!detailRow.value) {
@@ -250,7 +260,7 @@ const openDetail = async (row: Record<string, unknown>) => {
   }
   const id = getRowId(row)
   if (id === null) {
-    show('Detail not available.', 'error')
+    show(t('resource.detailNotAvailable'), 'error')
     return
   }
   const idString = String(id)
@@ -301,7 +311,7 @@ const confirmDelete = async () => {
   }
   const id = getRowId(deleteRowTarget.value)
   if (id === null) {
-    show('Delete failed: missing id.', 'error')
+    show(t('resource.deleteFailedMissingId'), 'error')
     cancelDelete()
     return
   }
@@ -381,14 +391,14 @@ watch(
   <Card>
     <CardHeader>
       <div class="flex flex-wrap items-center justify-between gap-2">
-        <CardTitle>{{ title }}</CardTitle>
+        <CardTitle>{{ localizedTitle }}</CardTitle>
       </div>
       <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-1 flex-wrap items-center gap-2">
           <Input
             v-if="props.searchKey"
             v-model="query.q"
-            :placeholder="props.searchPlaceholder"
+            :placeholder="resolvedSearchPlaceholder"
             class="h-9 w-full max-w-xs"
           />
           <Button
@@ -396,20 +406,20 @@ watch(
             variant="outline"
             size="sm"
           >
-            Filter
+            {{ t('common.filter') }}
           </Button>
           <div
             v-if="props.searchKey && query.q"
             class="flex items-center gap-2 rounded-full border px-3 py-1 text-xs text-muted-foreground"
           >
-            <span>Search: {{ query.q }}</span>
+            <span>{{ t('common.search') }}: {{ query.q }}</span>
             <Button
               variant="ghost"
               size="sm"
               class="h-6 px-2"
               @click="query.q = ''"
             >
-              Clear
+              {{ t('common.clear') }}
             </Button>
           </div>
           <slot name="filters" />
@@ -428,7 +438,7 @@ watch(
           v-if="error"
           class="text-sm text-destructive"
         >
-          Failed to load data.
+          {{ t('resource.failedLoadData') }}
         </div>
         <div v-else>
           <div v-if="pending">
@@ -445,7 +455,7 @@ watch(
                     v-if="props.canViewDetail || props.canDelete"
                     class="w-10 text-right"
                   >
-                    Actions
+                    {{ t('common.actions') }}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -473,7 +483,7 @@ watch(
               v-else
               class="text-sm text-muted-foreground"
             >
-              Loading...
+              {{ t('common.loading') }}
             </div>
           </div>
           <ResourceTable
@@ -500,16 +510,16 @@ watch(
       </CardContent>
       <CardFooter class="flex flex-wrap items-center justify-between gap-4 text-sm">
         <div class="text-muted-foreground">
-          {{ selectedCount }} of {{ rows.length }} row(s) selected
+          {{ format('resource.selectedRows', { selected: String(selectedCount), total: String(rows.length) }) }}
         </div>
         <div class="flex flex-wrap items-center gap-4">
           <div class="flex items-center gap-2">
-            <span class="text-muted-foreground">Rows per page</span>
+            <span class="text-muted-foreground">{{ t('common.rowsPerPage') }}</span>
             <SearchableSelect
               v-model="query.limit"
               :options="limitOptionList"
-              placeholder="Limit"
-              search-placeholder="Search limit"
+              :placeholder="t('common.limit')"
+              :search-placeholder="`${t('common.search')} ${t('common.limit').toLowerCase()}`"
               class="w-32"
             />
           </div>
@@ -517,7 +527,7 @@ watch(
             v-if="pagination"
             class="text-muted-foreground"
           >
-            Page {{ pagination.page }} of {{ pagination.last_page }}
+            {{ t('common.page') }} {{ pagination.page }} {{ t('common.of') }} {{ pagination.last_page }}
           </div>
           <div class="flex items-center gap-2">
             <Button
@@ -526,7 +536,7 @@ watch(
               :disabled="query.page === 1"
               @click="prevPage"
             >
-              Prev
+              {{ t('common.previous') }}
             </Button>
             <Button
               variant="outline"
@@ -534,7 +544,7 @@ watch(
               :disabled="!pagination || query.page >= pagination.last_page"
               @click="nextPage"
             >
-              Next
+              {{ t('common.next') }}
             </Button>
           </div>
         </div>
@@ -542,7 +552,7 @@ watch(
       <template #fallback>
         <CardContent>
           <div class="text-sm text-muted-foreground">
-            Loading...
+            {{ t('common.loading') }}
           </div>
         </CardContent>
       </template>
@@ -567,14 +577,14 @@ watch(
     <div class="w-full max-w-4xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          Detail
+          {{ t('common.detail') }}
         </div>
         <Button
           variant="outline"
           size="sm"
           @click="closeDetailWithRoute"
         >
-          Close
+          {{ t('common.close') }}
         </Button>
       </div>
       <div class="mt-4 max-h-[70vh] overflow-auto text-sm">
@@ -583,13 +593,13 @@ watch(
             v-if="detailLoading"
             class="text-muted-foreground"
           >
-            Loading...
+            {{ t('common.loading') }}
           </div>
           <div
             v-else-if="detailEntries.length === 0"
             class="text-muted-foreground"
           >
-            No detail available.
+            {{ t('resource.detailEmpty') }}
           </div>
           <div v-else>
             <div
@@ -615,10 +625,10 @@ watch(
   >
     <div class="w-full max-w-md rounded-lg border bg-card p-6 shadow-lg">
       <div class="text-lg font-semibold">
-        Confirm delete
+        {{ t('resource.confirmDelete') }}
       </div>
       <div class="mt-2 text-sm text-muted-foreground">
-        Delete {{ deleteLabel }}? This action cannot be undone.
+        {{ format('resource.deleteConfirmDescription', { label: deleteLabel }) }}
       </div>
       <div class="mt-6 flex justify-end gap-2">
         <Button
@@ -627,7 +637,7 @@ watch(
           :disabled="deleteLoading"
           @click="cancelDelete"
         >
-          Cancel
+          {{ t('common.cancel') }}
         </Button>
         <Button
           variant="destructive"
@@ -635,7 +645,7 @@ watch(
           :disabled="deleteLoading"
           @click="confirmDelete"
         >
-          {{ deleteLoading ? 'Deleting...' : 'Delete' }}
+          {{ deleteLoading ? t('common.deleting') : t('common.delete') }}
         </Button>
       </div>
     </div>

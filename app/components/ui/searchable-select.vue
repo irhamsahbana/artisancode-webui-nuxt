@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { cn } from '~/utils/utils'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'UiSearchableSelect' })
 
@@ -29,6 +30,8 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: string | number | null): void
 }>()
 
+const { locale } = useLocale()
+
 const rootRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
 const query = ref('')
@@ -48,6 +51,10 @@ const filteredOptions = computed(() => {
   }
   return props.options.filter((option) => option.label.toLowerCase().includes(term))
 })
+
+const resolvedPlaceholder = computed(() => localizeUiText(locale.value, props.placeholder))
+const selectedBadgeLabel = computed(() => localizeUiText(locale.value, 'Selected'))
+const emptyLabel = computed(() => localizeUiText(locale.value, 'No options'))
 
 const openList = () => {
   if (props.disabled) {
@@ -133,7 +140,7 @@ onBeforeUnmount(() => {
       v-bind="$attrs"
       :value="query"
       :disabled="disabled"
-      :placeholder="selectedLabel ? '' : props.placeholder"
+      :placeholder="selectedLabel ? '' : resolvedPlaceholder"
       :class="cn('h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50', $attrs.class as string)"
       @focus="openList"
       @input="onInput"
@@ -155,14 +162,14 @@ onBeforeUnmount(() => {
             v-if="option.value === props.modelValue"
             class="text-xs text-muted-foreground"
           >
-            Selected
+            {{ selectedBadgeLabel }}
           </span>
         </button>
         <div
           v-if="filteredOptions.length === 0"
           class="px-3 py-2 text-muted-foreground"
         >
-          No options
+          {{ emptyLabel }}
         </div>
       </div>
     </div>

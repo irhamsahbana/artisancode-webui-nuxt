@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'UsersPage' })
 
@@ -25,6 +26,8 @@ type UserDetail = {
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const name = row.name
@@ -168,27 +171,27 @@ const buildPayload = () => {
 
 const validateForm = () => {
   if (!form.value.name.trim()) {
-    show('Name is required', 'error')
+    show(uiText('Name is required'), 'error')
     return false
   }
   if (!form.value.username.trim()) {
-    show('Username is required', 'error')
+    show(uiText('Username is required'), 'error')
     return false
   }
   if (!form.value.email.trim()) {
-    show('Email is required', 'error')
+    show(uiText('Email is required'), 'error')
     return false
   }
   if (modalMode.value === 'create' && form.value.password.trim().length < 8) {
-    show('Password must be at least 8 characters', 'error')
+    show(uiText('Password must be at least 8 characters'), 'error')
     return false
   }
   if (modalMode.value === 'edit' && form.value.password.trim().length > 0 && form.value.password.trim().length < 8) {
-    show('Password must be at least 8 characters', 'error')
+    show(uiText('Password must be at least 8 characters'), 'error')
     return false
   }
   if (form.value.role_ids.length === 0) {
-    show('Select at least one role', 'error')
+    show(uiText('Select at least one role'), 'error')
     return false
   }
   return true
@@ -207,7 +210,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (response.success) {
-      show('User created successfully', 'success')
+      show(uiText('User created successfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -218,7 +221,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (response.success) {
-      show('User updated successfully', 'success')
+      show(uiText('User updated successfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -243,7 +246,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        + Add User
+        + {{ uiText('Add User') }}
       </Button>
     </template>
 
@@ -252,7 +255,7 @@ const handleSubmit = async () => {
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
       >
-        Edit
+        {{ uiText('Edit') }}
       </button>
     </template>
   </ResourceList>
@@ -265,14 +268,14 @@ const handleSubmit = async () => {
     <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          {{ modalMode === 'create' ? 'Add User' : 'Edit User' }}
+          {{ modalMode === 'create' ? uiText('Add User') : uiText('Edit User') }}
         </div>
         <Button
           variant="outline"
           size="sm"
           @click="closeModal"
         >
-          Close
+          {{ uiText('Close') }}
         </Button>
       </div>
 
@@ -280,7 +283,7 @@ const handleSubmit = async () => {
         v-if="modalLoading"
         class="mt-6 text-sm text-muted-foreground"
       >
-        Loading user data...
+        {{ uiText('Loading user data...') }}
       </div>
 
       <form
@@ -321,19 +324,19 @@ const handleSubmit = async () => {
 
           <div class="space-y-2">
             <Label for="user-password">
-              {{ modalMode === 'create' ? 'Password' : 'Reset Password (Optional)' }}
+              {{ modalMode === 'create' ? uiText('Password') : uiText('Reset Password (Optional)') }}
             </Label>
             <Input
               id="user-password"
               v-model="form.password"
               type="password"
-              :placeholder="modalMode === 'create' ? 'Minimum 8 characters' : 'Leave blank to keep current password'"
+              :placeholder="modalMode === 'create' ? uiText('Minimum 8 characters') : uiText('Leave blank to keep current password')"
             />
           </div>
         </div>
 
         <div class="space-y-2">
-          <Label>Roles</Label>
+          <Label>{{ uiText('Roles') }}</Label>
           <div
             class="rounded-md border p-4"
           >
@@ -341,13 +344,13 @@ const handleSubmit = async () => {
               v-if="rolesLoading"
               class="text-sm text-muted-foreground"
             >
-              Loading roles...
+              {{ uiText('Loading roles...') }}
             </div>
             <div
               v-else-if="roles.length === 0"
               class="text-sm text-muted-foreground"
             >
-              No roles available.
+              {{ uiText('No roles available.') }}
             </div>
             <div
               v-else
@@ -369,7 +372,7 @@ const handleSubmit = async () => {
             </div>
           </div>
           <p class="text-xs text-muted-foreground">
-            Selected roles: {{ selectedRoleNames.length > 0 ? selectedRoleNames.join(', ') : 'None' }}
+            {{ uiText('Selected roles') }}: {{ selectedRoleNames.length > 0 ? selectedRoleNames.join(', ') : uiText('None') }}
           </p>
         </div>
 
@@ -379,13 +382,13 @@ const handleSubmit = async () => {
             variant="outline"
             @click="closeModal"
           >
-            Cancel
+            {{ uiText('Cancel') }}
           </Button>
           <Button
             type="submit"
             :disabled="submitLoading"
           >
-            {{ submitLoading ? 'Saving...' : (modalMode === 'create' ? 'Create User' : 'Save Changes') }}
+            {{ submitLoading ? uiText('Saving...') : (modalMode === 'create' ? uiText('Create User') : uiText('Save Changes')) }}
           </Button>
         </div>
       </form>

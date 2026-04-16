@@ -3,6 +3,8 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 defineOptions({ name: 'LocationMapPicker' })
 
+const { t } = useLocale()
+
 const props = withDefaults(
   defineProps<{
     latitude?: number | null
@@ -176,7 +178,7 @@ const reverseGeocode = async (lat: number, lon: number) => {
 // Find my location using browser geolocation
 const findMyLocation = () => {
   if (!navigator.geolocation) {
-    geoError.value = 'Geolocation is not supported by your browser.'
+    geoError.value = t('resource.geolocationUnsupported')
     return
   }
 
@@ -201,16 +203,16 @@ const findMyLocation = () => {
       geoLoading.value = false
       switch (error.code) {
         case error.PERMISSION_DENIED:
-          geoError.value = 'Location permission denied. Please enable it in your browser settings.'
+          geoError.value = t('resource.geolocationDenied')
           break
         case error.POSITION_UNAVAILABLE:
-          geoError.value = 'Location information is unavailable.'
+          geoError.value = t('resource.geolocationUnavailable')
           break
         case error.TIMEOUT:
-          geoError.value = 'Location request timed out. Please try again.'
+          geoError.value = t('resource.geolocationTimeout')
           break
         default:
-          geoError.value = 'An unknown error occurred while getting location.'
+          geoError.value = t('resource.geolocationUnknown')
       }
     },
     {
@@ -269,7 +271,7 @@ onBeforeUnmount(() => {
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Search location..."
+          :placeholder="t('resource.searchLocation')"
           class="h-9 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           @keydown.enter.prevent="searchLocation"
         >
@@ -280,7 +282,7 @@ onBeforeUnmount(() => {
           :disabled="searchLoading"
           @click="searchLocation"
         >
-          {{ searchLoading ? '...' : 'Search' }}
+          {{ searchLoading ? '...' : t('common.search') }}
         </Button>
         <Button
           type="button"
@@ -289,7 +291,7 @@ onBeforeUnmount(() => {
           :disabled="geoLoading"
           @click="findMyLocation"
         >
-          {{ geoLoading ? '...' : '📍 My Location' }}
+          {{ geoLoading ? '...' : `📍 ${t('common.myLocation')}` }}
         </Button>
       </div>
 
@@ -332,17 +334,17 @@ onBeforeUnmount(() => {
       class="grid grid-cols-2 gap-2"
     >
       <div class="flex items-center gap-2 rounded-md border bg-muted/50 px-3 py-1.5 text-xs">
-        <span class="text-muted-foreground">Lat:</span>
+        <span class="text-muted-foreground">{{ t('common.latitude') }}:</span>
         <span class="font-mono">{{ latitude }}</span>
       </div>
       <div class="flex items-center gap-2 rounded-md border bg-muted/50 px-3 py-1.5 text-xs">
-        <span class="text-muted-foreground">Lon:</span>
+        <span class="text-muted-foreground">{{ t('common.longitude') }}:</span>
         <span class="font-mono">{{ longitude }}</span>
       </div>
     </div>
 
     <p class="text-xs text-muted-foreground">
-      Click on the map, drag the marker, or use "My Location" to set location.
+      {{ t('resource.mapPickerHint') }}
     </p>
   </div>
 </template>

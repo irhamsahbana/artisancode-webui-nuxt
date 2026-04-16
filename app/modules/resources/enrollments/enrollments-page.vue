@@ -3,8 +3,11 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'EnrollmentsPage' })
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const student = row.student as { first_name?: string; last_name?: string } | undefined
@@ -606,7 +609,7 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
         size="sm"
         @click="openCreate"
       >
-        Create enrollment
+        {{ uiText('Create enrollment') }}
       </Button>
     </template>
     <template #row-actions="{ row, close }">
@@ -615,7 +618,7 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
         :disabled="createInvoiceLoading"
         @click="handleCreateInvoice(row, close)"
       >
-        {{ createInvoiceLoading ? 'Creating...' : 'Generate invoice' }}
+        {{ createInvoiceLoading ? uiText('Creating...') : uiText('Generate invoice') }}
       </button>
     </template>
     <template #detail="{ row, loading, close, refresh: refreshList }">
@@ -645,7 +648,7 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
               v-if="loading"
               class="text-muted-foreground"
             >
-              Loading...
+              {{ uiText('Loading...') }}
             </div>
             <div
               v-else
@@ -746,14 +749,14 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
               :disabled="editLoading || loading"
               @click="close"
             >
-              Cancel
+              {{ uiText('Cancel') }}
             </Button>
             <Button
               size="sm"
               :disabled="editLoading || loading"
               @click="submitEdit(refreshList, close)"
             >
-              {{ editLoading ? 'Saving...' : 'Save changes' }}
+              {{ editLoading ? uiText('Saving...') : uiText('Save Changes') }}
             </Button>
           </div>
         </div>
@@ -768,7 +771,7 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
     <div class="w-full max-w-4xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="text-lg font-semibold">
-          Create enrollment
+          {{ uiText('Create enrollment') }}
         </div>
         <Button
           variant="outline"
@@ -878,14 +881,14 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
           :disabled="createLoading"
           @click="resetCreate"
         >
-          Cancel
+          {{ uiText('Cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="createLoading"
           @click="submitCreate"
         >
-          {{ createLoading ? 'Saving...' : 'Create enrollment' }}
+          {{ createLoading ? uiText('Saving...') : uiText('Create enrollment') }}
         </Button>
       </div>
     </div>

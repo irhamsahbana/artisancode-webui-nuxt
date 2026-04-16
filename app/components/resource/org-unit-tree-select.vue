@@ -13,14 +13,16 @@ export interface OrgUnitNode {
 
 defineOptions({ name: 'OrgUnitTreeSelect' })
 
+const { t } = useLocale()
+
 const props = withDefaults(
   defineProps<{
     modelValue?: string | null
-    placeholder?: string
+    placeholder?: string | null
   }>(),
   {
     modelValue: null,
-    placeholder: 'Select organization unit',
+    placeholder: null,
   },
 )
 
@@ -164,7 +166,7 @@ defineExpose({ fetchOrgUnits })
         v-else
         class="text-muted-foreground"
       >
-        {{ placeholder }}
+        {{ placeholder ?? t('company.selectOrganizationUnit') }}
       </span>
       <span class="flex items-center gap-1 ml-2 shrink-0">
         <span
@@ -187,13 +189,13 @@ defineExpose({ fetchOrgUnits })
         v-if="loading"
         class="p-3 text-sm text-muted-foreground"
       >
-        Loading...
+        {{ t('common.loading') }}
       </div>
       <div
         v-else-if="tree.length === 0"
         class="p-3 text-sm text-muted-foreground"
       >
-        No organization units found
+        {{ t('resource.noOrganizationUnits') }}
       </div>
       <div
         v-else

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, useSlots, watch, type ComponentPublicInstance } from 'vue'
+import { localizeUiText } from '~/utils/ui-localization'
 
 type Column = {
   key: string
@@ -19,10 +20,12 @@ const props = withDefaults(
   {
     canViewDetail: true,
     canDelete: true,
-    emptyText: 'No data available',
+    emptyText: undefined,
     selectable: true,
   },
 )
+
+const { locale, t } = useLocale()
 
 const emit = defineEmits<{
   (event: 'delete', row: Record<string, unknown>): void
@@ -40,6 +43,10 @@ const menuAnchorRefs = ref<Record<string, HTMLElement | null>>({})
 const hasActions = computed(() => props.canViewDetail || props.canDelete || hasCustomActions.value)
 const selectedKeys = ref<Set<string | number>>(new Set())
 const rowKeys = computed(() => resolvedRows.value.map((row, index) => getRowKey(row, index)))
+const localizedColumns = computed(() => props.columns.map(column => ({
+  ...column,
+  label: localizeUiText(locale.value, column.label),
+})))
 const allSelected = computed(
   () => rowKeys.value.length > 0 && rowKeys.value.every((key) => selectedKeys.value.has(key)),
 )
@@ -240,7 +247,7 @@ watch(
           >
         </TableHead>
         <TableHead
-          v-for="column in columns"
+          v-for="column in localizedColumns"
           :key="column.key"
         >
           {{ column.label }}
@@ -249,14 +256,14 @@ watch(
           v-if="hasActions"
           class="w-10 text-right"
         >
-          Actions
+          {{ t('common.actions') }}
         </TableHead>
       </TableRow>
     </TableHeader>
     <TableBody>
       <TableRow
-        v-for="(row, index) in resolvedRows"
-        :key="getRowKey(row, index)"
+          v-for="(row, index) in resolvedRows"
+          :key="getRowKey(row, index)"
       >
         <TableCell
           v-if="props.selectable"
@@ -271,9 +278,9 @@ watch(
           >
         </TableCell>
         <TableCell
-          v-for="column in columns"
-          :key="column.key"
-        >
+            v-for="column in localizedColumns"
+            :key="column.key"
+          >
           <span v-if="column.format">
             {{ column.format(row[column.key], row) }}
           </span>
@@ -305,7 +312,7 @@ watch(
                 class="w-full rounded px-3 py-2 text-left hover:bg-accent"
                 @click="viewDetail(row)"
               >
-                Manage
+                {{ t('common.detail') }}
               </button>
               <slot
                 name="row-actions"
@@ -317,7 +324,7 @@ watch(
                 class="w-full rounded px-3 py-2 text-left text-destructive hover:bg-accent"
                 @click="confirmDelete(row)"
               >
-                Delete
+                {{ t('common.delete') }}
               </button>
             </div>
           </Teleport>
@@ -328,7 +335,7 @@ watch(
           :colspan="columns.length + (hasActions ? 1 : 0) + (props.selectable ? 1 : 0)"
           class="text-center text-muted-foreground"
         >
-          {{ emptyText ?? 'No data available' }}
+          {{ emptyText ?? t('common.noData') }}
         </TableCell>
       </TableRow>
     </TableBody>

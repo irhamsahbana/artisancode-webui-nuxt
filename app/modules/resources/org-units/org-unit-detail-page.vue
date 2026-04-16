@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'OrgUnitDetailPage' })
 
@@ -10,6 +11,8 @@ const route = useRoute()
 const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 const orgUnitId = computed(() => String(route.params.id))
 
@@ -114,14 +117,14 @@ onMounted(() => {
 
     <Card>
       <CardHeader>
-        <CardTitle>Edit Organization Unit</CardTitle>
+        <CardTitle>{{ uiText('Edit Organization Unit') }}</CardTitle>
       </CardHeader>
       <CardContent>
         <div
           v-if="loading"
           class="py-8 text-center text-muted-foreground"
         >
-          Loading org unit...
+          {{ uiText('Loading org unit...') }}
         </div>
 
         <div
@@ -165,14 +168,14 @@ onMounted(() => {
           :disabled="saveLoading"
           @click="goBack"
         >
-          Cancel
+          {{ uiText('Cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="saveLoading || loading"
           @click="saveChanges"
         >
-          {{ saveLoading ? 'Saving...' : 'Save changes' }}
+          {{ saveLoading ? uiText('Saving...') : uiText('Save Changes') }}
         </Button>
       </CardFooter>
     </Card>

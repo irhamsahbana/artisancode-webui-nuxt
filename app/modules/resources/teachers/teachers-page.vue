@@ -3,8 +3,11 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'TeachersPage' })
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const name = row.name
@@ -294,7 +297,7 @@ onMounted(() => {
         size="sm"
         @click="openCreate"
       >
-        Create teacher
+        {{ uiText('Create teacher') }}
       </Button>
     </template>
     <template #detail="{ row, loading, close, refresh: refreshList }">
@@ -322,7 +325,7 @@ onMounted(() => {
               v-if="loading"
               class="text-muted-foreground"
             >
-              Loading...
+              {{ uiText('Loading...') }}
             </div>
             <div
               v-else
@@ -414,14 +417,14 @@ onMounted(() => {
               :disabled="editLoading || loading"
               @click="close"
             >
-              Cancel
+              {{ uiText('Cancel') }}
             </Button>
             <Button
               size="sm"
               :disabled="editLoading || loading"
               @click="submitEdit(refreshList, close)"
             >
-              {{ editLoading ? 'Saving...' : 'Save changes' }}
+              {{ editLoading ? uiText('Saving...') : uiText('Save Changes') }}
             </Button>
           </div>
         </div>
@@ -436,7 +439,7 @@ onMounted(() => {
     <div class="w-full max-w-3xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          Create teacher
+          {{ uiText('Create teacher') }}
         </div>
         <Button
           variant="outline"
@@ -535,14 +538,14 @@ onMounted(() => {
           :disabled="createLoading"
           @click="resetCreate"
         >
-          Cancel
+          {{ uiText('Cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="createLoading"
           @click="submitCreate"
         >
-          {{ createLoading ? 'Saving...' : 'Create teacher' }}
+          {{ createLoading ? uiText('Saving...') : uiText('Create teacher') }}
         </Button>
       </div>
     </div>

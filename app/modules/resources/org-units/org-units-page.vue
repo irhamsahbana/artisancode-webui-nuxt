@@ -2,8 +2,11 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'OrgUnitsPage' })
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 const columns = [
   { key: 'name', label: 'Name' },
@@ -110,7 +113,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
         size="sm"
         @click="openCreate"
       >
-        Create new
+        {{ uiText('Create new') }}
       </Button>
     </template>
   </ResourceList>
@@ -124,7 +127,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
     <div class="w-full max-w-xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          Create Organization Unit
+          {{ uiText('Create Organization Unit') }}
         </div>
         <Button
           variant="outline"
@@ -170,7 +173,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
           :disabled="createLoading"
           @click="closeCreate"
         >
-          Cancel
+          {{ uiText('Cancel') }}
         </Button>
         <Button
           size="sm"
@@ -179,7 +182,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
             listKey++
           })"
         >
-          {{ createLoading ? 'Creating...' : 'Create' }}
+          {{ createLoading ? uiText('Creating...') : uiText('Create') }}
         </Button>
       </div>
     </div>

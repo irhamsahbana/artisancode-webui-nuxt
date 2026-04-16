@@ -302,7 +302,11 @@ const submitEdit = async () => {
   editLoading.value = true
   const response = await apiFetch(`/companies/${companyId.value}`, {
     method: 'PUT',
-    body: { code, name },
+    body: {
+      code,
+      name,
+      config: { ...configForm },
+    },
   })
   editLoading.value = false
   if (response.success) {
@@ -385,19 +389,19 @@ onMounted(async () => {
         </CardHeader>
         <CardContent class="grid gap-4">
           <div class="grid gap-2">
-            <Label for="company-code">Code</Label>
+            <Label for="company-code">{{ t('company.companyCode') }}</Label>
             <Input
               id="company-code"
               v-model="editForm.code"
-              placeholder="Company code"
+              :placeholder="t('company.companyCode')"
             />
           </div>
           <div class="grid gap-2">
-            <Label for="company-name">Name</Label>
+            <Label for="company-name">{{ t('company.companyName') }}</Label>
             <Input
               id="company-name"
               v-model="editForm.name"
-              placeholder="Company name"
+              :placeholder="t('company.companyName')"
             />
           </div>
         </CardContent>
@@ -407,14 +411,14 @@ onMounted(async () => {
             size="sm"
             @click="goBack"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </Button>
           <Button
             size="sm"
             :disabled="editLoading"
             @click="submitEdit"
           >
-            {{ editLoading ? 'Saving...' : 'Save changes' }}
+            {{ editLoading ? t('common.saving') : t('common.saveChanges') }}
           </Button>
         </CardFooter>
       </Card>
@@ -422,17 +426,17 @@ onMounted(async () => {
       <!-- Config Tab -->
       <Card v-if="activeTab === 'config'">
         <CardHeader>
-          <CardTitle>Company Configuration</CardTitle>
+          <CardTitle>{{ t('company.companyConfiguration') }}</CardTitle>
         </CardHeader>
         <CardContent class="grid gap-6">
           <!-- Attendance Settings -->
           <div>
             <h3 class="text-sm font-semibold mb-3">
-              Attendance
+              {{ t('company.attendance') }}
             </h3>
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="grid gap-2">
-                <Label for="cfg-radius">Attendance Radius (meters)</Label>
+                <Label for="cfg-radius">{{ t('company.attendanceRadius') }}</Label>
                 <Input
                   id="cfg-radius"
                   :model-value="String(configForm.attendance_radius_meters)"
@@ -443,7 +447,7 @@ onMounted(async () => {
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="cfg-leave">Leave Allowance (days/year)</Label>
+                <Label for="cfg-leave">{{ t('company.leaveAllowance') }}</Label>
                 <Input
                   id="cfg-leave"
                   :model-value="String(configForm.leave_allowance_annual)"
@@ -454,7 +458,7 @@ onMounted(async () => {
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="cfg-checkin-start">Check-in Start</Label>
+                <Label for="cfg-checkin-start">{{ t('company.checkInStart') }}</Label>
                 <Input
                   id="cfg-checkin-start"
                   v-model="configForm.attendance_check_in_start"
@@ -462,7 +466,7 @@ onMounted(async () => {
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="cfg-checkin-end">Check-in End</Label>
+                <Label for="cfg-checkin-end">{{ t('company.checkInEnd') }}</Label>
                 <Input
                   id="cfg-checkin-end"
                   v-model="configForm.attendance_check_in_end"
@@ -470,7 +474,7 @@ onMounted(async () => {
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="cfg-checkout-start">Check-out Start</Label>
+                <Label for="cfg-checkout-start">{{ t('company.checkOutStart') }}</Label>
                 <Input
                   id="cfg-checkout-start"
                   v-model="configForm.attendance_check_out_start"
@@ -478,7 +482,7 @@ onMounted(async () => {
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="cfg-checkout-end">Check-out End</Label>
+                <Label for="cfg-checkout-end">{{ t('company.checkOutEnd') }}</Label>
                 <Input
                   id="cfg-checkout-end"
                   v-model="configForm.attendance_check_out_end"
@@ -491,11 +495,11 @@ onMounted(async () => {
           <!-- Overtime Settings -->
           <div>
             <h3 class="text-sm font-semibold mb-3">
-              Overtime
+              {{ t('company.overtime') }}
             </h3>
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="grid gap-2">
-                <Label for="cfg-overtime">Overtime Rate Multiplier</Label>
+                <Label for="cfg-overtime">{{ t('company.overtimeRateMultiplier') }}</Label>
                 <Input
                   id="cfg-overtime"
                   :model-value="String(configForm.overtime_rate_multiplier)"
@@ -512,7 +516,7 @@ onMounted(async () => {
           <!-- Locale Settings -->
           <div>
             <h3 class="text-sm font-semibold mb-3">
-              Locale
+              {{ t('company.locale') }}
             </h3>
             <div class="grid gap-4 sm:grid-cols-3">
               <div class="grid gap-2 sm:col-span-3">
@@ -550,7 +554,7 @@ onMounted(async () => {
                 </div>
               </div>
               <div class="grid gap-2">
-                <Label for="cfg-timezone">Timezone</Label>
+                <Label for="cfg-timezone">{{ t('company.timezone') }}</Label>
                 <Input
                   id="cfg-timezone"
                   v-model="configForm.timezone"
@@ -558,7 +562,7 @@ onMounted(async () => {
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="cfg-date-format">Date Format</Label>
+                <Label for="cfg-date-format">{{ t('company.dateFormat') }}</Label>
                 <Input
                   id="cfg-date-format"
                   v-model="configForm.date_format"
@@ -566,7 +570,7 @@ onMounted(async () => {
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="cfg-time-format">Time Format</Label>
+                <Label for="cfg-time-format">{{ t('company.timeFormat') }}</Label>
                 <Input
                   id="cfg-time-format"
                   v-model="configForm.time_format"
@@ -582,14 +586,14 @@ onMounted(async () => {
             size="sm"
             @click="activeTab = 'edit'"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </Button>
           <Button
             size="sm"
             :disabled="configLoading"
             @click="submitConfig"
           >
-            {{ configLoading ? 'Saving...' : 'Save configuration' }}
+            {{ configLoading ? t('common.saving') : t('common.saveConfiguration') }}
           </Button>
         </CardFooter>
       </Card>
@@ -597,20 +601,20 @@ onMounted(async () => {
       <!-- Org Tree Tab -->
       <Card v-if="activeTab === 'orgtree'">
         <CardHeader>
-          <CardTitle>Organization Structure</CardTitle>
+          <CardTitle>{{ t('company.organizationStructure') }}</CardTitle>
         </CardHeader>
         <CardContent>
           <div
             v-if="orgTreeLoading"
             class="text-sm text-muted-foreground py-4"
           >
-            Loading organization structure...
+            {{ t('company.organizationStructureLoading') }}
           </div>
           <div
             v-else-if="orgTree.length === 0"
             class="text-sm text-muted-foreground py-4"
           >
-            No organization units found for this company.
+            {{ t('company.organizationStructureEmpty') }}
           </div>
           <div v-else>
             <TreeView
@@ -634,7 +638,7 @@ onMounted(async () => {
       <div class="w-full max-w-xl rounded-lg border bg-card p-6 shadow-lg">
         <div class="flex items-center justify-between">
           <div class="text-lg font-semibold">
-            {{ orgUnitDialogMode === 'create' ? 'Create Organization Unit' : 'Edit Organization Unit' }}
+            {{ orgUnitDialogMode === 'create' ? t('company.createOrganizationUnit') : t('company.editOrganizationUnit') }}
           </div>
           <Button
             variant="outline"
@@ -642,40 +646,40 @@ onMounted(async () => {
             :disabled="orgUnitDialogLoading"
             @click="closeOrgUnitDialog"
           >
-            Close
+            {{ t('common.close') }}
           </Button>
         </div>
         <div class="mt-4 grid gap-4 text-sm">
           <div class="grid gap-2">
-            <Label for="org-unit-code">Code</Label>
+            <Label for="org-unit-code">{{ t('company.organizationUnitCode') }}</Label>
             <Input
               id="org-unit-code"
               v-model="orgUnitForm.code"
-              placeholder="Organization unit code"
+              :placeholder="t('company.organizationUnitCodePlaceholder')"
             />
           </div>
           <div class="grid gap-2">
-            <Label for="org-unit-name">Name</Label>
+            <Label for="org-unit-name">{{ t('company.organizationUnitName') }}</Label>
             <Input
               id="org-unit-name"
               v-model="orgUnitForm.name"
-              placeholder="Organization unit name"
+              :placeholder="t('company.organizationUnitNamePlaceholder')"
             />
           </div>
           <div class="grid gap-2">
-            <Label for="org-unit-category">Category</Label>
+            <Label for="org-unit-category">{{ t('company.organizationUnitCategory') }}</Label>
             <SearchableSelect
               id="org-unit-category"
               v-model="orgUnitForm.category"
               :options="allowedCategoryOptions"
-              placeholder="Select category"
+              :placeholder="t('common.selectCategory')"
             />
           </div>
           <div
             v-if="selectedParentNode"
             class="text-muted-foreground text-xs"
           >
-            Parent: {{ selectedParentNode.name }} ({{ selectedParentNode.category }})
+            {{ format('company.parentLabel', { name: selectedParentNode.name, category: selectedParentNode.category }) }}
           </div>
         </div>
         <div class="mt-6 flex justify-end gap-2">
@@ -685,14 +689,14 @@ onMounted(async () => {
             :disabled="orgUnitDialogLoading"
             @click="closeOrgUnitDialog"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </Button>
           <Button
             size="sm"
             :disabled="orgUnitDialogLoading"
             @click="submitOrgUnit"
           >
-            {{ orgUnitDialogLoading ? 'Saving...' : (orgUnitDialogMode === 'create' ? 'Create' : 'Save') }}
+            {{ orgUnitDialogLoading ? t('common.saving') : (orgUnitDialogMode === 'create' ? t('common.create') : t('common.save')) }}
           </Button>
         </div>
       </div>

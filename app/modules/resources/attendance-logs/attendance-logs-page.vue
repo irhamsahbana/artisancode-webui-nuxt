@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import type { ApiResponse, ListResponse } from '~/types/api'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'AttendanceLogsPage' })
 
@@ -18,6 +19,8 @@ const route = useRoute()
 const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 type ExportJobFormat = 'csv' | 'xlsx' | 'pdf'
 type ExportJobStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'expired'
@@ -78,7 +81,7 @@ const columns = [
         return '-'
       }
 
-      return new Date(value).toLocaleString('id-ID', {
+      return new Date(value).toLocaleString(locale.value === 'en' ? 'en-US' : 'id-ID', {
         dateStyle: 'medium',
         timeStyle: 'short',
       })
@@ -87,7 +90,7 @@ const columns = [
   {
     key: 'selfie_url',
     label: 'Photo Proof',
-    format: (value: unknown) => (typeof value === 'string' && value.length > 0 ? 'Available' : '-'),
+    format: (value: unknown) => (typeof value === 'string' && value.length > 0 ? uiText('Available') : '-'),
   },
 ]
 
@@ -307,7 +310,7 @@ const activeFilterChips = computed(() => {
   if (filters.date_from || filters.date_to) {
     chips.push({
       key: filters.date_from ? 'date_from' : 'date_to',
-      label: 'Date range',
+      label: uiText('Date range'),
       value:
         filters.date_from && filters.date_to
           ? filters.date_from === filters.date_to
@@ -318,15 +321,15 @@ const activeFilterChips = computed(() => {
   }
 
   const optionLookups: Array<{ key: keyof typeof filters, label: string, options: SelectOption[] }> = [
-    { key: 'employee_id', label: 'Employee', options: employeeOptions.value },
-    { key: 'exception_type', label: 'Exception', options: exceptionOptions },
-    { key: 'status', label: 'Status', options: statusOptions },
-    { key: 'type', label: 'Type', options: typeOptions },
-    { key: 'source', label: 'Source', options: sourceOptions },
-    { key: 'selfie_status', label: 'Photo proof', options: selfieOptions },
-    { key: 'org_unit_id', label: 'Org unit', options: orgUnitOptions.value },
-    { key: 'branch_id', label: 'Branch', options: branchOptions.value },
-    { key: 'work_location_id', label: 'Work location', options: workLocationOptions.value },
+    { key: 'employee_id', label: uiText('Employee'), options: employeeOptions.value },
+    { key: 'exception_type', label: uiText('Exception'), options: exceptionOptions },
+    { key: 'status', label: uiText('Status'), options: statusOptions },
+    { key: 'type', label: uiText('Type'), options: typeOptions },
+    { key: 'source', label: uiText('Source'), options: sourceOptions },
+    { key: 'selfie_status', label: uiText('Photo proof'), options: selfieOptions },
+    { key: 'org_unit_id', label: uiText('Org unit'), options: orgUnitOptions.value },
+    { key: 'branch_id', label: uiText('Branch'), options: branchOptions.value },
+    { key: 'work_location_id', label: uiText('Work location'), options: workLocationOptions.value },
   ]
 
   for (const item of optionLookups) {
@@ -468,7 +471,7 @@ const formatTimestamp = (value: string | null | undefined) => {
     return value
   }
 
-  return date.toLocaleString('id-ID', {
+  return date.toLocaleString(locale.value === 'en' ? 'en-US' : 'id-ID', {
     dateStyle: 'medium',
     timeStyle: 'short',
   })
@@ -540,7 +543,10 @@ const createExport = async () => {
     return
   }
 
-  show(`Attendance export queued as ${exportFormat.value.toUpperCase()}.`, 'success')
+  show(
+    uiText(`Attendance export queued as ${exportFormat.value.toUpperCase()}.`),
+    'success',
+  )
   await loadExports()
 }
 
@@ -560,6 +566,7 @@ const downloadExport = (item: ExportJob) => {
       endpoint="/attendance-logs"
       :extra-query="listQuery"
       :columns="columns"
+      search-placeholder="Search..."
       loading-variant="skeleton"
       :can-delete="false"
     >
@@ -567,14 +574,14 @@ const downloadExport = (item: ExportJob) => {
         <div class="flex flex-wrap items-center justify-end gap-2">
           <FloatingPanel
             v-model:open="advancedFiltersOpen"
-            title="Advanced filters"
-            description="Apply more specific conditions without changing the table layout."
+            :title="uiText('Advanced filters')"
+            :description="uiText('Apply more specific conditions without changing the table layout.')"
             width-class="w-full max-w-lg"
           >
             <div class="space-y-4">
               <div class="grid gap-4 sm:grid-cols-2">
                 <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">Type</Label>
+                  <Label class="text-xs text-muted-foreground">{{ uiText('Type') }}</Label>
                   <SearchableSelect
                     v-model="filters.type"
                     :options="typeOptions"
@@ -585,7 +592,7 @@ const downloadExport = (item: ExportJob) => {
                 </div>
 
                 <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">Source</Label>
+                  <Label class="text-xs text-muted-foreground">{{ uiText('Source') }}</Label>
                   <SearchableSelect
                     v-model="filters.source"
                     :options="sourceOptions"
@@ -596,7 +603,7 @@ const downloadExport = (item: ExportJob) => {
                 </div>
 
                 <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">Photo proof</Label>
+                  <Label class="text-xs text-muted-foreground">{{ uiText('Photo proof') }}</Label>
                   <SearchableSelect
                     v-model="filters.selfie_status"
                     :options="selfieOptions"
@@ -607,7 +614,7 @@ const downloadExport = (item: ExportJob) => {
                 </div>
 
                 <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">Org unit</Label>
+                  <Label class="text-xs text-muted-foreground">{{ uiText('Org unit') }}</Label>
                   <SearchableSelect
                     v-model="filters.org_unit_id"
                     :options="orgUnitOptions"
@@ -618,7 +625,7 @@ const downloadExport = (item: ExportJob) => {
                 </div>
 
                 <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">Branch</Label>
+                  <Label class="text-xs text-muted-foreground">{{ uiText('Branch') }}</Label>
                   <SearchableSelect
                     v-model="filters.branch_id"
                     :options="branchOptions"
@@ -629,7 +636,7 @@ const downloadExport = (item: ExportJob) => {
                 </div>
 
                 <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">Work location</Label>
+                  <Label class="text-xs text-muted-foreground">{{ uiText('Work location') }}</Label>
                   <SearchableSelect
                     v-model="filters.work_location_id"
                     :options="workLocationOptions"
@@ -644,7 +651,7 @@ const downloadExport = (item: ExportJob) => {
             <template #footer>
               <div class="flex items-center justify-between gap-3">
                 <div class="text-xs text-muted-foreground">
-                  {{ advancedFilterCount }} advanced filters active
+                  {{ uiText(`${advancedFilterCount} advanced filters active`) }}
                 </div>
                 <div class="flex items-center gap-2">
                   <Button
@@ -652,13 +659,13 @@ const downloadExport = (item: ExportJob) => {
                     size="sm"
                     @click="clearFilters"
                   >
-                    Reset all
+                    {{ uiText('Reset all') }}
                   </Button>
                   <Button
                     size="sm"
                     @click="advancedFiltersOpen = false"
                   >
-                    Done
+                    {{ uiText('Done') }}
                   </Button>
                 </div>
               </div>
@@ -672,7 +679,7 @@ const downloadExport = (item: ExportJob) => {
               { value: 'xlsx', label: 'XLSX' },
               { value: 'pdf', label: 'PDF' },
             ]"
-            placeholder="Export format"
+            :placeholder="uiText('Export format')"
             class="w-[140px]"
           />
           <Button
@@ -680,7 +687,7 @@ const downloadExport = (item: ExportJob) => {
             :disabled="exportLoading"
             @click="createExport"
           >
-            {{ exportLoading ? 'Queueing...' : `Export ${exportFormat.toUpperCase()}` }}
+            {{ exportLoading ? uiText('Queueing...') : uiText(`Export ${exportFormat.toUpperCase()}`) }}
           </Button>
         </div>
       </template>
@@ -690,10 +697,10 @@ const downloadExport = (item: ExportJob) => {
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <div class="text-sm font-medium">
-                Refine attendance logs
+                {{ uiText('Refine attendance logs') }}
               </div>
               <div class="text-xs text-muted-foreground">
-                Keep the primary filters visible and open advanced filters only when you need more precision.
+                {{ uiText('Keep the primary filters visible and open advanced filters only when you need more precision.') }}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -701,14 +708,14 @@ const downloadExport = (item: ExportJob) => {
                 variant="secondary"
                 class="rounded-full px-3 py-1 text-xs"
               >
-                {{ activeFilterCount }} filters active
+                {{ uiText(`${activeFilterCount} filters active`) }}
               </Badge>
               <Button
                 variant="outline"
                 size="sm"
                 @click="toggleAdvancedFilters"
               >
-                {{ advancedFiltersOpen ? 'Hide advanced filters' : 'More filters' }}
+                {{ advancedFiltersOpen ? uiText('Hide advanced filters') : uiText('More filters') }}
                 <span
                   v-if="advancedFilterCount > 0"
                   class="ml-1 text-xs text-muted-foreground"
@@ -721,7 +728,7 @@ const downloadExport = (item: ExportJob) => {
 
           <div class="grid gap-3 lg:grid-cols-5">
             <div class="space-y-1 lg:col-span-2">
-              <Label class="text-xs text-muted-foreground">Date range</Label>
+              <Label class="text-xs text-muted-foreground">{{ uiText('Date range') }}</Label>
               <DateRangePicker
                 v-model:from="filters.date_from"
                 v-model:to="filters.date_to"
@@ -730,7 +737,7 @@ const downloadExport = (item: ExportJob) => {
             </div>
 
             <div class="space-y-1">
-              <Label class="text-xs text-muted-foreground">Employee</Label>
+              <Label class="text-xs text-muted-foreground">{{ uiText('Employee') }}</Label>
               <SearchableSelect
                 v-model="filters.employee_id"
                 :options="employeeOptions"
@@ -741,7 +748,7 @@ const downloadExport = (item: ExportJob) => {
             </div>
 
             <div class="space-y-1">
-              <Label class="text-xs text-muted-foreground">Exception</Label>
+              <Label class="text-xs text-muted-foreground">{{ uiText('Exception') }}</Label>
               <SearchableSelect
                 v-model="filters.exception_type"
                 :options="exceptionOptions"
@@ -752,7 +759,7 @@ const downloadExport = (item: ExportJob) => {
             </div>
 
             <div class="space-y-1">
-              <Label class="text-xs text-muted-foreground">Status</Label>
+              <Label class="text-xs text-muted-foreground">{{ uiText('Status') }}</Label>
               <SearchableSelect
                 v-model="filters.status"
                 :options="statusOptions"
@@ -769,35 +776,35 @@ const downloadExport = (item: ExportJob) => {
               size="sm"
               @click="applyDatePreset('today')"
             >
-              Today
+              {{ uiText('Today') }}
             </Button>
             <Button
               variant="outline"
               size="sm"
               @click="applyDatePreset('yesterday')"
             >
-              Yesterday
+              {{ uiText('Yesterday') }}
             </Button>
             <Button
               variant="outline"
               size="sm"
               @click="applyDatePreset('this_week')"
             >
-              This Week
+              {{ uiText('This Week') }}
             </Button>
             <Button
               variant="outline"
               size="sm"
               @click="applyDatePreset('this_month')"
             >
-              This Month
+              {{ uiText('This Month') }}
             </Button>
             <Button
               variant="ghost"
               size="sm"
               @click="clearFilters"
             >
-              Reset Filters
+              {{ uiText('Reset Filters') }}
             </Button>
           </div>
 
@@ -805,7 +812,7 @@ const downloadExport = (item: ExportJob) => {
             v-if="activeFilterChips.length > 0"
             class="flex flex-wrap items-center gap-2 border-t pt-3"
           >
-            <span class="text-xs font-medium text-muted-foreground">Active filters</span>
+            <span class="text-xs font-medium text-muted-foreground">{{ uiText('Active filters') }}</span>
             <button
               v-for="chip in activeFilterChips"
               :key="`${chip.key}:${chip.value}`"
@@ -815,7 +822,7 @@ const downloadExport = (item: ExportJob) => {
             >
               <span class="font-medium">{{ chip.label }}:</span>
               <span>{{ chip.value }}</span>
-              <span class="text-muted-foreground">Clear</span>
+              <span class="text-muted-foreground">{{ uiText('Clear') }}</span>
             </button>
           </div>
         </div>
@@ -827,7 +834,7 @@ const downloadExport = (item: ExportJob) => {
           class="w-full rounded px-3 py-2 text-left hover:bg-accent"
           @click="openSelfie(row); close()"
         >
-          View Photo
+          {{ uiText('View Photo') }}
         </button>
       </template>
 
@@ -840,10 +847,10 @@ const downloadExport = (item: ExportJob) => {
             <div class="flex items-center justify-between gap-4">
               <div>
                 <div class="text-lg font-semibold">
-                  Attendance Log Detail
+                  {{ uiText('Attendance Log Detail') }}
                 </div>
                 <div class="text-sm text-muted-foreground">
-                  Review the attendance record and its photo proof.
+                  {{ uiText('Review the attendance record and its photo proof.') }}
                 </div>
               </div>
               <Button
@@ -851,20 +858,20 @@ const downloadExport = (item: ExportJob) => {
                 size="sm"
                 @click="close"
               >
-                Close
+                {{ uiText('Close') }}
               </Button>
             </div>
 
             <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
               <div class="rounded-xl border bg-muted/20 p-4">
                 <div class="text-sm font-medium">
-                  Photo Proof
+                  {{ uiText('Photo Proof') }}
                 </div>
                 <div
                   v-if="loading"
                   class="mt-4 text-sm text-muted-foreground"
                 >
-                  Loading photo...
+                  {{ uiText('Loading photo...') }}
                 </div>
                 <div
                   v-else-if="hasSelfie(row)"
@@ -881,7 +888,7 @@ const downloadExport = (item: ExportJob) => {
                       size="sm"
                       @click="openSelfie(row)"
                     >
-                      Open Full Size
+                      {{ uiText('Open Full Size') }}
                     </Button>
                   </div>
                 </div>
@@ -889,13 +896,13 @@ const downloadExport = (item: ExportJob) => {
                   v-else
                   class="mt-4 rounded-lg border border-dashed p-6 text-sm text-muted-foreground"
                 >
-                  No photo proof is attached to this attendance log.
+                  {{ uiText('No photo proof is attached to this attendance log.') }}
                 </div>
               </div>
 
               <div class="rounded-xl border p-4">
                 <div class="text-sm font-medium">
-                  Record Details
+                  {{ uiText('Record Details') }}
                 </div>
                 <div class="mt-4 max-h-[60vh] overflow-auto text-sm">
                   <div
@@ -938,9 +945,9 @@ const downloadExport = (item: ExportJob) => {
     <Card class="shadow-sm">
       <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0">
         <div>
-          <CardTitle>Recent Exports</CardTitle>
+          <CardTitle>{{ uiText('Recent Exports') }}</CardTitle>
           <p class="text-sm text-muted-foreground">
-            Export mengikuti filter aktif saat request dibuat dan akan muncul di sini ketika file siap diunduh.
+            {{ uiText('Exports follow the active filters at the time the request is created and will appear here once the file is ready to download.') }}
           </p>
         </div>
         <Button
@@ -949,7 +956,7 @@ const downloadExport = (item: ExportJob) => {
           :disabled="exportListLoading"
           @click="loadExports"
         >
-          Refresh
+          {{ uiText('Refresh') }}
         </Button>
       </CardHeader>
       <CardContent>
@@ -957,14 +964,14 @@ const downloadExport = (item: ExportJob) => {
           v-if="exportListLoading && exportItems.length === 0"
           class="text-sm text-muted-foreground"
         >
-          Loading recent exports...
+          {{ uiText('Loading recent exports...') }}
         </div>
 
         <div
           v-else-if="exportItems.length === 0"
           class="rounded-lg border border-dashed p-4 text-sm text-muted-foreground"
         >
-          No export requests yet. Start one from the Export button above.
+          {{ uiText('No export requests yet. Start one from the Export button above.') }}
         </div>
 
         <div
@@ -991,10 +998,10 @@ const downloadExport = (item: ExportJob) => {
                 </div>
 
                 <div class="grid gap-1 text-sm text-muted-foreground">
-                  <div>Requested: {{ formatTimestamp(item.created_at) }}</div>
-                  <div>Started: {{ formatTimestamp(item.started_at) }}</div>
-                  <div>Completed: {{ formatTimestamp(item.completed_at) }}</div>
-                  <div>Expires: {{ formatTimestamp(item.expires_at) }}</div>
+                  <div>{{ uiText('Requested') }}: {{ formatTimestamp(item.created_at) }}</div>
+                  <div>{{ uiText('Started') }}: {{ formatTimestamp(item.started_at) }}</div>
+                  <div>{{ uiText('Completed') }}: {{ formatTimestamp(item.completed_at) }}</div>
+                  <div>{{ uiText('Expires') }}: {{ formatTimestamp(item.expires_at) }}</div>
                 </div>
 
                 <p
@@ -1011,13 +1018,13 @@ const downloadExport = (item: ExportJob) => {
                   size="sm"
                   @click="downloadExport(item)"
                 >
-                  Download
+                  {{ uiText('Download') }}
                 </Button>
                 <span
                   v-else
                   class="text-sm text-muted-foreground"
                 >
-                  {{ item.status === 'failed' ? 'Generation failed' : 'Waiting for file' }}
+                  {{ item.status === 'failed' ? uiText('Generation failed') : uiText('Waiting for file') }}
                 </span>
               </div>
             </div>

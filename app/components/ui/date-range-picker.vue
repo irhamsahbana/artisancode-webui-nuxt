@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'UiDateRangePicker' })
 
@@ -27,6 +28,8 @@ const emit = defineEmits<{
   'update:from': [value: string]
   'update:to': [value: string]
 }>()
+
+const { locale } = useLocale()
 
 const open = ref(false)
 
@@ -64,18 +67,14 @@ watch(
 )
 
 const monthLabel = (date: Date) =>
-  date.toLocaleDateString('id-ID', {
+  date.toLocaleDateString(locale.value === 'en' ? 'en-US' : 'id-ID', {
     month: 'long',
     year: 'numeric',
   })
 
 const formatTriggerLabel = (from: string, to: string) => {
-  if (!from && !to) {
-    return props.placeholder
-  }
-
   const format = (value: string) =>
-    parseIsoDate(value)?.toLocaleDateString('id-ID', {
+    parseIsoDate(value)?.toLocaleDateString(locale.value === 'en' ? 'en-US' : 'id-ID', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
@@ -88,7 +87,19 @@ const formatTriggerLabel = (from: string, to: string) => {
   return format(from || to)
 }
 
-const triggerLabel = computed(() => formatTriggerLabel(props.from, props.to))
+const localizedPlaceholder = computed(() => localizeUiText(locale.value, props.placeholder))
+const triggerLabel = computed(() => {
+  if (!props.from && !props.to) {
+    return localizedPlaceholder.value
+  }
+
+  return formatTriggerLabel(props.from, props.to)
+})
+const dayLabels = computed(() => (
+  locale.value === 'en'
+    ? ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+    : ['Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb', 'Mg']
+))
 
 const buildMonthCells = (monthDate: Date): CalendarCell[] => {
   const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
@@ -169,7 +180,7 @@ const clearRange = () => {
       <button
         type="button"
         class="fixed inset-0 z-40 bg-transparent"
-        aria-label="Close date range picker"
+        :aria-label="localizeUiText(locale, 'Close')"
         @click="open = false"
       />
 
@@ -177,10 +188,10 @@ const clearRange = () => {
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
           <div>
             <div class="text-sm font-medium">
-              Select date range
+              {{ localizeUiText(locale, 'Select date range') }}
             </div>
             <div class="text-xs text-muted-foreground">
-              Pick a start date, then an end date.
+              {{ localizeUiText(locale, 'Pick a start date, then an end date.') }}
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -189,14 +200,14 @@ const clearRange = () => {
               size="sm"
               @click="clearRange"
             >
-              Clear
+              {{ localizeUiText(locale, 'Clear') }}
             </Button>
             <Button
               variant="ghost"
               size="sm"
               @click="open = false"
             >
-              Close
+              {{ localizeUiText(locale, 'Close') }}
             </Button>
           </div>
         </div>
@@ -219,7 +230,7 @@ const clearRange = () => {
             </div>
 
             <div class="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
-              <div v-for="day in ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']" :key="day" class="py-1">
+              <div v-for="day in dayLabels" :key="day" class="py-1">
                 {{ day }}
               </div>
             </div>
@@ -261,7 +272,7 @@ const clearRange = () => {
             </div>
 
             <div class="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
-              <div v-for="day in ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']" :key="day" class="py-1">
+              <div v-for="day in dayLabels" :key="day" class="py-1">
                 {{ day }}
               </div>
             </div>
@@ -289,10 +300,10 @@ const clearRange = () => {
 
         <div class="mt-4 flex flex-wrap items-center gap-2 border-t pt-3 text-xs text-muted-foreground">
           <span class="rounded-full border px-2 py-1">
-            Start: {{ props.from || '-' }}
+            {{ localizeUiText(locale, 'Start') }}: {{ props.from || '-' }}
           </span>
           <span class="rounded-full border px-2 py-1">
-            End: {{ props.to || '-' }}
+            {{ localizeUiText(locale, 'End') }}: {{ props.to || '-' }}
           </span>
         </div>
       </div>

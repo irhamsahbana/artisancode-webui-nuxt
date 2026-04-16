@@ -7,6 +7,7 @@ defineOptions({ name: 'WorkLocationsPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
+const { t, format } = useLocale()
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -18,10 +19,10 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
 }
 
 const columns = [
-  { key: 'name', label: 'Name' },
-  { key: 'org_unit_name', label: 'Organization Unit' },
-  { key: 'timezone', label: 'Timezone' },
-  { key: 'address', label: 'Address' },
+  { key: 'name', label: t('common.name') },
+  { key: 'org_unit_name', label: t('company.organizationUnit') },
+  { key: 'timezone', label: t('company.timezone') },
+  { key: 'address', label: t('company.address') },
 ]
 
 // --- Modal state ---
@@ -108,11 +109,11 @@ const buildPayload = () => ({
 
 const handleSubmit = async () => {
   if (!form.value.name.trim()) {
-    show('Name is required', 'error')
+    show(format('common.requiredField', { field: t('common.name') }), 'error')
     return
   }
   if (!form.value.timezone.trim()) {
-    show('Timezone is required', 'error')
+    show(format('common.requiredField', { field: t('company.timezone') }), 'error')
     return
   }
 
@@ -124,7 +125,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show('Work location created successfully', 'success')
+      show(t('company.workLocationCreated'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -134,7 +135,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show('Work location updated successfully', 'success')
+      show(t('company.workLocationUpdated'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -148,7 +149,7 @@ const handleSubmit = async () => {
   <!-- The :key forces full re-mount so useAsyncData re-runs -->
   <ResourceList
     :key="refreshKey"
-    title="Work Locations"
+    :title="t('company.workLocations')"
     endpoint="/work-locations"
     :columns="columns"
     loading-variant="skeleton"
@@ -160,7 +161,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        + Add Location
+        + {{ t('company.addWorkLocation') }}
       </Button>
     </template>
 
@@ -169,7 +170,7 @@ const handleSubmit = async () => {
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
       >
-        Edit
+        {{ t('common.edit') }}
       </button>
     </template>
 
@@ -202,7 +203,7 @@ const handleSubmit = async () => {
     <div class="w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          {{ modalMode === 'create' ? 'Add Work Location' : 'Edit Work Location' }}
+          {{ modalMode === 'create' ? t('company.addWorkLocation') : t('company.editWorkLocation') }}
         </div>
         <Button
           variant="outline"
@@ -217,7 +218,7 @@ const handleSubmit = async () => {
         v-if="modalLoading"
         class="mt-6 text-sm text-muted-foreground"
       >
-        Loading...
+        {{ t('common.loading') }}
       </div>
 
       <form
@@ -227,7 +228,7 @@ const handleSubmit = async () => {
       >
         <!-- Name -->
         <div>
-          <Label for="wl-name">Name *</Label>
+          <Label for="wl-name">{{ t('common.name') }} *</Label>
           <Input
             id="wl-name"
             v-model="form.name"
@@ -238,17 +239,17 @@ const handleSubmit = async () => {
 
         <!-- Org Unit -->
         <div>
-          <Label>Organization Unit</Label>
+          <Label>{{ t('company.organizationUnit') }}</Label>
           <OrgUnitTreeSelect
             v-model="form.org_unit_id"
-            placeholder="Select organization unit"
+            :placeholder="t('company.selectOrganizationUnit')"
             class="mt-1"
           />
         </div>
 
         <!-- Timezone -->
         <div>
-          <Label for="wl-timezone">Timezone *</Label>
+          <Label for="wl-timezone">{{ t('company.timezone') }} *</Label>
           <Input
             id="wl-timezone"
             v-model="form.timezone"
@@ -259,7 +260,7 @@ const handleSubmit = async () => {
 
         <!-- Radius -->
         <div>
-          <Label for="wl-radius">Radius (meters)</Label>
+          <Label for="wl-radius">{{ t('company.radiusMeters') }}</Label>
           <Input
             id="wl-radius"
             v-model="form.radius_meters"
@@ -271,7 +272,7 @@ const handleSubmit = async () => {
 
         <!-- Map Location Picker -->
         <div>
-          <Label>Location & Address</Label>
+          <Label>{{ t('company.locationAndAddress') }}</Label>
           <LocationMapPicker
             :latitude="form.latitude ? parseFloat(form.latitude) : null"
             :longitude="form.longitude ? parseFloat(form.longitude) : null"
@@ -293,14 +294,14 @@ const handleSubmit = async () => {
             :disabled="submitLoading"
             @click="closeModal"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </Button>
           <Button
             size="sm"
             :disabled="submitLoading"
             type="submit"
           >
-            {{ submitLoading ? 'Saving...' : (modalMode === 'create' ? 'Create' : 'Update') }}
+            {{ submitLoading ? t('common.saving') : (modalMode === 'create' ? t('common.create') : t('common.update')) }}
           </Button>
         </div>
       </form>

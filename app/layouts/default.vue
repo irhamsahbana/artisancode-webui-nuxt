@@ -55,12 +55,12 @@ const toggleTheme = () => {
             </div>
             <div class="grid text-sm leading-tight">
               <span class="font-semibold">Academy</span>
-              <span class="text-xs text-muted-foreground">Admin Console</span>
+              <span class="text-xs text-muted-foreground">{{ t('layout.adminConsole') }}</span>
             </div>
           </div>
           <div class="flex-1 px-2">
             <div class="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Main
+              {{ t('layout.main') }}
             </div>
             <nav class="space-y-1 text-sm">
               <NuxtLink

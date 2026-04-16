@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { cn } from '~/utils/utils'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'SearchableTreeSelect' })
 
@@ -29,6 +30,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   (event: 'update:modelValue', value: string | null): void
 }>()
+
+const { locale } = useLocale()
 
 const rootRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
@@ -116,6 +119,10 @@ const filteredNodes = computed(() => {
   return allFlatNodes.value.filter((node) => visibleIds.has(node.id))
 })
 
+const resolvedPlaceholder = computed(() => localizeUiText(locale.value, props.placeholder))
+const selectedBadgeLabel = computed(() => localizeUiText(locale.value, 'Selected'))
+const emptyLabel = computed(() => localizeUiText(locale.value, 'No options'))
+
 const openList = () => {
   if (props.disabled) return
   isOpen.value = true
@@ -199,7 +206,7 @@ onBeforeUnmount(() => {
         v-bind="$attrs"
         :value="query"
         :disabled="disabled"
-        :placeholder="selectedLabel ? '' : props.placeholder"
+        :placeholder="selectedLabel ? '' : resolvedPlaceholder"
         :class="cn('h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50', $attrs.class as string)"
         @focus="openList"
         @input="onInput"
@@ -249,14 +256,14 @@ onBeforeUnmount(() => {
             v-if="node.id === props.modelValue"
             class="text-xs text-muted-foreground"
           >
-            Selected
+            {{ selectedBadgeLabel }}
           </span>
         </button>
         <div
           v-if="filteredNodes.length === 0"
           class="px-3 py-2 text-muted-foreground"
         >
-          No options
+          {{ emptyLabel }}
         </div>
       </div>
     </div>

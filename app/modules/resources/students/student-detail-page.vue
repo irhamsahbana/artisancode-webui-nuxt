@@ -7,8 +7,11 @@ import { z } from 'zod'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'StudentDetailPage' })
+const { locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const firstName = row.first_name
@@ -354,7 +357,7 @@ const submitUpdate = handleSubmit(async (values) => {
               v-if="loading || detailLoading"
               class="text-muted-foreground"
             >
-              Loading...
+              {{ uiText('Loading...') }}
             </div>
             <div
               v-else-if="!detailData"
@@ -633,7 +636,7 @@ const submitUpdate = handleSubmit(async (values) => {
               :disabled="saveLoading || detailLoading"
               @click="submitUpdate"
             >
-              {{ saveLoading ? 'Saving...' : 'Save changes' }}
+              {{ saveLoading ? uiText('Saving...') : uiText('Save Changes') }}
             </Button>
           </div>
         </div>

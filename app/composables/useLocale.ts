@@ -9,10 +9,42 @@ type LocaleMessageKey =
   | 'common.english'
   | 'common.code'
   | 'common.name'
+  | 'common.category'
   | 'common.back'
+  | 'common.close'
+  | 'common.cancel'
+  | 'common.create'
+  | 'common.delete'
+  | 'common.deleting'
+  | 'common.save'
+  | 'common.saveChanges'
+  | 'common.saveConfiguration'
+  | 'common.saving'
   | 'common.loading'
+  | 'common.noData'
   | 'common.selectLanguage'
+  | 'common.selectCategory'
   | 'common.requiredField'
+  | 'common.edit'
+  | 'common.actions'
+  | 'common.detail'
+  | 'common.filter'
+  | 'common.clear'
+  | 'common.search'
+  | 'common.previous'
+  | 'common.next'
+  | 'common.page'
+  | 'common.of'
+  | 'common.rowsPerPage'
+  | 'common.limit'
+  | 'common.select'
+  | 'common.update'
+  | 'common.location'
+  | 'common.latitude'
+  | 'common.longitude'
+  | 'common.myLocation'
+  | 'layout.main'
+  | 'layout.adminConsole'
   | 'auth.welcomeBack'
   | 'auth.signInDescription'
   | 'auth.email'
@@ -81,6 +113,58 @@ type LocaleMessageKey =
   | 'company.organizationStructure'
   | 'company.configuration'
   | 'company.editCompany'
+  | 'company.companyCode'
+  | 'company.companyName'
+  | 'company.companyConfiguration'
+  | 'company.attendance'
+  | 'company.attendanceRadius'
+  | 'company.leaveAllowance'
+  | 'company.checkInStart'
+  | 'company.checkInEnd'
+  | 'company.checkOutStart'
+  | 'company.checkOutEnd'
+  | 'company.overtime'
+  | 'company.overtimeRateMultiplier'
+  | 'company.locale'
+  | 'company.timezone'
+  | 'company.dateFormat'
+  | 'company.timeFormat'
+  | 'company.organizationStructureLoading'
+  | 'company.organizationStructureEmpty'
+  | 'company.createOrganizationUnit'
+  | 'company.editOrganizationUnit'
+  | 'company.organizationUnitCode'
+  | 'company.organizationUnitName'
+  | 'company.organizationUnitCategory'
+  | 'company.organizationUnitCodePlaceholder'
+  | 'company.organizationUnitNamePlaceholder'
+  | 'company.parentLabel'
+  | 'company.workLocation'
+  | 'company.workLocations'
+  | 'company.addWorkLocation'
+  | 'company.editWorkLocation'
+  | 'company.workLocationCreated'
+  | 'company.workLocationUpdated'
+  | 'company.organizationUnit'
+  | 'company.selectOrganizationUnit'
+  | 'company.address'
+  | 'company.radiusMeters'
+  | 'company.locationAndAddress'
+  | 'resource.detailEmpty'
+  | 'resource.confirmDelete'
+  | 'resource.deleteConfirmDescription'
+  | 'resource.failedLoadData'
+  | 'resource.detailNotAvailable'
+  | 'resource.deleteFailedMissingId'
+  | 'resource.selectedRows'
+  | 'resource.searchLocation'
+  | 'resource.mapPickerHint'
+  | 'resource.geolocationUnsupported'
+  | 'resource.geolocationDenied'
+  | 'resource.geolocationUnavailable'
+  | 'resource.geolocationTimeout'
+  | 'resource.geolocationUnknown'
+  | 'resource.noOrganizationUnits'
 
 const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
   id: {
@@ -89,10 +173,42 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'common.english': 'Inggris',
     'common.code': 'Kode',
     'common.name': 'Nama',
+    'common.category': 'Kategori',
     'common.back': 'Kembali',
+    'common.close': 'Tutup',
+    'common.cancel': 'Batal',
+    'common.create': 'Buat',
+    'common.delete': 'Hapus',
+    'common.deleting': 'Menghapus...',
+    'common.save': 'Simpan',
+    'common.saveChanges': 'Simpan perubahan',
+    'common.saveConfiguration': 'Simpan konfigurasi',
+    'common.saving': 'Menyimpan...',
     'common.loading': 'Memuat...',
+    'common.noData': 'Belum ada data.',
     'common.selectLanguage': 'Pilih bahasa',
+    'common.selectCategory': 'Pilih kategori',
     'common.requiredField': '{field} wajib diisi',
+    'common.edit': 'Edit',
+    'common.actions': 'Aksi',
+    'common.detail': 'Detail',
+    'common.filter': 'Filter',
+    'common.clear': 'Hapus',
+    'common.search': 'Cari',
+    'common.previous': 'Sebelumnya',
+    'common.next': 'Berikutnya',
+    'common.page': 'Halaman',
+    'common.of': 'dari',
+    'common.rowsPerPage': 'Baris per halaman',
+    'common.limit': 'Batas',
+    'common.select': 'Pilih',
+    'common.update': 'Perbarui',
+    'common.location': 'Lokasi',
+    'common.latitude': 'Lintang',
+    'common.longitude': 'Bujur',
+    'common.myLocation': 'Lokasi Saya',
+    'layout.main': 'Utama',
+    'layout.adminConsole': 'Konsol Admin',
     'auth.welcomeBack': 'Selamat datang kembali',
     'auth.signInDescription': 'Masuk ke akun ArtisanCode Anda',
     'auth.email': 'Email',
@@ -161,6 +277,58 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'company.organizationStructure': 'Struktur Organisasi',
     'company.configuration': 'Konfigurasi',
     'company.editCompany': 'Edit Perusahaan',
+    'company.companyCode': 'Kode Perusahaan',
+    'company.companyName': 'Nama Perusahaan',
+    'company.companyConfiguration': 'Konfigurasi Perusahaan',
+    'company.attendance': 'Kehadiran',
+    'company.attendanceRadius': 'Radius Kehadiran (meter)',
+    'company.leaveAllowance': 'Jatah Cuti (hari/tahun)',
+    'company.checkInStart': 'Mulai Check-in',
+    'company.checkInEnd': 'Akhir Check-in',
+    'company.checkOutStart': 'Mulai Check-out',
+    'company.checkOutEnd': 'Akhir Check-out',
+    'company.overtime': 'Lembur',
+    'company.overtimeRateMultiplier': 'Pengali Tarif Lembur',
+    'company.locale': 'Lokal',
+    'company.timezone': 'Zona Waktu',
+    'company.dateFormat': 'Format Tanggal',
+    'company.timeFormat': 'Format Waktu',
+    'company.organizationStructureLoading': 'Memuat struktur organisasi...',
+    'company.organizationStructureEmpty': 'Belum ada unit organisasi untuk perusahaan ini.',
+    'company.createOrganizationUnit': 'Buat Unit Organisasi',
+    'company.editOrganizationUnit': 'Edit Unit Organisasi',
+    'company.organizationUnitCode': 'Kode Unit Organisasi',
+    'company.organizationUnitName': 'Nama Unit Organisasi',
+    'company.organizationUnitCategory': 'Kategori',
+    'company.organizationUnitCodePlaceholder': 'Kode unit organisasi',
+    'company.organizationUnitNamePlaceholder': 'Nama unit organisasi',
+    'company.parentLabel': 'Induk: {name} ({category})',
+    'company.workLocation': 'Lokasi Kerja',
+    'company.workLocations': 'Lokasi Kerja',
+    'company.addWorkLocation': 'Tambah Lokasi Kerja',
+    'company.editWorkLocation': 'Edit Lokasi Kerja',
+    'company.workLocationCreated': 'Lokasi kerja berhasil dibuat.',
+    'company.workLocationUpdated': 'Lokasi kerja berhasil diperbarui.',
+    'company.organizationUnit': 'Unit Organisasi',
+    'company.selectOrganizationUnit': 'Pilih unit organisasi',
+    'company.address': 'Alamat',
+    'company.radiusMeters': 'Radius (meter)',
+    'company.locationAndAddress': 'Lokasi & Alamat',
+    'resource.detailEmpty': 'Tidak ada detail tersedia.',
+    'resource.confirmDelete': 'Konfirmasi hapus',
+    'resource.deleteConfirmDescription': 'Hapus {label}? Tindakan ini tidak dapat dibatalkan.',
+    'resource.failedLoadData': 'Gagal memuat data.',
+    'resource.detailNotAvailable': 'Detail tidak tersedia.',
+    'resource.deleteFailedMissingId': 'Gagal menghapus: ID tidak ditemukan.',
+    'resource.selectedRows': '{selected} dari {total} baris dipilih',
+    'resource.searchLocation': 'Cari lokasi...',
+    'resource.mapPickerHint': 'Klik pada peta, geser penanda, atau gunakan "Lokasi Saya" untuk menentukan lokasi.',
+    'resource.geolocationUnsupported': 'Geolokasi tidak didukung oleh browser Anda.',
+    'resource.geolocationDenied': 'Izin lokasi ditolak. Silakan aktifkan di pengaturan browser Anda.',
+    'resource.geolocationUnavailable': 'Informasi lokasi tidak tersedia.',
+    'resource.geolocationTimeout': 'Permintaan lokasi melebihi batas waktu. Silakan coba lagi.',
+    'resource.geolocationUnknown': 'Terjadi kesalahan yang tidak diketahui saat mengambil lokasi.',
+    'resource.noOrganizationUnits': 'Unit organisasi belum tersedia.',
   },
   en: {
     'common.language': 'Language',
@@ -168,10 +336,42 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'common.english': 'English',
     'common.code': 'Code',
     'common.name': 'Name',
+    'common.category': 'Category',
     'common.back': 'Back',
+    'common.close': 'Close',
+    'common.cancel': 'Cancel',
+    'common.create': 'Create',
+    'common.delete': 'Delete',
+    'common.deleting': 'Deleting...',
+    'common.save': 'Save',
+    'common.saveChanges': 'Save changes',
+    'common.saveConfiguration': 'Save configuration',
+    'common.saving': 'Saving...',
     'common.loading': 'Loading...',
+    'common.noData': 'No data yet.',
     'common.selectLanguage': 'Select language',
+    'common.selectCategory': 'Select category',
     'common.requiredField': '{field} is required',
+    'common.edit': 'Edit',
+    'common.actions': 'Actions',
+    'common.detail': 'Detail',
+    'common.filter': 'Filter',
+    'common.clear': 'Clear',
+    'common.search': 'Search',
+    'common.previous': 'Previous',
+    'common.next': 'Next',
+    'common.page': 'Page',
+    'common.of': 'of',
+    'common.rowsPerPage': 'Rows per page',
+    'common.limit': 'Limit',
+    'common.select': 'Select',
+    'common.update': 'Update',
+    'common.location': 'Location',
+    'common.latitude': 'Latitude',
+    'common.longitude': 'Longitude',
+    'common.myLocation': 'My Location',
+    'layout.main': 'Main',
+    'layout.adminConsole': 'Admin Console',
     'auth.welcomeBack': 'Welcome back',
     'auth.signInDescription': 'Sign in to your ArtisanCode account',
     'auth.email': 'Email',
@@ -240,6 +440,58 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'company.organizationStructure': 'Organization Structure',
     'company.configuration': 'Configuration',
     'company.editCompany': 'Edit Company',
+    'company.companyCode': 'Company Code',
+    'company.companyName': 'Company Name',
+    'company.companyConfiguration': 'Company Configuration',
+    'company.attendance': 'Attendance',
+    'company.attendanceRadius': 'Attendance Radius (meters)',
+    'company.leaveAllowance': 'Leave Allowance (days/year)',
+    'company.checkInStart': 'Check-in Start',
+    'company.checkInEnd': 'Check-in End',
+    'company.checkOutStart': 'Check-out Start',
+    'company.checkOutEnd': 'Check-out End',
+    'company.overtime': 'Overtime',
+    'company.overtimeRateMultiplier': 'Overtime Rate Multiplier',
+    'company.locale': 'Locale',
+    'company.timezone': 'Timezone',
+    'company.dateFormat': 'Date Format',
+    'company.timeFormat': 'Time Format',
+    'company.organizationStructureLoading': 'Loading organization structure...',
+    'company.organizationStructureEmpty': 'No organization units found for this company.',
+    'company.createOrganizationUnit': 'Create Organization Unit',
+    'company.editOrganizationUnit': 'Edit Organization Unit',
+    'company.organizationUnitCode': 'Organization Unit Code',
+    'company.organizationUnitName': 'Organization Unit Name',
+    'company.organizationUnitCategory': 'Category',
+    'company.organizationUnitCodePlaceholder': 'Organization unit code',
+    'company.organizationUnitNamePlaceholder': 'Organization unit name',
+    'company.parentLabel': 'Parent: {name} ({category})',
+    'company.workLocation': 'Work Location',
+    'company.workLocations': 'Work Locations',
+    'company.addWorkLocation': 'Add Work Location',
+    'company.editWorkLocation': 'Edit Work Location',
+    'company.workLocationCreated': 'Work location created successfully.',
+    'company.workLocationUpdated': 'Work location updated successfully.',
+    'company.organizationUnit': 'Organization Unit',
+    'company.selectOrganizationUnit': 'Select organization unit',
+    'company.address': 'Address',
+    'company.radiusMeters': 'Radius (meters)',
+    'company.locationAndAddress': 'Location & Address',
+    'resource.detailEmpty': 'No detail available.',
+    'resource.confirmDelete': 'Confirm delete',
+    'resource.deleteConfirmDescription': 'Delete {label}? This action cannot be undone.',
+    'resource.failedLoadData': 'Failed to load data.',
+    'resource.detailNotAvailable': 'Detail not available.',
+    'resource.deleteFailedMissingId': 'Delete failed: missing id.',
+    'resource.selectedRows': '{selected} of {total} row(s) selected',
+    'resource.searchLocation': 'Search location...',
+    'resource.mapPickerHint': 'Click on the map, drag the marker, or use "My Location" to set the location.',
+    'resource.geolocationUnsupported': 'Geolocation is not supported by your browser.',
+    'resource.geolocationDenied': 'Location permission denied. Please enable it in your browser settings.',
+    'resource.geolocationUnavailable': 'Location information is unavailable.',
+    'resource.geolocationTimeout': 'Location request timed out. Please try again.',
+    'resource.geolocationUnknown': 'An unknown error occurred while getting location.',
+    'resource.noOrganizationUnits': 'No organization units found.',
   },
 }
 
