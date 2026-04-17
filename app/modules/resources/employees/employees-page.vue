@@ -9,6 +9,7 @@ defineOptions({ name: 'EmployeesPage' })
 const { apiFetch } = useApi()
 const { show } = useBanner()
 const { locale } = useLocale()
+const { formatDateOnly, normalizeDateInput } = useDateTime()
 const uiText = (value: string) => localizeUiText(locale.value, value)
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 
@@ -22,25 +23,11 @@ const formatJoinDateForTable = (value: unknown) => {
     return '-'
   }
 
-  const dateOnlyMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
-  if (!dateOnlyMatch) {
-    return raw
-  }
-
-  const [, year, month, day] = dateOnlyMatch
-  const utcDate = new Date(`${year}-${month}-${day}T00:00:00Z`)
-
-  try {
-    return utcDate.toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      timeZone: 'UTC',
-    })
-  }
-  catch {
-    return `${day}/${month}/${year}`
-  }
+  return formatDateOnly(raw, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }, raw)
 }
 
 const normalizeJoinDateForInput = (value: unknown) => {
@@ -53,12 +40,7 @@ const normalizeJoinDateForInput = (value: unknown) => {
     return ''
   }
 
-  const dateOnlyMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
-  if (!dateOnlyMatch) {
-    return ''
-  }
-
-  return `${dateOnlyMatch[1]}-${dateOnlyMatch[2]}-${dateOnlyMatch[3]}`
+  return normalizeDateInput(raw)
 }
 
 // --- List config ---

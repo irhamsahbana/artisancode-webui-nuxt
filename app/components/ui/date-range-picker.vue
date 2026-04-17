@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { formatDateOnlyValue, parseIsoDateOnlyLocal, resolveDateLocale } from '~/utils/date-time'
 import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'UiDateRangePicker' })
@@ -39,12 +40,7 @@ const toLocalIso = (date: Date) => {
 }
 
 const parseIsoDate = (value: string) => {
-  if (!value) {
-    return null
-  }
-
-  const date = new Date(`${value}T00:00:00`)
-  return Number.isNaN(date.getTime()) ? null : date
+  return parseIsoDateOnlyLocal(value)
 }
 
 const getTodayIso = () => toLocalIso(new Date())
@@ -67,18 +63,19 @@ watch(
 )
 
 const monthLabel = (date: Date) =>
-  date.toLocaleDateString(locale.value === 'en' ? 'en-US' : 'id-ID', {
+  date.toLocaleDateString(resolveDateLocale(locale.value), {
     month: 'long',
     year: 'numeric',
   })
 
 const formatTriggerLabel = (from: string, to: string) => {
-  const format = (value: string) =>
-    parseIsoDate(value)?.toLocaleDateString(locale.value === 'en' ? 'en-US' : 'id-ID', {
+  const format = (value: string) => (
+    formatDateOnlyValue(value, resolveDateLocale(locale.value), {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
     }) ?? value
+  )
 
   if (from && to) {
     return from === to ? format(from) : `${format(from)} - ${format(to)}`

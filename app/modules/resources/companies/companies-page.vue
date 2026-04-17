@@ -4,6 +4,7 @@ import { computed } from 'vue'
 defineOptions({ name: 'CompaniesPage' })
 
 const { locale, t } = useLocale()
+const { formatDateTime } = useDateTime()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const name = row.name
@@ -24,15 +25,10 @@ const formatCreatedAt = (value: unknown) => {
     return '-'
   }
 
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  return date.toLocaleString(locale.value === 'en' ? 'en-US' : 'id-ID', {
+  return formatDateTime(value, {
     dateStyle: 'medium',
     timeStyle: 'short',
-  })
+  }, value)
 }
 </script>
 

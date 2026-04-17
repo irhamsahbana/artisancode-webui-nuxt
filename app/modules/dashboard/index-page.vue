@@ -52,6 +52,7 @@ const trendOptions = [7, 14, 30] as const
 const { user } = useAuth()
 const { apiFetch } = useApi()
 const { locale } = useLocale()
+const { formatDateOnly, formatDateTime } = useDateTime()
 const browserTimezone = ref('')
 const uiText = (value: string) => localizeUiText(locale.value, value)
 
@@ -135,20 +136,9 @@ const formatShortDate = (value: string) => {
     return '-'
   }
 
-  return new Date(`${value}T00:00:00`).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'id-ID', {
+  return formatDateOnly(value, {
     day: '2-digit',
     month: 'short',
-  })
-}
-
-const formatDateTime = (value: string | null) => {
-  if (!value) {
-    return '-'
-  }
-
-  return new Date(value).toLocaleString(locale.value === 'en' ? 'en-US' : 'id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
   })
 }
 

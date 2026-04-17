@@ -20,6 +20,7 @@ const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
 const { locale } = useLocale()
+const { formatDateOnly: formatDateOnlyLabel, formatDateTime } = useDateTime()
 const uiText = (value: string) => localizeUiText(locale.value, value)
 
 type ExportJobFormat = 'csv' | 'xlsx' | 'pdf'
@@ -81,10 +82,10 @@ const columns = [
         return '-'
       }
 
-      return new Date(value).toLocaleString(locale.value === 'en' ? 'en-US' : 'id-ID', {
+      return formatDateTime(value, {
         dateStyle: 'medium',
         timeStyle: 'short',
-      })
+      }, value)
     },
   },
   {
@@ -462,19 +463,255 @@ const openSelfie = (row: AttendanceLogRow | null | undefined) => {
 }
 
 const formatTimestamp = (value: string | null | undefined) => {
-  if (!value) {
-    return '-'
-  }
-
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  return date.toLocaleString(locale.value === 'en' ? 'en-US' : 'id-ID', {
+  return formatDateTime(value, {
     dateStyle: 'medium',
     timeStyle: 'short',
   })
+}
+
+const formatAttendanceDate = (value: unknown) => {
+  if (typeof value !== 'string' || value.length === 0) {
+    return '-'
+  }
+
+  return formatDateOnlyLabel(value, {
+    dateStyle: 'full',
+  }, value)
+}
+
+const formatTitleValue = (value: unknown) => {
+  if (typeof value !== 'string' || value.length === 0) {
+    return '-'
+  }
+
+  return value
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase())
+}
+
+const formatCoordinate = (value: unknown) => {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return '-'
+  }
+
+  return value.toFixed(6)
+}
+
+const formatDetailValue = (key: string, value: unknown) => {
+  if (value === null || value === undefined || value === '') {
+    return '-'
+  }
+
+  if (key === 'type' || key === 'source' || key === 'status') {
+    return formatTitleValue(value)
+  }
+
+  if (key === 'attendance_date') {
+    return formatAttendanceDate(value)
+  }
+
+  if (key === 'logged_at' || key === 'created_at' || key === 'updated_at') {
+    return typeof value === 'string' ? formatTimestamp(value) : '-'
+  }
+
+  if (key === 'latitude' || key === 'longitude') {
+    return formatCoordinate(value)
+  }
+
+  if (key === 'selfie_url') {
+    return typeof value === 'string' && value.length > 0 ? uiText('Available') : '-'
+  }
+
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value, null, 2)
+    }
+    catch {
+      return String(value)
+    }
+  }
+
+  return String(value)
+}
+
+const detailFieldLabels: Record<string, string> = {
+  employee_name: 'Employee Name',
+  employee_no: 'Employee No',
+  employee_id: 'Employee ID',
+  attendance_date: 'Attendance Date',
+  logged_at: 'Logged At',
+  type: 'Attendance Type',
+  source: 'Source',
+  status: 'Status',
+  notes: 'Notes',
+  address: 'Recorded Address',
+  latitude: 'Latitude',
+  longitude: 'Longitude',
+  device_name: 'Device Name',
+  device_id: 'Device ID',
+  selfie_url: 'Photo Proof',
+  selfie_file_id: 'Photo File ID',
+  created_at: 'Created At',
+  updated_at: 'Updated At',
+  id: 'Attendance Log ID',
+}
+
+const getDetailFieldLabel = (key: string) => uiText(detailFieldLabels[key] ?? toTitleCase(key))
+
+const getDetailValue = (row: AttendanceLogRow | null | undefined, key: string) => row?.[key]
+
+const buildDetailSummary = (row: AttendanceLogRow | null | undefined) => {
+  if (!row) {
+    return []
+  }
+
+  return [
+    {
+      key: 'attendance_date',
+      label: uiText('Attendance Date'),
+      value: typeof getDetailValue(row, 'attendance_date') === 'string'
+        ? formatAttendanceDate(getDetailValue(row, 'attendance_date'))
+        : '-',
+    },
+    {
+      key: 'logged_at',
+      label: uiText('Logged At'),
+      value: formatDetailValue('logged_at', getDetailValue(row, 'logged_at')),
+    },
+    {
+      key: 'type',
+      label: uiText('Type'),
+      value: formatDetailValue('type', getDetailValue(row, 'type')),
+    },
+    {
+      key: 'source',
+      label: uiText('Source'),
+      value: formatDetailValue('source', getDetailValue(row, 'source')),
+    },
+  ].filter(item => item.value !== '-')
+}
+
+const detailSections = computed(() => {
+  return [
+    {
+      id: 'employee',
+      title: uiText('Employee Information'),
+      description: uiText('Who the attendance record belongs to.'),
+      fields: [
+        'employee_name',
+        'employee_no',
+        'employee_id',
+      ],
+    },
+    {
+      id: 'attendance',
+      title: uiText('Attendance Record'),
+      description: uiText('Main attendance activity and supporting notes.'),
+      fields: [
+        'attendance_date',
+        'logged_at',
+        'type',
+        'source',
+        'status',
+        'notes',
+      ],
+    },
+    {
+      id: 'location',
+      title: uiText('Location Details'),
+      description: uiText('Address and coordinates captured when the log was created.'),
+      fields: [
+        'address',
+        'latitude',
+        'longitude',
+      ],
+    },
+    {
+      id: 'device',
+      title: uiText('Device Details'),
+      description: uiText('Device information used during the attendance submission.'),
+      fields: [
+        'device_name',
+        'device_id',
+      ],
+    },
+    {
+      id: 'system',
+      title: uiText('System Metadata'),
+      description: uiText('Internal identifiers and timestamps for auditing.'),
+      fields: [
+        'id',
+        'selfie_file_id',
+        'created_at',
+        'updated_at',
+      ],
+    },
+  ]
+})
+
+const getSectionEntries = (row: AttendanceLogRow | null | undefined, fields: string[]) => {
+  if (!row) {
+    return []
+  }
+
+  return fields
+    .map((key) => {
+      const value = getDetailValue(row, key)
+      const formattedValue = formatDetailValue(key, value)
+
+      if (formattedValue === '-') {
+        return null
+      }
+
+      return {
+        key,
+        label: getDetailFieldLabel(key),
+        value: formattedValue,
+        multiline: key === 'notes' || key === 'address' || (typeof value === 'object' && value !== null),
+      }
+    })
+    .filter((item): item is { key: string, label: string, value: string, multiline: boolean } => item !== null)
+}
+
+const getMapsUrl = (row: AttendanceLogRow | null | undefined) => {
+  if (!row) {
+    return ''
+  }
+
+  const latitude = getDetailValue(row, 'latitude')
+  const longitude = getDetailValue(row, 'longitude')
+
+  if (typeof latitude !== 'number' || typeof longitude !== 'number') {
+    return ''
+  }
+
+  return `https://www.google.com/maps?q=${latitude},${longitude}`
+}
+
+const hasLocationCoordinates = (row: AttendanceLogRow | null | undefined) => getMapsUrl(row).length > 0
+
+const getMapEmbedUrl = (row: AttendanceLogRow | null | undefined) => {
+  if (!row) {
+    return ''
+  }
+
+  const latitude = getDetailValue(row, 'latitude')
+  const longitude = getDetailValue(row, 'longitude')
+
+  if (typeof latitude !== 'number' || typeof longitude !== 'number') {
+    return ''
+  }
+
+  const latitudeOffset = 0.005
+  const longitudeOffset = 0.005
+  const bbox = [
+    longitude - longitudeOffset,
+    latitude - latitudeOffset,
+    longitude + longitudeOffset,
+    latitude + latitudeOffset,
+  ].join('%2C')
+
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${latitude}%2C${longitude}`
 }
 
 const getExportStatusVariant = (status: ExportJobStatus) => {
@@ -838,19 +1075,19 @@ const downloadExport = (item: ExportJob) => {
         </button>
       </template>
 
-      <template #detail="{ row, loading, close, entries, formatValue }">
+      <template #detail="{ row, loading, close }">
         <div
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6 py-8"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 sm:px-6 sm:py-8"
           @click.self="close"
         >
-          <div class="w-full max-w-5xl rounded-lg border bg-card p-6 shadow-lg">
-            <div class="flex items-center justify-between gap-4">
-              <div>
-                <div class="text-lg font-semibold">
+          <div class="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-2xl border bg-card shadow-xl">
+            <div class="flex items-center justify-between gap-4 border-b px-5 py-4 sm:px-6">
+              <div class="min-w-0">
+                <div class="text-lg font-semibold sm:text-xl">
                   {{ uiText('Attendance Log Detail') }}
                 </div>
                 <div class="text-sm text-muted-foreground">
-                  {{ uiText('Review the attendance record and its photo proof.') }}
+                  {{ uiText('Review the attendance record with a cleaner summary, supporting context, and photo proof.') }}
                 </div>
               </div>
               <Button
@@ -862,77 +1099,201 @@ const downloadExport = (item: ExportJob) => {
               </Button>
             </div>
 
-            <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-              <div class="rounded-xl border bg-muted/20 p-4">
-                <div class="text-sm font-medium">
-                  {{ uiText('Photo Proof') }}
-                </div>
+            <div class="grid max-h-[calc(90vh-73px)] gap-0 overflow-auto lg:grid-cols-[minmax(0,1fr)_360px]">
+              <div class="space-y-5 px-5 py-5 sm:px-6">
                 <div
                   v-if="loading"
-                  class="mt-4 text-sm text-muted-foreground"
+                  class="rounded-xl border border-dashed bg-muted/20 p-6 text-sm text-muted-foreground"
                 >
-                  {{ uiText('Loading photo...') }}
+                  {{ uiText('Loading attendance detail...') }}
                 </div>
-                <div
-                  v-else-if="hasSelfie(row)"
-                  class="mt-4 space-y-4"
-                >
-                  <img
-                    :src="getSelfieUrl(row)"
-                    alt="Attendance photo proof"
-                    class="max-h-[60vh] w-full rounded-lg border object-contain bg-white"
-                  >
-                  <div class="flex justify-end">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      @click="openSelfie(row)"
-                    >
-                      {{ uiText('Open Full Size') }}
-                    </Button>
+
+                <template v-else>
+                  <div class="rounded-2xl border bg-muted/20 p-4 sm:p-5">
+                    <div class="flex flex-wrap items-start justify-between gap-4">
+                      <div class="space-y-2">
+                        <div class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                          {{ uiText('Attendance Summary') }}
+                        </div>
+                        <div class="text-xl font-semibold leading-tight">
+                          {{ String(row?.employee_name ?? uiText('Unknown Employee')) }}
+                        </div>
+                        <div class="text-sm text-muted-foreground">
+                          {{ String(row?.employee_no ?? '-') }}
+                        </div>
+                      </div>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          class="rounded-full px-3 py-1 text-xs"
+                        >
+                          {{ formatDetailValue('type', row?.type) }}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          class="rounded-full px-3 py-1 text-xs"
+                        >
+                          {{ formatDetailValue('status', row?.status) }}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          class="rounded-full px-3 py-1 text-xs"
+                        >
+                          {{ formatDetailValue('source', row?.source) }}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                      <div
+                        v-for="item in buildDetailSummary(row)"
+                        :key="item.key"
+                        class="rounded-xl border bg-background px-4 py-3"
+                      >
+                        <div class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          {{ item.label }}
+                        </div>
+                        <div class="mt-1 text-sm font-medium leading-snug">
+                          {{ item.value }}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div
-                  v-else
-                  class="mt-4 rounded-lg border border-dashed p-6 text-sm text-muted-foreground"
-                >
-                  {{ uiText('No photo proof is attached to this attendance log.') }}
-                </div>
+
+                  <div class="space-y-4">
+                    <div
+                      v-for="section in detailSections"
+                      :key="section.id"
+                      class="rounded-2xl border bg-background p-4 sm:p-5"
+                    >
+                      <div class="flex items-start justify-between gap-3">
+                        <div>
+                          <div class="text-sm font-semibold">
+                            {{ section.title }}
+                          </div>
+                          <div class="text-xs text-muted-foreground">
+                            {{ section.description }}
+                          </div>
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          class="rounded-full px-2.5 py-1 text-[11px]"
+                        >
+                          {{ getSectionEntries(row, section.fields).length }}
+                        </Badge>
+                      </div>
+
+                      <div
+                        v-if="getSectionEntries(row, section.fields).length === 0"
+                        class="mt-4 rounded-xl border border-dashed px-4 py-3 text-sm text-muted-foreground"
+                      >
+                        {{ uiText('No data available in this section.') }}
+                      </div>
+
+                      <div
+                        v-else
+                        class="mt-4 grid gap-3"
+                      >
+                        <div
+                          v-for="entry in getSectionEntries(row, section.fields)"
+                          :key="entry.key"
+                          class="grid gap-2 rounded-xl border bg-muted/20 px-4 py-3 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start"
+                        >
+                          <div class="text-sm font-medium text-muted-foreground">
+                            {{ entry.label }}
+                          </div>
+                          <div
+                            class="break-words text-sm leading-6 text-foreground"
+                            :class="entry.multiline ? 'whitespace-pre-wrap' : ''"
+                          >
+                            {{ entry.value }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        v-if="section.id === 'location' && hasLocationCoordinates(row)"
+                        class="mt-4 space-y-3"
+                      >
+                        <div class="overflow-hidden rounded-2xl border bg-background">
+                          <iframe
+                            :src="getMapEmbedUrl(row)"
+                            class="h-64 w-full"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            :title="uiText('Attendance Location Map')"
+                          />
+                        </div>
+
+                        <div class="flex justify-end">
+                          <a
+                            :href="getMapsUrl(row)"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-accent"
+                          >
+                            {{ uiText('Open Coordinates in Maps') }}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
               </div>
 
-              <div class="rounded-xl border p-4">
-                <div class="text-sm font-medium">
-                  {{ uiText('Record Details') }}
-                </div>
-                <div class="mt-4 max-h-[60vh] overflow-auto text-sm">
+              <div class="border-t bg-muted/10 px-5 py-5 sm:px-6 lg:border-l lg:border-t-0">
+                <div class="sticky top-0 space-y-4">
+                  <div>
+                    <div class="text-sm font-semibold">
+                      {{ uiText('Photo Proof') }}
+                    </div>
+                    <div class="text-xs text-muted-foreground">
+                      {{ uiText('Use the photo to quickly verify that the record matches the employee submission.') }}
+                    </div>
+                  </div>
+
                   <div
                     v-if="loading"
-                    class="text-muted-foreground"
+                    class="rounded-xl border border-dashed p-6 text-sm text-muted-foreground"
                   >
-                    Loading...
+                    {{ uiText('Loading photo...') }}
                   </div>
                   <div
-                    v-else-if="entries.length === 0"
-                    class="text-muted-foreground"
+                    v-else-if="hasSelfie(row)"
+                    class="space-y-4"
                   >
-                    No detail available.
+                    <div class="overflow-hidden rounded-2xl border bg-white">
+                      <img
+                        :src="getSelfieUrl(row)"
+                        alt="Attendance photo proof"
+                        class="max-h-[52vh] w-full object-contain"
+                      >
+                    </div>
+
+                    <div class="grid gap-3">
+                      <div class="rounded-xl border bg-background px-4 py-3">
+                        <div class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          {{ uiText('Photo Status') }}
+                        </div>
+                        <div class="mt-1 text-sm font-medium">
+                          {{ uiText('Available') }}
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        class="w-full"
+                        @click="openSelfie(row)"
+                      >
+                        {{ uiText('Open Full Size') }}
+                      </Button>
+                    </div>
                   </div>
                   <div
                     v-else
-                    class="space-y-3"
+                    class="rounded-2xl border border-dashed bg-background p-6 text-sm text-muted-foreground"
                   >
-                    <div
-                      v-for="[key, value] in entries"
-                      :key="String(key)"
-                      class="grid grid-cols-[120px_minmax(0,1fr)] gap-3"
-                    >
-                      <div class="break-words text-muted-foreground">
-                        {{ key }}
-                      </div>
-                      <div class="break-words">
-                        {{ formatValue(value) }}
-                      </div>
-                    </div>
+                    {{ uiText('No photo proof is attached to this attendance log.') }}
                   </div>
                 </div>
               </div>
