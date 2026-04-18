@@ -50,6 +50,12 @@ If shared infrastructure changed, also verify:
 - an action-menu flow
 - SSR/client hydration output in the browser console
 
+## Documentation Workflow
+
+- Update `docs/` when frontend conventions, structure, or workflow expectations change.
+- Update `agents.md` as well when the task changes workflow expectations, review rules, or agent operating instructions for future frontend work.
+- Prefer small incremental documentation updates over large rewrites.
+
 ## UI List Defaults (Benchmark: Roles & Permissions)
 - **Default limit**: 15 items per page for list views.
 - **Limit options**: 10, 15, 25, 50, 100.

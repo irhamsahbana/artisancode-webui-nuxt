@@ -92,5 +92,7 @@
 ## Documentation Maintenance
 
 - The AI agent is authorized to update `docs/` files to keep them accurate.
+- The AI agent is authorized to update `agents.md` when workflow expectations, coding conventions, or agent instructions need to stay aligned with the implementation.
 - When documentation is updated, explicitly mention it in the final response.
 - If codebase patterns drift from the docs, proactively update the relevant documentation instead of leaving it stale.
+- When a task changes how future frontend work should be executed, documented, or reviewed, update the relevant `agents.md` and `docs/` files in the same task when practical.
