@@ -23,7 +23,7 @@ const { locale } = useLocale()
 const { formatDateOnly: formatDateOnlyLabel, formatDateTime } = useDateTime()
 const uiText = (value: string) => localizeUiText(locale.value, value)
 
-type ExportJobFormat = 'csv' | 'xlsx' | 'pdf'
+type ExportJobFormat = 'xlsx'
 type ExportJobStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'expired'
 
 type ExportJob = {
@@ -129,7 +129,7 @@ const workLocationOptions = ref<SelectOption[]>(withAnyOption('All work location
 const exportLoading = ref(false)
 const exportListLoading = ref(false)
 const exportItems = ref<ExportJob[]>([])
-const exportFormat = ref<ExportJobFormat>('csv')
+const exportFormat = ref<ExportJobFormat>('xlsx')
 let exportPollingTimer: ReturnType<typeof globalThis.setInterval> | null = null
 
 const filters = reactive({
@@ -912,9 +912,7 @@ const downloadExport = (item: ExportJob) => {
           <SearchableSelect
             v-model="exportFormat"
             :options="[
-              { value: 'csv', label: 'CSV' },
               { value: 'xlsx', label: 'XLSX' },
-              { value: 'pdf', label: 'PDF' },
             ]"
             :placeholder="uiText('Export format')"
             class="w-[140px]"

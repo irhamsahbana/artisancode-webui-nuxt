@@ -212,6 +212,10 @@ const handleSubmit = async () => {
     show(uiText('Email is required'), 'error')
     return
   }
+  if (!form.value.shift_id) {
+    show(uiText('Work shift is required'), 'error')
+    return
+  }
   if (modalMode.value === 'create' && form.value.password.trim() && form.value.password.trim().length < 8) {
     show(uiText('Password must be at least 8 characters'), 'error')
     return
@@ -395,11 +399,11 @@ const handleSubmit = async () => {
 
         <!-- Work Shift -->
         <div>
-          <Label>{{ uiText('Work Shift') }}</Label>
+          <Label>{{ uiText('Work Shift') }} *</Label>
           <SearchableSelect
             v-model="form.shift_id"
             :options="workShiftOptions"
-            :placeholder="uiText('Not assigned')"
+            :placeholder="uiText('Select work shift')"
             search-placeholder="Search work shifts..."
             class="mt-1"
           />
