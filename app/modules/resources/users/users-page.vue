@@ -262,33 +262,23 @@ const handleSubmit = async () => {
 
   <div
     v-if="modalOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
-    @click.self="closeModal"
   >
-    <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
-      <div class="flex items-center justify-between">
-        <div class="text-lg font-semibold">
-          {{ modalMode === 'create' ? uiText('Add User') : uiText('Edit User') }}
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          @click="closeModal"
-        >
-          {{ uiText('Close') }}
-        </Button>
-      </div>
-
+    <FormDialogShell
+      max-width-class="max-w-2xl"
+      :title="modalMode === 'create' ? uiText('Add User') : uiText('Edit User')"
+      :description="uiText('Manage account details and role assignments in one place.')"
+      @close="closeModal"
+    >
       <div
         v-if="modalLoading"
-        class="mt-6 text-sm text-muted-foreground"
+        class="text-sm text-muted-foreground"
       >
         {{ uiText('Loading user data...') }}
       </div>
 
       <form
         v-else
-        class="mt-6 space-y-4"
+        class="space-y-4"
         @submit.prevent="handleSubmit"
       >
         <div class="grid gap-4 md:grid-cols-2">
@@ -380,18 +370,20 @@ const handleSubmit = async () => {
           <Button
             type="button"
             variant="outline"
+            class="rounded-xl"
             @click="closeModal"
           >
             {{ uiText('Cancel') }}
           </Button>
           <Button
             type="submit"
+            class="rounded-xl"
             :disabled="submitLoading"
           >
             {{ submitLoading ? uiText('Saving...') : (modalMode === 'create' ? uiText('Create User') : uiText('Save Changes')) }}
           </Button>
         </div>
       </form>
-    </div>
+    </FormDialogShell>
   </div>
 </template>

@@ -1,0 +1,13 @@
+.git
+.gitignore
+.nuxt
+.output
+node_modules
+dist
+.DS_Store
+coverage
+*.log
+Dockerfile*
+docker-compose*.yml
+README.md
+docs

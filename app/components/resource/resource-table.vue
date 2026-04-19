@@ -68,6 +68,7 @@ const allSelected = computed(
     rowKeys.value.length > 0 &&
     rowKeys.value.every((key) => selectedKeys.value.has(key))
 );
+const primaryColumn = computed(() => localizedColumns.value[0] ?? null);
 
 const formatCellValue = (value: unknown) => {
   if (value === null || value === undefined) {
@@ -240,6 +241,10 @@ const handleScroll = () => {
   }
 };
 
+const closeInlineActions = () => {
+  closeMenu();
+};
+
 onMounted(() => {
   document.addEventListener("mousedown", handleClickOutside);
   window.addEventListener("scroll", handleScroll, true);
@@ -257,97 +262,228 @@ watch(
 </script>
 
 <template>
-  <Table>
-    <TableHeader>
-      <TableRow>
-        <TableHead v-if="props.selectable" class="w-12">
-          <input
-            type="checkbox"
-            role="checkbox"
-            class="h-5 w-5 rounded border-input bg-background text-primary"
-            :checked="allSelected"
-            @change="toggleAll"
-          />
-        </TableHead>
-        <TableHead v-for="column in localizedColumns" :key="column.key">
-          {{ column.label }}
-        </TableHead>
-        <TableHead v-if="hasActions" class="w-10 text-right">
-          {{ t("common.actions") }}
-        </TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      <TableRow
-        v-for="(row, index) in resolvedRows"
-        :key="getRowKey(row, index)"
+  <div class="overflow-hidden rounded-[24px] border border-border/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(248,250,252,0.46))] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.56),rgba(2,6,23,0.24))]">
+    <div class="grid gap-3 p-3 md:hidden">
+      <div
+        v-if="props.selectable && resolvedRows.length > 0"
+        class="flex items-center justify-between rounded-2xl border border-border/70 bg-background/75 px-4 py-3"
       >
-        <TableCell v-if="props.selectable" class="w-12 align-top">
+        <div class="text-sm font-medium">
+          {{ t("common.selectAll") }}
+        </div>
+        <input
+          type="checkbox"
+          role="checkbox"
+          class="h-5 w-5 rounded border-input bg-background text-primary"
+          :checked="allSelected"
+          @change="toggleAll"
+        >
+      </div>
+      <div
+        v-for="(row, index) in resolvedRows"
+        :key="`mobile-${getRowKey(row, index)}`"
+        class="rounded-[22px] border border-border/70 bg-background/85 p-4 shadow-[0_18px_36px_-32px_rgba(15,23,42,0.75)]"
+      >
+        <div class="flex items-start gap-3">
           <input
+            v-if="props.selectable"
             type="checkbox"
             role="checkbox"
-            class="mt-1 h-5 w-5 rounded border-input bg-background text-primary"
+            class="mt-1 h-5 w-5 shrink-0 rounded border-input bg-background text-primary"
             :checked="selectedKeys.has(getRowKey(row, index))"
             @change="toggleRow(getRowKey(row, index))"
-          />
-        </TableCell>
-        <TableCell v-for="column in localizedColumns" :key="column.key">
-          <span v-if="column.format">
-            {{ column.format(row[column.key], row) }}
-          </span>
-          <span v-else>
-            {{ formatCellValue(row[column.key]) }}
-          </span>
-        </TableCell>
-        <TableCell v-if="hasActions" class="relative align-top text-right">
-          <Button
-            :ref="(el) => setMenuAnchorRef(getRowKey(row, index), el)"
-            variant="ghost"
-            size="icon"
-            :aria-label="`${t('common.actions')} ${index + 1}`"
-            @click="toggleMenu(getRowKey(row, index), $event)"
           >
-            <span class="text-lg leading-none">⋯</span>
-          </Button>
-          <Teleport to="body">
+          <div class="min-w-0 flex-1">
             <div
-              v-if="openMenuKey === getRowKey(row, index) && menuPosition"
-              :ref="(el) => setMenuRef(getRowKey(row, index), el)"
-              class="fixed z-50 w-40 rounded-md border bg-popover p-1 text-sm shadow-md"
-              :style="{
-                top: `${menuPosition.top}px`,
-                left: `${menuPosition.left}px`,
-              }"
+              v-if="primaryColumn"
+              class="space-y-1"
             >
-              <button
+              <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {{ primaryColumn.label }}
+              </div>
+              <div class="break-words text-base font-semibold text-foreground">
+                {{
+                  primaryColumn.format
+                    ? primaryColumn.format(row[primaryColumn.key], row)
+                    : formatCellValue(row[primaryColumn.key])
+                }}
+              </div>
+            </div>
+            <dl class="mt-4 space-y-3">
+              <div
+                v-for="column in localizedColumns.slice(primaryColumn ? 1 : 0)"
+                :key="`mobile-${getRowKey(row, index)}-${column.key}`"
+                class="grid gap-1"
+              >
+                <dt class="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  {{ column.label }}
+                </dt>
+                <dd class="break-words text-sm text-foreground">
+                  <span v-if="column.format">
+                    {{ column.format(row[column.key], row) }}
+                  </span>
+                  <span v-else>
+                    {{ formatCellValue(row[column.key]) }}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+            <div
+              v-if="hasActions"
+              class="mt-4 grid gap-2 border-t border-border/70 pt-3"
+            >
+              <Button
                 v-if="props.canViewDetail"
-                class="w-full rounded px-3 py-2 text-left hover:bg-accent"
+                variant="outline"
+                size="sm"
+                class="h-10 rounded-xl justify-start"
                 @click="viewDetail(row)"
               >
                 {{ t("common.detail") }}
-              </button>
-              <slot name="row-actions" :row="row" :close="closeMenu" />
-              <button
+              </Button>
+              <slot
+                name="row-actions"
+                :row="row"
+                :close="closeInlineActions"
+              />
+              <Button
                 v-if="props.canDelete"
-                class="w-full rounded px-3 py-2 text-left text-destructive hover:bg-accent"
+                variant="destructive"
+                size="sm"
+                class="h-10 rounded-xl justify-start"
                 @click="confirmDelete(row)"
               >
                 {{ t("common.delete") }}
-              </button>
+              </Button>
             </div>
-          </Teleport>
-        </TableCell>
-      </TableRow>
-      <TableRow v-if="resolvedRows.length === 0">
-        <TableCell
-          :colspan="
-            columns.length + (hasActions ? 1 : 0) + (props.selectable ? 1 : 0)
-          "
-          class="text-center text-muted-foreground"
-        >
-          {{ emptyText ?? t("common.noData") }}
-        </TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>
+          </div>
+        </div>
+      </div>
+      <div
+        v-if="resolvedRows.length === 0"
+        class="rounded-[22px] border border-dashed border-border/70 bg-background/60 px-4 py-10 text-center text-sm text-muted-foreground"
+      >
+        {{ emptyText ?? t("common.noData") }}
+      </div>
+    </div>
+    <div class="hidden md:block">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead
+              v-if="props.selectable"
+              class="w-12"
+            >
+              <input
+                type="checkbox"
+                role="checkbox"
+                class="h-5 w-5 rounded border-input bg-background text-primary"
+                :checked="allSelected"
+                @change="toggleAll"
+              >
+            </TableHead>
+            <TableHead
+              v-for="column in localizedColumns"
+              :key="column.key"
+            >
+              {{ column.label }}
+            </TableHead>
+            <TableHead
+              v-if="hasActions"
+              class="w-10 text-right"
+            >
+              {{ t("common.actions") }}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow
+            v-for="(row, index) in resolvedRows"
+            :key="getRowKey(row, index)"
+            class="transition hover:bg-muted/30"
+          >
+            <TableCell
+              v-if="props.selectable"
+              class="w-12 align-top"
+            >
+              <input
+                type="checkbox"
+                role="checkbox"
+                class="mt-1 h-5 w-5 rounded border-input bg-background text-primary"
+                :checked="selectedKeys.has(getRowKey(row, index))"
+                @change="toggleRow(getRowKey(row, index))"
+              >
+            </TableCell>
+            <TableCell
+              v-for="column in localizedColumns"
+              :key="column.key"
+            >
+              <span v-if="column.format">
+                {{ column.format(row[column.key], row) }}
+              </span>
+              <span v-else>
+                {{ formatCellValue(row[column.key]) }}
+              </span>
+            </TableCell>
+            <TableCell
+              v-if="hasActions"
+              class="relative align-top text-right"
+            >
+              <Button
+                :ref="(el) => setMenuAnchorRef(getRowKey(row, index), el)"
+                variant="ghost"
+                size="icon"
+                class="rounded-xl"
+                :aria-label="`${t('common.actions')} ${index + 1}`"
+                @click="toggleMenu(getRowKey(row, index), $event)"
+              >
+                <span class="text-lg leading-none">⋯</span>
+              </Button>
+              <Teleport to="body">
+                <div
+                  v-if="openMenuKey === getRowKey(row, index) && menuPosition"
+                  :ref="(el) => setMenuRef(getRowKey(row, index), el)"
+                  class="fixed z-50 w-40 rounded-2xl border bg-popover p-1.5 text-sm shadow-xl"
+                  :style="{
+                    top: `${menuPosition.top}px`,
+                    left: `${menuPosition.left}px`,
+                  }"
+                >
+                  <button
+                    v-if="props.canViewDetail"
+                    class="w-full rounded px-3 py-2 text-left hover:bg-accent"
+                    @click="viewDetail(row)"
+                  >
+                    {{ t("common.detail") }}
+                  </button>
+                  <slot
+                    name="row-actions"
+                    :row="row"
+                    :close="closeMenu"
+                  />
+                  <button
+                    v-if="props.canDelete"
+                    class="w-full rounded px-3 py-2 text-left text-destructive hover:bg-accent"
+                    @click="confirmDelete(row)"
+                  >
+                    {{ t("common.delete") }}
+                  </button>
+                </div>
+              </Teleport>
+            </TableCell>
+          </TableRow>
+          <TableRow v-if="resolvedRows.length === 0">
+            <TableCell
+              :colspan="
+                columns.length + (hasActions ? 1 : 0) + (props.selectable ? 1 : 0)
+              "
+              class="py-10 text-center text-muted-foreground"
+            >
+              {{ emptyText ?? t("common.noData") }}
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
+  </div>
 </template>

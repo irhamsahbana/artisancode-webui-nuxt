@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { getTimezoneLabel, getTimezoneOptions } from '~/utils/timezone-options'
 import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'WorkShiftsPage' })
@@ -10,6 +11,8 @@ const { apiFetch } = useApi()
 const { show } = useBanner()
 const { locale } = useLocale()
 const uiText = (value: string) => localizeUiText(locale.value, value)
+
+const timezoneOptions = computed(() => getTimezoneOptions(locale.value))
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -22,7 +25,11 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
 
 const columns = [
   { key: 'name', label: 'Name' },
-  { key: 'timezone', label: 'Timezone' },
+  {
+    key: 'timezone',
+    label: 'Timezone',
+    format: (value: unknown) => getTimezoneLabel(locale.value, typeof value === 'string' ? value : null),
+  },
   { key: 'start_time', label: 'Start Time' },
   { key: 'end_time', label: 'End Time' },
   {
@@ -44,7 +51,7 @@ const submitLoading = ref(false)
 const form = ref({
   id: '',
   name: '',
-  timezone: 'Asia/Jakarta',
+  timezone: 'Asia/Makassar',
   start_time: '',
   end_time: '',
   grace_period_minutes: '0',
@@ -54,7 +61,7 @@ const resetForm = () => {
   form.value = {
     id: '',
     name: '',
-    timezone: 'Asia/Jakarta',
+    timezone: 'Asia/Makassar',
     start_time: '',
     end_time: '',
     grace_period_minutes: '0',
@@ -86,7 +93,7 @@ const openEditModal = async (row: Record<string, unknown>) => {
     const d = resp.data
     form.value.id = String(d.id ?? '')
     form.value.name = String(d.name ?? '')
-    form.value.timezone = String(d.timezone ?? 'Asia/Jakarta')
+    form.value.timezone = String(d.timezone ?? 'Asia/Makassar')
     form.value.start_time = String(d.start_time ?? '')
     form.value.end_time = String(d.end_time ?? '')
     form.value.grace_period_minutes = String(d.grace_period_minutes ?? '0')
@@ -187,33 +194,23 @@ const handleSubmit = async () => {
   <!-- Create / Edit Modal -->
   <div
     v-if="modalOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
-    @click.self="closeModal"
   >
-    <div class="w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg">
-      <div class="flex items-center justify-between">
-        <div class="text-lg font-semibold">
-          {{ modalMode === 'create' ? uiText('Add Work Shift') : uiText('Edit Work Shift') }}
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          @click="closeModal"
-        >
-          ✕
-        </Button>
-      </div>
-
+    <FormDialogShell
+      max-width-class="max-w-lg"
+      :title="modalMode === 'create' ? uiText('Add Work Shift') : uiText('Edit Work Shift')"
+      :description="uiText('Organize shift timing and grace settings with a cleaner form layout.')"
+      @close="closeModal"
+    >
       <div
         v-if="modalLoading"
-        class="mt-6 text-sm text-muted-foreground"
+        class="text-sm text-muted-foreground"
       >
         {{ uiText('Loading...') }}
       </div>
 
       <form
         v-else
-        class="mt-4 space-y-4"
+        class="space-y-4"
         @submit.prevent="handleSubmit"
       >
         <!-- Name -->
@@ -230,12 +227,17 @@ const handleSubmit = async () => {
         <!-- Timezone -->
         <div>
           <Label for="ws-timezone">Timezone *</Label>
-          <Input
+          <SearchableSelect
             id="ws-timezone"
             v-model="form.timezone"
-            placeholder="e.g. Asia/Jakarta"
+            :options="timezoneOptions"
+            :placeholder="uiText('Select timezone')"
+            :search-placeholder="uiText('Search timezone')"
             class="mt-1"
           />
+          <p class="mt-1 text-xs text-muted-foreground">
+            {{ uiText('Use friendly timezone labels such as WIB, WITA, or WIT.') }}
+          </p>
         </div>
 
         <!-- Start Time -->
@@ -280,6 +282,7 @@ const handleSubmit = async () => {
           <Button
             variant="outline"
             size="sm"
+            class="rounded-xl"
             :disabled="submitLoading"
             @click="closeModal"
           >
@@ -287,6 +290,7 @@ const handleSubmit = async () => {
           </Button>
           <Button
             size="sm"
+            class="rounded-xl"
             :disabled="submitLoading"
             type="submit"
           >
@@ -294,6 +298,6 @@ const handleSubmit = async () => {
           </Button>
         </div>
       </form>
-    </div>
+    </FormDialogShell>
   </div>
 </template>

@@ -157,33 +157,23 @@ const handleSubmit = async () => {
   <!-- Create / Edit Modal -->
   <div
     v-if="modalOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
-    @click.self="closeModal"
   >
-    <div class="w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg">
-      <div class="flex items-center justify-between">
-        <div class="text-lg font-semibold">
-          {{ modalMode === 'create' ? uiText('Add Job Position') : uiText('Edit Job Position') }}
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          @click="closeModal"
-        >
-          ✕
-        </Button>
-      </div>
-
+    <FormDialogShell
+      max-width-class="max-w-lg"
+      :title="modalMode === 'create' ? uiText('Add Job Position') : uiText('Edit Job Position')"
+      :description="uiText('Define role naming and grade structure with a cleaner form layout.')"
+      @close="closeModal"
+    >
       <div
         v-if="modalLoading"
-        class="mt-6 text-sm text-muted-foreground"
+        class="text-sm text-muted-foreground"
       >
         {{ uiText('Loading...') }}
       </div>
 
       <form
         v-else
-        class="mt-4 space-y-4"
+        class="space-y-4"
         @submit.prevent="handleSubmit"
       >
         <!-- Name -->
@@ -213,6 +203,7 @@ const handleSubmit = async () => {
           <Button
             variant="outline"
             size="sm"
+            class="rounded-xl"
             :disabled="submitLoading"
             @click="closeModal"
           >
@@ -220,6 +211,7 @@ const handleSubmit = async () => {
           </Button>
           <Button
             size="sm"
+            class="rounded-xl"
             :disabled="submitLoading"
             type="submit"
           >
@@ -227,6 +219,6 @@ const handleSubmit = async () => {
           </Button>
         </div>
       </form>
-    </div>
+    </FormDialogShell>
   </div>
 </template>

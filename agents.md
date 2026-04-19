@@ -34,6 +34,18 @@
 - Reuse components under `app/components/` before creating new ones.
 - Keep shared class composition in `app/utils/utils.ts` via `cn` when class merging is needed.
 - Prefer utility-first styling. Add scoped CSS only when Tailwind utilities are not enough.
+- When a resource page has dense filtering or async actions like export/refresh, treat the top area as a control surface:
+  - keep search lightweight in the `ResourceList` shell
+  - group primary filters inside the `filters` slot in a dedicated panel
+  - place high-value async actions in `header-actions` as a distinct CTA card or compact action rail, not as a detached lone button
+- Use subtle tonal surfaces, gradients, and stronger spacing hierarchy when a page needs emphasis, but stay inside the existing token palette and keep controls readable on mobile first.
+- Any custom surface that introduces explicit light colors (`bg-white`, `text-slate-900`, light gradients, etc.) must ship with matching `dark:` variants in the same change.
+- In dark mode, prioritize readable text and control contrast over preserving the exact light-mode look. Labels, helper text, badges, and summary cards should stay comfortably readable against their surface.
+- Treat app shell elements as first-class UI:
+  - sidebar should have clear grouping, active-state contrast, and a stable footer/auth area
+  - page headers should feel substantial enough to anchor the screen, not like a thin divider
+  - dashboard metrics should read as cards with visible surface separation in both light and dark themes
+- Prefer solving module-to-module visual drift in shared primitives first (`ResourceList`, `ResourceTable`, layout shell) before styling a single feature page in isolation.
 
 ## Component Registration
 
@@ -56,6 +68,10 @@
   - `app/pages/resources/org-units/[id].vue` -> `org-unit-detail-page.vue`
   - `app/pages/resources/students/[id].vue` -> `student-detail-page.vue`
 - Prefer matching the existing pattern for the feature you are editing rather than forcing everything into one template.
+- For list pages that need both persistent filters and exports, prefer this structure:
+  - `ResourceList` search stays in the header
+  - `filters` slot owns the full-width filter panel, presets, and active filter chips
+  - `header-actions` owns export or refresh CTA surfaces and lightweight state summaries
 
 ## Data And API Patterns
 

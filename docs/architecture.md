@@ -87,18 +87,45 @@ Hierarchical searchable tree dropdown for items with `parent_id`.
 ### ResourceList
 Generic CRUD list with pagination, search, and delete support.
 - **Props**: `title`, `endpoint`, `columns`, `loadingVariant`, `deleteLabelFormatter`, `canViewDetail`
-- **Slots**: `header-actions`, `row-actions`
+- **Slots**: `filters`, `header-actions`, `row-actions`, `detail`
 - **Behavior**:
   - Uses `useApi().apiFetch(...)`
   - Fetches data client-side
   - Supports page-based detail navigation when no `detail` slot is provided
   - Supports modal-style detail flow when a `detail` slot is provided
 
+#### ResourceList Slot Guidance
+
+- Keep the built-in search input as the light global finder for the page.
+- Use the `filters` slot for full-width filter surfaces:
+  - primary filters
+  - quick presets
+  - active filter chips
+  - small supporting summaries tied to the current query state
+- Use `header-actions` for async CTAs and status callouts such as export, refresh, sync, or queue summaries.
+- Prefer one strong CTA surface over multiple detached buttons when the page has export or background-job actions.
+- When custom slot content introduces explicit light-theme colors or gradients, add paired `dark:` styles at the same time so text, badges, and helper copy preserve accessible contrast in dark mode.
+- Shared shell surfaces such as the default layout header, sidebar, and dashboard summary cards should maintain obvious surface separation in both light and dark themes; avoid styles that read like plain page background blocks.
+- For resource modules, prefer evolving shared primitives (`ResourceList`, `ResourceTable`, layout shell) so pages keep a coherent visual language instead of each module inventing its own styling rules.
+
+### FormDialogShell
+Shared modal shell for resource create/edit flows.
+- Use for legacy CRUD modals that still open in-page instead of routing to dedicated detail pages.
+- Provides a consistent overlay, header, close affordance, scroll handling, and footer rhythm across modules.
+- Prefer updating old resource forms to this shell instead of restyling each modal inline.
+
 ### ResourceTable
 Shared table renderer used by `ResourceList`.
 - Handles row selection
 - Handles row action menu placement
 - Supports built-in `Manage` and `Delete` actions plus custom row action slots
+- On mobile, switches to stacked cards instead of forcing dense table scanning
+- Keep custom `row-actions` slot content usable as full-width tap targets on small screens
+
+### Mobile Shell Notes
+- The default layout mobile navigation should read as an opaque sheet, not a translucent overlay over page content.
+- App-shell footer/auth surfaces should stay pinned visually and remain readable above safe-area insets.
+- When a resource page relies on `ResourceList`/`ResourceTable`, verify the small-screen card layout before adding feature-local mobile overrides.
 
 ## API Proxy Pattern
 

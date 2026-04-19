@@ -5,17 +5,26 @@ const { token, user, logout } = useAuth()
 </script>
 
 <template>
-  <div class="flex items-center gap-3 text-sm">
+  <div class="flex flex-wrap items-center gap-3 text-sm">
     <div
       v-if="token"
-      class="text-muted-foreground"
+      class="min-w-0 flex-1 text-muted-foreground"
     >
-      {{ user?.name || user?.username }}
+      <div class="truncate font-medium text-foreground">
+        {{ user?.name || user?.username }}
+      </div>
+      <div
+        v-if="user?.tenant_name"
+        class="truncate text-xs text-muted-foreground"
+      >
+        {{ user?.tenant_name }}
+      </div>
     </div>
     <Button
       v-if="token"
       variant="outline"
       size="sm"
+      class="rounded-xl"
       @click="logout"
     >
       Logout

@@ -56,14 +56,6 @@ const route = useRoute();
 const router = useRouter();
 const { locale, t, format } = useLocale();
 const intlLocale = computed(() => resolveDateLocale(locale.value));
-const limitOptions = [10, 15, 25, 50, 100];
-const limitOptionList = computed(() =>
-  limitOptions.map((limit) => ({
-    value: limit,
-    label: `${limit} / ${t("common.page").toLowerCase()}`,
-  }))
-);
-
 const detailOpen = ref(false);
 const detailRow = ref<Record<string, unknown> | null>(null);
 const detailLoading = ref(false);
@@ -71,7 +63,6 @@ const detailId = ref<string | null>(null);
 const deleteOpen = ref(false);
 const deleteRowTarget = ref<Record<string, unknown> | null>(null);
 const deleteLoading = ref(false);
-const selectedCount = ref(0);
 
 const buildQuery = () => {
   const base: Record<string, unknown> = {
@@ -158,6 +149,8 @@ const response = computed(
 );
 const rows = computed(() => response.value?.data?.items ?? []);
 const pagination = computed(() => response.value?.data?.pagination);
+const currentPage = computed(() => pagination.value?.page ?? query.page ?? 1);
+const lastPage = computed(() => pagination.value?.last_page ?? 1);
 const skeletonRows = computed(() => Math.max(1, Number(query.limit ?? 1)));
 const slots = useSlots();
 const hasDetailSlot = computed(() => Boolean(slots.detail));
@@ -375,10 +368,6 @@ const prevPage = () => {
   }
 };
 
-const updateSelection = (keys: Array<string | number>) => {
-  selectedCount.value = keys.length;
-};
-
 watch(
   () => route.params.id,
   (value) => {
@@ -408,29 +397,37 @@ watch(
 </script>
 
 <template>
-  <Card>
-    <CardHeader>
+  <Card
+    class="overflow-hidden rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.82)]"
+  >
+    <CardHeader class="border-b border-border/70 bg-[linear-gradient(180deg,rgba(248,250,252,0.82),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(2,6,23,0.96))]">
       <div class="flex flex-wrap items-center justify-between gap-2">
-        <CardTitle>{{ localizedTitle }}</CardTitle>
+        <div class="space-y-1">
+          <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {{ t("layout.resources") }}
+          </div>
+          <CardTitle class="text-xl">
+            {{ localizedTitle }}
+          </CardTitle>
+        </div>
       </div>
-      <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex flex-1 flex-wrap items-center gap-2">
+      <div class="mt-5 flex flex-col items-stretch gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <Input
             v-if="props.searchKey"
             v-model="query.q"
             :placeholder="resolvedSearchPlaceholder"
-            class="h-10 w-full max-w-sm"
-          >
-          </Input>
+            class="h-11 w-full min-w-0 rounded-2xl border-border/80 bg-background/90 shadow-sm sm:max-w-sm"
+          />
           <div
             v-if="props.searchKey && query.q"
-            class="flex items-center gap-2 rounded-full border bg-muted/40 px-3 py-1 text-xs text-muted-foreground"
+            class="flex flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-muted/45 px-3 py-2 text-xs text-muted-foreground"
           >
             <span>{{ t("common.search") }}: {{ query.q }}</span>
             <Button
               variant="ghost"
               size="sm"
-              class="h-6 px-2"
+              class="h-6 rounded-full px-2"
               @click="query.q = ''"
             >
               {{ t("common.clear") }}
@@ -438,16 +435,19 @@ watch(
           </div>
           <slot name="filters" />
         </div>
-        <div class="flex items-center gap-2">
-          <slot v-if="hasHeaderActions" name="header-actions" />
+        <div class="flex w-full items-start gap-2 lg:w-auto lg:justify-end">
+          <slot
+            v-if="hasHeaderActions"
+            name="header-actions"
+          />
         </div>
       </div>
     </CardHeader>
     <ClientOnly>
-      <CardContent>
+      <CardContent class="pt-5">
         <div
           v-if="error"
-          class="rounded-lg border border-destructive/20 bg-destructive/5 p-4"
+          class="rounded-2xl border border-destructive/20 bg-destructive/5 p-4"
         >
           <div class="text-sm font-medium text-destructive">
             {{ t("resource.failedLoadData") }}
@@ -456,7 +456,11 @@ watch(
             {{ localizedTitle }}
           </div>
           <div class="mt-3">
-            <Button variant="outline" size="sm" @click="refresh">
+            <Button
+              variant="outline"
+              size="sm"
+              @click="refresh"
+            >
               Retry
             </Button>
           </div>
@@ -466,7 +470,10 @@ watch(
             <Table v-if="props.loadingVariant === 'skeleton'">
               <TableHeader>
                 <TableRow>
-                  <TableHead v-for="column in columns" :key="column.key">
+                  <TableHead
+                    v-for="column in columns"
+                    :key="column.key"
+                  >
                     {{ column.label }}
                   </TableHead>
                   <TableHead
@@ -499,7 +506,10 @@ watch(
                 </TableRow>
               </TableBody>
             </Table>
-            <div v-else class="text-sm text-muted-foreground">
+            <div
+              v-else
+              class="text-sm text-muted-foreground"
+            >
               {{ t("common.loading") }}
             </div>
           </div>
@@ -512,60 +522,45 @@ watch(
             :can-delete="props.canDelete"
             @view="openDetail"
             @delete="requestDelete"
-            @selection-change="updateSelection"
           >
-            <template v-for="(_, name) in $slots" #[name]="slotProps">
-              <slot :name="name" v-bind="slotProps" />
+            <template
+              v-for="(_, name) in $slots"
+              #[name]="slotProps"
+            >
+              <slot
+                :name="name"
+                v-bind="slotProps"
+              />
             </template>
           </ResourceTable>
         </div>
       </CardContent>
       <CardFooter
-        class="flex flex-wrap items-center justify-between gap-4 text-sm"
+        class="flex flex-col items-stretch gap-3 border-t border-border/70 bg-muted/10 px-4 py-4 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6"
       >
         <div class="text-muted-foreground">
-          {{
-            format("resource.selectedRows", {
-              selected: String(selectedCount),
-              total: String(rows.length),
-            })
-          }}
+          {{ t("common.page") }} {{ currentPage }} {{ t("common.of") }}
+          {{ lastPage }}
         </div>
-        <div class="flex flex-wrap items-center gap-4">
-          <div class="flex items-center gap-2">
-            <span class="text-muted-foreground">{{
-              t("common.rowsPerPage")
-            }}</span>
-            <SearchableSelect
-              v-model="query.limit"
-              :options="limitOptionList"
-              :placeholder="t('common.limit')"
-              :search-placeholder="`${t('common.search')} ${t('common.limit').toLowerCase()}`"
-              class="w-32"
-            />
-          </div>
-          <div v-if="pagination" class="text-muted-foreground">
-            {{ t("common.page") }} {{ pagination.page }} {{ t("common.of") }}
-            {{ pagination.last_page }}
-          </div>
-          <div class="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              :disabled="query.page === 1"
-              @click="prevPage"
-            >
-              {{ t("common.previous") }}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              :disabled="!pagination || query.page >= pagination.last_page"
-              @click="nextPage"
-            >
-              {{ t("common.next") }}
-            </Button>
-          </div>
+        <div class="flex items-center justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            class="min-w-[120px] rounded-xl"
+            :disabled="query.page === 1"
+            @click="prevPage"
+          >
+            {{ t("common.previous") }}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="min-w-[120px] rounded-xl"
+            :disabled="query.page >= lastPage"
+            @click="nextPage"
+          >
+            {{ t("common.next") }}
+          </Button>
         </div>
       </CardFooter>
       <template #fallback>
@@ -598,13 +593,20 @@ watch(
         <div class="text-lg font-semibold">
           {{ t("common.detail") }}
         </div>
-        <Button variant="outline" size="sm" @click="closeDetailWithRoute">
+        <Button
+          variant="outline"
+          size="sm"
+          @click="closeDetailWithRoute"
+        >
           {{ t("common.close") }}
         </Button>
       </div>
       <div class="mt-4 max-h-[70vh] overflow-auto text-sm">
         <div class="grid gap-2">
-          <div v-if="detailLoading" class="text-muted-foreground">
+          <div
+            v-if="detailLoading"
+            class="text-muted-foreground"
+          >
             {{ t("common.loading") }}
           </div>
           <div

@@ -2,8 +2,10 @@
 import IndexPage from '~/modules/dashboard/index-page.vue'
 
 defineOptions({ name: 'IndexRoutePage' })
+
+const { locale } = useLocale()
 </script>
 
 <template>
-  <IndexPage />
+  <IndexPage :key="locale" />
 </template>

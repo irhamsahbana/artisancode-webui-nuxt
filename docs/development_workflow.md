@@ -48,6 +48,7 @@ After meaningful changes, run:
 If shared infrastructure changed, also verify:
 - a list page using `ResourceList`
 - an action-menu flow
+- the mobile drawer and at least one small-screen resource list
 - SSR/client hydration output in the browser console
 
 ## Documentation Workflow

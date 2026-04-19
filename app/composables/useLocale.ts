@@ -38,6 +38,7 @@ type LocaleMessageKey =
   | 'common.rowsPerPage'
   | 'common.limit'
   | 'common.select'
+  | 'common.selectAll'
   | 'common.update'
   | 'common.location'
   | 'common.latitude'
@@ -202,6 +203,7 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'common.rowsPerPage': 'Baris per halaman',
     'common.limit': 'Batas',
     'common.select': 'Pilih',
+    'common.selectAll': 'Pilih semua',
     'common.update': 'Perbarui',
     'common.location': 'Lokasi',
     'common.latitude': 'Lintang',
@@ -365,6 +367,7 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'common.rowsPerPage': 'Rows per page',
     'common.limit': 'Limit',
     'common.select': 'Select',
+    'common.selectAll': 'Select all',
     'common.update': 'Update',
     'common.location': 'Location',
     'common.latitude': 'Latitude',

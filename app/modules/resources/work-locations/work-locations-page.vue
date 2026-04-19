@@ -2,12 +2,14 @@
 import { ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'WorkLocationsPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { t, format } = useLocale()
+const { t, format, locale } = useLocale()
+const uiText = (value: string) => localizeUiText(locale.value, value)
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -21,7 +23,6 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
 const columns = [
   { key: 'name', label: t('common.name') },
   { key: 'org_unit_name', label: t('company.organizationUnit') },
-  { key: 'timezone', label: t('company.timezone') },
   { key: 'address', label: t('company.address') },
 ]
 
@@ -35,7 +36,6 @@ const form = ref({
   name: '',
   org_unit_id: null as string | null,
   address: '',
-  timezone: 'Asia/Jakarta',
   latitude: '',
   longitude: '',
   radius_meters: '',
@@ -47,7 +47,6 @@ const resetForm = () => {
     name: '',
     org_unit_id: null,
     address: '',
-    timezone: 'Asia/Jakarta',
     latitude: '',
     longitude: '',
     radius_meters: '',
@@ -81,7 +80,6 @@ const openEditModal = async (row: Record<string, unknown>) => {
     form.value.name = String(d.name ?? '')
     form.value.org_unit_id = d.org_unit_id ? String(d.org_unit_id) : null
     form.value.address = d.address ? String(d.address) : ''
-    form.value.timezone = String(d.timezone ?? 'Asia/Jakarta')
     form.value.latitude = d.latitude != null ? String(d.latitude) : ''
     form.value.longitude = d.longitude != null ? String(d.longitude) : ''
     form.value.radius_meters = d.radius_meters != null ? String(d.radius_meters) : ''
@@ -101,7 +99,6 @@ const buildPayload = () => ({
   name: form.value.name,
   org_unit_id: form.value.org_unit_id || null,
   address: form.value.address || null,
-  timezone: form.value.timezone,
   latitude: form.value.latitude ? parseFloat(form.value.latitude) : null,
   longitude: form.value.longitude ? parseFloat(form.value.longitude) : null,
   radius_meters: form.value.radius_meters ? parseInt(form.value.radius_meters, 10) : null,
@@ -112,11 +109,6 @@ const handleSubmit = async () => {
     show(format('common.requiredField', { field: t('common.name') }), 'error')
     return
   }
-  if (!form.value.timezone.trim()) {
-    show(format('common.requiredField', { field: t('company.timezone') }), 'error')
-    return
-  }
-
   submitLoading.value = true
 
   if (modalMode.value === 'create') {
@@ -197,33 +189,23 @@ const handleSubmit = async () => {
   <!-- Create / Edit Modal -->
   <div
     v-if="modalOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
-    @click.self="closeModal"
   >
-    <div class="w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg">
-      <div class="flex items-center justify-between">
-        <div class="text-lg font-semibold">
-          {{ modalMode === 'create' ? t('company.addWorkLocation') : t('company.editWorkLocation') }}
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          @click="closeModal"
-        >
-          ✕
-        </Button>
-      </div>
-
+    <FormDialogShell
+      max-width-class="max-w-lg"
+      :title="modalMode === 'create' ? t('company.addWorkLocation') : t('company.editWorkLocation')"
+      :description="uiText('Set work location identity and map coverage in one flow.')"
+      @close="closeModal"
+    >
       <div
         v-if="modalLoading"
-        class="mt-6 text-sm text-muted-foreground"
+        class="text-sm text-muted-foreground"
       >
         {{ t('common.loading') }}
       </div>
 
       <form
         v-else
-        class="mt-4 space-y-4"
+        class="space-y-4"
         @submit.prevent="handleSubmit"
       >
         <!-- Name -->
@@ -243,17 +225,6 @@ const handleSubmit = async () => {
           <OrgUnitTreeSelect
             v-model="form.org_unit_id"
             :placeholder="t('company.selectOrganizationUnit')"
-            class="mt-1"
-          />
-        </div>
-
-        <!-- Timezone -->
-        <div>
-          <Label for="wl-timezone">{{ t('company.timezone') }} *</Label>
-          <Input
-            id="wl-timezone"
-            v-model="form.timezone"
-            placeholder="e.g. Asia/Jakarta"
             class="mt-1"
           />
         </div>
@@ -291,6 +262,7 @@ const handleSubmit = async () => {
           <Button
             variant="outline"
             size="sm"
+            class="rounded-xl"
             :disabled="submitLoading"
             @click="closeModal"
           >
@@ -298,6 +270,7 @@ const handleSubmit = async () => {
           </Button>
           <Button
             size="sm"
+            class="rounded-xl"
             :disabled="submitLoading"
             type="submit"
           >
@@ -305,6 +278,6 @@ const handleSubmit = async () => {
           </Button>
         </div>
       </form>
-    </div>
+    </FormDialogShell>
   </div>
 </template>

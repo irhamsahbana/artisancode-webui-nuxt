@@ -5,6 +5,7 @@ import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import { ArrowLeft, Building2, Network, Settings } from 'lucide-vue-next'
 import TreeView from '~/components/resource/tree-view.vue'
+import { getTimezoneOptions } from '~/utils/timezone-options'
 
 defineOptions({ name: 'CompaniesManagePage' })
 
@@ -12,7 +13,7 @@ const route = useRoute()
 const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { t, format } = useLocale()
+const { t, format, locale } = useLocale()
 
 const companyId = computed(() => route.params.id as string)
 
@@ -36,7 +37,7 @@ const configForm = reactive({
   overtime_rate_multiplier: 1.5,
   preferred_language: 'id',
   supported_languages: ['id', 'en'],
-  timezone: 'Asia/Jakarta',
+  timezone: 'Asia/Makassar',
   date_format: 'YYYY-MM-DD',
   time_format: 'HH:mm:ss',
 })
@@ -267,6 +268,8 @@ const languageOptions = computed(() => [
   { value: 'id', label: t('common.indonesian') },
   { value: 'en', label: t('common.english') },
 ])
+
+const timezoneOptions = computed(() => getTimezoneOptions(locale.value))
 
 const toggleSupportedLanguage = (language: 'id' | 'en', checked: boolean) => {
   if (checked) {
@@ -555,10 +558,12 @@ onMounted(async () => {
               </div>
               <div class="grid gap-2">
                 <Label for="cfg-timezone">{{ t('company.timezone') }}</Label>
-                <Input
+                <SearchableSelect
                   id="cfg-timezone"
                   v-model="configForm.timezone"
-                  placeholder="Asia/Jakarta"
+                  :options="timezoneOptions"
+                  :placeholder="t('company.timezone')"
+                  :search-placeholder="`${t('common.search')} ${t('company.timezone').toLowerCase()}`"
                 />
               </div>
               <div class="grid gap-2">

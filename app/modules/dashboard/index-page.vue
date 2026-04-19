@@ -111,12 +111,42 @@ const exceptionRows = computed(() => dashboard.value?.today_exceptions ?? [])
 const trendRows = computed(() => dashboard.value?.daily_trend ?? [])
 
 const metricCards = computed(() => [
-  { label: uiText('Active Employees'), value: summary.value.active_employee_count, tone: 'bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100' },
-  { label: uiText('Checked In'), value: summary.value.checked_in_count, tone: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100' },
-  { label: uiText('Checked Out'), value: summary.value.checked_out_count, tone: 'bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-100' },
-  { label: uiText('Pending Check In'), value: summary.value.pending_check_in_count, tone: 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100' },
-  { label: uiText('Pending Check Out'), value: summary.value.pending_check_out_count, tone: 'bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-100' },
-  { label: uiText('Late Check In'), value: summary.value.late_check_in_count, tone: 'bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-100' },
+  {
+    label: uiText('Active Employees'),
+    value: summary.value.active_employee_count,
+    badgeTone: 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100',
+    panelTone: 'border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.98))] dark:border-slate-800 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,0.96))]',
+  },
+  {
+    label: uiText('Checked In'),
+    value: summary.value.checked_in_count,
+    badgeTone: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100',
+    panelTone: 'border-emerald-200/80 bg-[linear-gradient(180deg,rgba(236,253,245,0.95),rgba(255,255,255,0.98))] dark:border-emerald-900/70 dark:bg-[linear-gradient(180deg,rgba(6,95,70,0.3),rgba(2,6,23,0.96))]',
+  },
+  {
+    label: uiText('Checked Out'),
+    value: summary.value.checked_out_count,
+    badgeTone: 'bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-100',
+    panelTone: 'border-sky-200/80 bg-[linear-gradient(180deg,rgba(239,249,255,0.95),rgba(255,255,255,0.98))] dark:border-sky-900/70 dark:bg-[linear-gradient(180deg,rgba(7,89,133,0.28),rgba(2,6,23,0.96))]',
+  },
+  {
+    label: uiText('Pending Check In'),
+    value: summary.value.pending_check_in_count,
+    badgeTone: 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100',
+    panelTone: 'border-amber-200/80 bg-[linear-gradient(180deg,rgba(255,251,235,0.95),rgba(255,255,255,0.98))] dark:border-amber-900/70 dark:bg-[linear-gradient(180deg,rgba(146,64,14,0.28),rgba(2,6,23,0.96))]',
+  },
+  {
+    label: uiText('Pending Check Out'),
+    value: summary.value.pending_check_out_count,
+    badgeTone: 'bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-100',
+    panelTone: 'border-orange-200/80 bg-[linear-gradient(180deg,rgba(255,247,237,0.95),rgba(255,255,255,0.98))] dark:border-orange-900/70 dark:bg-[linear-gradient(180deg,rgba(154,52,18,0.28),rgba(2,6,23,0.96))]',
+  },
+  {
+    label: uiText('Late Check In'),
+    value: summary.value.late_check_in_count,
+    badgeTone: 'bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-100',
+    panelTone: 'border-rose-200/80 bg-[linear-gradient(180deg,rgba(255,241,242,0.95),rgba(255,255,255,0.98))] dark:border-rose-900/70 dark:bg-[linear-gradient(180deg,rgba(136,19,55,0.28),rgba(2,6,23,0.96))]',
+  },
 ])
 
 const maxTrendValue = computed(() => {
@@ -218,21 +248,22 @@ const buildLogLink = (params: Record<string, string>) => ({
         <Card
           v-for="item in metricCards"
           :key="item.label"
-          class="border-none shadow-sm"
+          class="overflow-hidden rounded-[26px] border shadow-[0_18px_48px_-38px_rgba(15,23,42,0.85)]"
+          :class="item.panelTone"
         >
-          <CardContent class="space-y-4 p-5">
+          <CardContent class="space-y-5 p-5 pt-5">
             <div class="flex items-start justify-between gap-4">
-              <div class="text-sm text-muted-foreground">
+              <div class="text-sm font-medium text-foreground/72 dark:text-slate-200">
                 {{ item.label }}
               </div>
               <div
-                class="rounded-full px-2.5 py-1 text-xs font-medium"
-                :class="item.tone"
+                class="rounded-full px-2.5 py-1 text-xs font-medium shadow-sm"
+                :class="item.badgeTone"
               >
                 {{ uiText('Live') }}
               </div>
             </div>
-            <div class="text-3xl font-semibold tracking-tight">
+            <div class="text-4xl font-semibold tracking-tight text-foreground dark:text-slate-50">
               <span
                 v-if="pending"
                 class="animate-pulse text-muted-foreground"
@@ -244,8 +275,8 @@ const buildLogLink = (params: Record<string, string>) => ({
       </div>
 
       <div class="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-        <Card class="shadow-sm">
-          <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0">
+        <Card class="rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.85)]">
+          <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border/70 bg-muted/15">
             <div class="space-y-1">
               <CardTitle>{{ uiText('Attendance Trend') }}</CardTitle>
               <p class="text-sm text-muted-foreground">
@@ -285,7 +316,7 @@ const buildLogLink = (params: Record<string, string>) => ({
               <div
                 v-for="day in trendRows"
                 :key="day.attendance_date"
-                class="rounded-2xl border bg-muted/20 p-4"
+                class="rounded-2xl border border-border/70 bg-muted/20 p-4 shadow-[0_14px_36px_-30px_rgba(15,23,42,0.85)]"
               >
                 <div class="flex items-center justify-between gap-3">
                   <div class="text-sm font-medium">
@@ -351,8 +382,8 @@ const buildLogLink = (params: Record<string, string>) => ({
           </CardContent>
         </Card>
 
-        <Card class="shadow-sm">
-          <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0">
+        <Card class="rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.85)]">
+          <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border/70 bg-muted/15">
             <div class="space-y-1">
               <CardTitle>{{ uiText('Needs Attention Today') }}</CardTitle>
               <p class="text-sm text-muted-foreground">
@@ -392,7 +423,7 @@ const buildLogLink = (params: Record<string, string>) => ({
               <div
                 v-for="item in exceptionRows"
                 :key="`${item.employee_id}-${item.exception_type}`"
-                class="rounded-2xl border p-4"
+                class="rounded-2xl border border-border/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.92))] p-4 shadow-[0_14px_36px_-30px_rgba(15,23,42,0.8)] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,0.94))]"
               >
                 <div class="flex items-start justify-between gap-4">
                   <div class="space-y-1">
@@ -425,8 +456,8 @@ const buildLogLink = (params: Record<string, string>) => ({
         </Card>
       </div>
 
-      <Card class="shadow-sm">
-        <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0">
+      <Card class="rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.85)]">
+        <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border/70 bg-muted/15">
           <div class="space-y-1">
             <CardTitle>{{ uiText('Quick Actions') }}</CardTitle>
             <p class="text-sm text-muted-foreground">
@@ -437,7 +468,7 @@ const buildLogLink = (params: Record<string, string>) => ({
         <CardContent class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <NuxtLink
             :to="buildLogLink({ attendance_date: selectedDate })"
-            class="rounded-2xl border bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5"
+            class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
               {{ uiText('Attendance Logs') }}
@@ -448,7 +479,7 @@ const buildLogLink = (params: Record<string, string>) => ({
           </NuxtLink>
           <NuxtLink
             :to="buildLogLink({ attendance_date: selectedDate, type: 'check_in' })"
-            class="rounded-2xl border bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5"
+            class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
               {{ uiText('Check-in Records') }}
@@ -459,7 +490,7 @@ const buildLogLink = (params: Record<string, string>) => ({
           </NuxtLink>
           <NuxtLink
             to="/resources/employees"
-            class="rounded-2xl border bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5"
+            class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
               {{ uiText('Employees') }}
@@ -470,7 +501,7 @@ const buildLogLink = (params: Record<string, string>) => ({
           </NuxtLink>
           <NuxtLink
             to="/resources/work-shifts"
-            class="rounded-2xl border bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5"
+            class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
               {{ uiText('Work Shifts') }}

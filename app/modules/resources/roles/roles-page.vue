@@ -95,12 +95,8 @@ const permissionPagination = computed(() => {
   const response = data.value as ApiResponse<ListResponse<PermissionItem>> | undefined
   return response?.data?.pagination
 })
-const permissionLimitOptions = computed(() =>
-  [10, 15, 25, 50, 100].map((limit) => ({
-    value: limit,
-    label: `${limit} / page`,
-  })),
-)
+const permissionCurrentPage = computed(() => permissionPagination.value?.page ?? permissionPage.value ?? 1)
+const permissionLastPage = computed(() => permissionPagination.value?.last_page ?? 1)
 const permissionSkeletonRows = computed(() => Math.max(1, Number(permissionLimit.value ?? 1)))
 const loadCreatePermissions = async () => {
   if (createPermissionQuery.value.trim()) {
@@ -159,6 +155,10 @@ const filteredPermissions = computed(() => {
 const createPermissionSkeletonRows = computed(() =>
   Math.max(1, Number(createPermissionLimit.value ?? 1)),
 )
+const createPermissionCurrentPage = computed(() =>
+  createPermissionPagination.value?.page ?? createPermissionPage.value ?? 1,
+)
+const createPermissionLastPage = computed(() => createPermissionPagination.value?.last_page ?? 1)
 const editPermissionOptions = computed(() => {
   const map = new Map<string, PermissionItem>()
   permissions.value.forEach((permission) => {
@@ -364,7 +364,7 @@ const toggleEditPermission = (id: string) => {
 const submitCreate = async () => {
   const name = createForm.name.trim()
   if (!name) {
-    show('Role name is required.', 'error')
+    show(uiText('Role name is required.'), 'error')
     return
   }
   const payload: Record<string, unknown> = {
@@ -382,7 +382,7 @@ const submitCreate = async () => {
   })
   createLoading.value = false
   if (response.success) {
-    show('Role created.', 'success')
+    show(uiText('Role created.'), 'success')
     resetCreate()
     listKey.value += 1
   }
@@ -427,11 +427,11 @@ const syncEditForm = (row: Record<string, unknown> | null) => {
 const submitUpdate = async (close: () => void, refreshList: () => Promise<void>) => {
   const name = editForm.name.trim()
   if (!name) {
-    show('Role name is required.', 'error')
+    show(uiText('Role name is required.'), 'error')
     return
   }
   if (!editForm.id) {
-    show('Role id is missing.', 'error')
+    show(uiText('Role id is missing.'), 'error')
     return
   }
   editLoading.value = true
@@ -446,7 +446,7 @@ const submitUpdate = async (close: () => void, refreshList: () => Promise<void>)
   })
   editLoading.value = false
   if (response.success) {
-    show('Role updated.', 'success')
+    show(uiText('Role updated.'), 'success')
     await refreshList()
     handleEditClose(close)
   }
@@ -505,7 +505,7 @@ const prevCreatePermissionPage = () => {
           <div class="w-full max-w-5xl rounded-lg border bg-card p-6 shadow-lg">
             <div class="flex items-center justify-between">
               <div class="text-lg font-semibold">
-                Edit role
+                {{ uiText('Edit role') }}
               </div>
               <Button
                 variant="outline"
@@ -513,7 +513,7 @@ const prevCreatePermissionPage = () => {
                 :disabled="editLoading || loading"
                 @click="handleEditClose(close)"
               >
-                Close
+                {{ uiText('Close') }}
               </Button>
             </div>
             <div class="mt-4 max-h-[70vh] overflow-auto">
@@ -522,40 +522,40 @@ const prevCreatePermissionPage = () => {
                   v-if="loading"
                   class="text-muted-foreground"
                 >
-                  Loading...
+                  {{ uiText('Loading...') }}
                 </div>
                 <div
                   v-else
                   class="grid gap-4"
                 >
                   <div class="grid gap-2">
-                    <Label for="edit-role-name">Role name</Label>
+                    <Label for="edit-role-name">{{ uiText('Role name') }}</Label>
                     <Input
                       id="edit-role-name"
                       v-model="editForm.name"
-                      placeholder="Role name"
+                      :placeholder="uiText('Role name')"
                     />
                   </div>
                   <div class="grid gap-2">
-                    <Label for="edit-role-description">Description</Label>
+                    <Label for="edit-role-description">{{ uiText('Description') }}</Label>
                     <Input
                       id="edit-role-description"
                       v-model="editForm.description"
-                      placeholder="Role description"
+                      :placeholder="uiText('Role description')"
                     />
                   </div>
                   <div class="grid gap-2">
-                    <Label>Permissions</Label>
+                    <Label>{{ uiText('Permissions') }}</Label>
                     <Input
                       v-model="editPermissionQueryInput"
-                      placeholder="Search permissions"
+                      :placeholder="uiText('Search permissions')"
                     />
                     <div class="max-h-72 overflow-auto rounded-md border p-2">
                       <div
                         v-if="filteredEditPermissions.length === 0"
                         class="text-sm text-muted-foreground"
                       >
-                        No permissions found.
+                        {{ uiText('No permissions found.') }}
                       </div>
                       <div
                         v-else
@@ -609,102 +609,99 @@ const prevCreatePermissionPage = () => {
       </template>
     </ResourceList>
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Permissions</CardTitle>
+    <Card class="overflow-hidden rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.82)]">
+      <CardHeader class="border-b border-border/70 bg-[linear-gradient(180deg,rgba(248,250,252,0.82),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(2,6,23,0.96))]">
+        <div class="space-y-1">
+          <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {{ uiText('Roles & Permissions') }}
+          </div>
+          <CardTitle>{{ uiText('Permissions') }}</CardTitle>
+        </div>
         <p class="text-sm text-muted-foreground">
           {{ uiText('Permissions are managed by the backend and are read-only here.') }}
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent class="pt-5">
         <div class="mb-4 flex flex-wrap items-center gap-2">
           <Input
             v-model="permissionListQueryInput"
-            placeholder="Search permissions"
-            class="w-56"
+            :placeholder="uiText('Search permissions')"
+            class="h-11 w-56 rounded-2xl border-border/80 bg-background/90 shadow-sm"
           />
         </div>
         <div
           v-if="error"
           class="text-sm text-destructive"
         >
-          Failed to load permissions.
+          {{ uiText('Failed to load permissions.') }}
         </div>
         <div v-else>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <template v-if="pending">
-                <TableRow
-                  v-for="index in permissionSkeletonRows"
-                  :key="`permission-table-skeleton-${index}`"
-                >
-                  <TableCell>
-                    <div class="h-4 w-32 rounded bg-muted animate-pulse" />
-                  </TableCell>
-                  <TableCell>
-                    <div class="h-4 w-56 rounded bg-muted/70 animate-pulse" />
-                  </TableCell>
+          <div class="overflow-hidden rounded-[24px] border border-border/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(248,250,252,0.46))] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.56),rgba(2,6,23,0.24))]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{{ uiText('Name') }}</TableHead>
+                  <TableHead>{{ uiText('Description') }}</TableHead>
                 </TableRow>
-              </template>
-              <template v-else>
-                <TableRow
-                  v-for="permission in permissions"
-                  :key="permission.id"
-                >
-                  <TableCell>{{ permission.name }}</TableCell>
-                  <TableCell>{{ permission.description }}</TableCell>
-                </TableRow>
-                <TableRow v-if="permissions.length === 0">
-                  <TableCell
-                    colspan="2"
-                    class="text-center text-muted-foreground"
+              </TableHeader>
+              <TableBody>
+                <template v-if="pending">
+                  <TableRow
+                    v-for="index in permissionSkeletonRows"
+                    :key="`permission-table-skeleton-${index}`"
                   >
-                    No permissions available.
-                  </TableCell>
-                </TableRow>
-              </template>
-            </TableBody>
-          </Table>
+                    <TableCell>
+                      <div class="h-4 w-32 rounded bg-muted animate-pulse" />
+                    </TableCell>
+                    <TableCell>
+                      <div class="h-4 w-56 rounded bg-muted/70 animate-pulse" />
+                    </TableCell>
+                  </TableRow>
+                </template>
+                <template v-else>
+                  <TableRow
+                    v-for="permission in permissions"
+                    :key="permission.id"
+                  >
+                    <TableCell>{{ permission.name }}</TableCell>
+                    <TableCell>{{ permission.description }}</TableCell>
+                  </TableRow>
+                  <TableRow v-if="permissions.length === 0">
+                    <TableCell
+                      colspan="2"
+                      class="py-10 text-center text-muted-foreground"
+                    >
+                      {{ uiText('No permissions available.') }}
+                    </TableCell>
+                  </TableRow>
+                </template>
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </CardContent>
-      <CardFooter class="justify-between text-sm">
-        <div class="flex items-center gap-3">
-          <div
-            v-if="permissionPagination"
-            class="text-muted-foreground"
-          >
-            Page {{ permissionPagination.page }} of {{ permissionPagination.last_page }}
-          </div>
-          <SearchableSelect
-            v-model="permissionLimit"
-            :options="permissionLimitOptions"
-            placeholder="Limit"
-            search-placeholder="Search limit"
-            class="w-40"
-          />
+      <CardFooter class="flex flex-wrap items-center justify-end gap-4 border-t border-border/70 bg-muted/10 px-6 py-4 text-sm">
+        <div class="text-muted-foreground">
+          {{ uiText('Page') }} {{ permissionCurrentPage }} {{ uiText('of') }} {{ permissionLastPage }}
         </div>
         <div class="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
+            class="rounded-xl"
             :disabled="permissionPage === 1"
             @click="prevPermissionPage"
           >
-            Prev
+            {{ uiText('Previous') }}
           </Button>
           <Button
             variant="outline"
             size="sm"
-            :disabled="!permissionPagination || permissionPage >= permissionPagination.last_page"
+            class="rounded-xl"
+            :disabled="permissionPage >= permissionLastPage"
             @click="nextPermissionPage"
           >
-            Next
+            {{ uiText('Next') }}
           </Button>
         </div>
       </CardFooter>
@@ -726,31 +723,31 @@ const prevCreatePermissionPage = () => {
           :disabled="createLoading"
           @click="resetCreate"
         >
-          Close
+          {{ uiText('Close') }}
         </Button>
       </div>
       <div class="mt-4 grid gap-4">
         <div class="grid gap-2">
-          <Label for="role-name">Role name</Label>
+          <Label for="role-name">{{ uiText('Role name') }}</Label>
           <Input
             id="role-name"
             v-model="createForm.name"
-            placeholder="Role name"
+            :placeholder="uiText('Role name')"
           />
         </div>
         <div class="grid gap-2">
-          <Label for="role-description">Description</Label>
+          <Label for="role-description">{{ uiText('Description') }}</Label>
           <Input
             id="role-description"
             v-model="createForm.description"
-            placeholder="Role description"
+            :placeholder="uiText('Role description')"
           />
         </div>
         <div class="grid gap-2">
-          <Label>Permissions</Label>
+          <Label>{{ uiText('Permissions') }}</Label>
           <Input
             v-model="createPermissionQueryInput"
-            placeholder="Search permissions"
+            :placeholder="uiText('Search permissions')"
           />
           <div
             class="max-h-72 overflow-auto rounded-md border p-2"
@@ -776,7 +773,7 @@ const prevCreatePermissionPage = () => {
               v-else-if="filteredPermissions.length === 0"
               class="text-sm text-muted-foreground"
             >
-              No permissions found.
+              {{ uiText('No permissions found.') }}
             </div>
             <div
               v-else
@@ -805,13 +802,13 @@ const prevCreatePermissionPage = () => {
             </div>
           </div>
           <div
-            v-if="!createPermissionQuery && createPermissionPagination"
-            class="flex items-center justify-between text-sm"
+            v-if="!createPermissionQuery"
+            class="flex items-center justify-between gap-3 border-t border-border/60 pt-3 text-sm"
           >
             <div
               class="text-muted-foreground"
             >
-              Page {{ createPermissionPagination.page }} of {{ createPermissionPagination.last_page }}
+              {{ uiText('Page') }} {{ createPermissionCurrentPage }} {{ uiText('of') }} {{ createPermissionLastPage }}
             </div>
             <div class="flex items-center gap-2">
               <Button
@@ -820,15 +817,15 @@ const prevCreatePermissionPage = () => {
                 :disabled="createPermissionPage === 1"
                 @click="prevCreatePermissionPage"
               >
-                Prev
+                {{ uiText('Previous') }}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                :disabled="createPermissionPage >= createPermissionPagination.last_page"
+                :disabled="createPermissionPage >= createPermissionLastPage"
                 @click="nextCreatePermissionPage"
               >
-                Next
+                {{ uiText('Next') }}
               </Button>
             </div>
           </div>
@@ -841,7 +838,7 @@ const prevCreatePermissionPage = () => {
           :disabled="createLoading"
           @click="resetCreate"
         >
-          Cancel
+          {{ uiText('Cancel') }}
         </Button>
         <Button
           size="sm"
