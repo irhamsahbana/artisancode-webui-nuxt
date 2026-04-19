@@ -4,12 +4,14 @@ import { Building2, ClipboardList, LayoutGrid, MapPin, Menu, MoonStar, ShieldChe
 defineOptions({ name: "DefaultLayout" });
 
 const route = useRoute();
+const runtimeConfig = useRuntimeConfig();
 const { user, token, logout } = useAuth();
 const isAuthPage = computed(
   () => route.path === "/login" || route.path === "/register"
 );
 const { locale, options: localeOptions, setLocale, t } = useLocale();
 const mobileNavOpen = ref(false);
+const appName = computed(() => runtimeConfig.public.appName || "ArtisanCode");
 
 const navGroups = computed(() => [
   {
@@ -50,7 +52,7 @@ const currentPageTitle = computed(() => {
     }
   }
 
-  return "Academy"
+  return appName.value
 })
 
 const currentPageGroup = computed(() => {
@@ -63,6 +65,22 @@ const currentPageGroup = computed(() => {
 
   return t("layout.main")
 })
+
+const documentTitle = computed(() => {
+  if (isAuthPage.value) {
+    return appName.value
+  }
+
+  return `${appName.value} - ${currentPageGroup.value} - ${currentPageTitle.value}`
+})
+
+useHead(() => ({
+  title: documentTitle.value,
+  link: [
+    { rel: "icon", type: "image/png", href: "/favicon.png" },
+    { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+  ],
+}))
 
 const localeBadge = (value: "id" | "en") =>
   value === "id" ? "🇮🇩 ID" : "🇬🇧 EN";
@@ -127,13 +145,15 @@ watch(
           <div class="border-b border-sidebar-border/70 px-5 pb-5 pt-6">
             <div class="rounded-3xl border border-sidebar-border/60 bg-sidebar-accent/50 p-4 shadow-[0_20px_50px_-40px_rgba(15,23,42,0.9)]">
               <div class="flex items-center gap-3">
-                <div
-                  class="flex size-11 items-center justify-center rounded-2xl bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground shadow-sm"
-                >
-                  AC
+                <div class="flex size-11 items-center justify-center overflow-hidden rounded-2xl shadow-sm ring-1 ring-sidebar-border/60">
+                  <img
+                    src="/brand/presense-app-icon.svg"
+                    :alt="`${appName} logo`"
+                    class="size-full object-cover"
+                  >
                 </div>
                 <div class="grid text-sm leading-tight">
-                  <span class="font-semibold text-sidebar-foreground">Academy</span>
+                  <span class="font-semibold text-sidebar-foreground">{{ appName }}</span>
                   <span class="text-xs text-sidebar-foreground/70">{{
                     t("layout.adminConsole")
                   }}</span>
@@ -309,13 +329,15 @@ watch(
               class="flex items-center justify-between border-b border-sidebar-border/70 px-4 pb-5 pt-[calc(env(safe-area-inset-top)+1rem)]"
             >
               <div class="flex items-center gap-3">
-                <div
-                  class="flex size-10 items-center justify-center rounded-2xl bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground"
-                >
-                  AC
+                <div class="flex size-10 items-center justify-center overflow-hidden rounded-2xl ring-1 ring-sidebar-border/60">
+                  <img
+                    src="/brand/presense-app-icon.svg"
+                    :alt="`${appName} logo`"
+                    class="size-full object-cover"
+                  >
                 </div>
                 <div class="grid text-sm leading-tight">
-                  <span class="font-semibold">Academy</span>
+                  <span class="font-semibold">{{ appName }}</span>
                   <span class="text-xs text-sidebar-foreground/68">{{
                     t("layout.adminConsole")
                   }}</span>

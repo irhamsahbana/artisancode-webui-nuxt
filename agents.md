@@ -34,6 +34,9 @@
 - Reuse components under `app/components/` before creating new ones.
 - Keep shared class composition in `app/utils/utils.ts` via `cn` when class merging is needed.
 - Prefer utility-first styling. Add scoped CSS only when Tailwind utilities are not enough.
+- Prefer non-blocking route transitions for data-heavy pages. Let the route render first, then hydrate page sections or shared list content without making navigation wait on the network.
+- Avoid `await useAsyncData(...)` in route and shared list shells when the fetch is only needed for in-page content. Use non-blocking client fetch plus skeleton states instead.
+- Keep previous data visible during refresh, filter changes, or background reloads when the old data is still valid enough to anchor the layout.
 - When a resource page has dense filtering or async actions like export/refresh, treat the top area as a control surface:
   - keep search lightweight in the `ResourceList` shell
   - group primary filters inside the `filters` slot in a dedicated panel
@@ -104,6 +107,7 @@
   - hydration warnings
   - console errors
   - loading, empty, and error states
+  - route transitions that still feel blocked before the page shell appears
 
 ## Documentation Maintenance
 

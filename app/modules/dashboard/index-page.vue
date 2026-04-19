@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'IndexPage' })
@@ -53,8 +54,9 @@ const { user } = useAuth()
 const { apiFetch } = useApi()
 const { locale } = useLocale()
 const { formatDateOnly, formatDateTime } = useDateTime()
-const browserTimezone = ref('')
+const browserTimezone = ref(process.client ? Intl.DateTimeFormat().resolvedOptions().timeZone || '' : '')
 const uiText = (value: string) => localizeUiText(locale.value, value)
+const dashboardRequestController = ref<AbortController | null>(null)
 
 const today = (() => {
   const now = new Date()
@@ -69,13 +71,11 @@ const canSeeOwnerDashboard = computed(() => {
   return roles.includes('owner') || roles.includes('admin')
 })
 
-onMounted(() => {
-  browserTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone || ''
-})
-
-const { data, pending, refresh, error } = await useAsyncData(
+const { data, pending, refresh, error } = useAsyncData(
   'owner-attendance-dashboard',
   async () => {
+    dashboardRequestController.value?.abort()
+    dashboardRequestController.value = import.meta.client ? new AbortController() : null
     if (!canSeeOwnerDashboard.value || !browserTimezone.value) {
       return null
     }
@@ -86,6 +86,7 @@ const { data, pending, refresh, error } = await useAsyncData(
         timezone: browserTimezone.value,
         trend_days: trendDays.value,
       },
+      signal: dashboardRequestController.value?.signal,
     })
 
     return response.success ? response.data : null
@@ -97,7 +98,24 @@ watch([selectedDate, trendDays, canSeeOwnerDashboard, browserTimezone], () => {
   refresh()
 })
 
-const dashboard = computed(() => data.value)
+onBeforeUnmount(() => {
+  dashboardRequestController.value?.abort()
+})
+
+const lastSuccessfulDashboard = ref<DashboardPayload | null>(null)
+watch(
+  () => data.value,
+  (value) => {
+    if (value) {
+      lastSuccessfulDashboard.value = value
+    }
+  },
+  { immediate: true },
+)
+
+const dashboard = computed(() => data.value ?? lastSuccessfulDashboard.value)
+const showInitialSkeleton = computed(() => pending.value && !dashboard.value)
+const showRefreshingState = computed(() => pending.value && !!dashboard.value)
 const summary = computed<DashboardSummary>(() => dashboard.value?.summary ?? {
   active_employee_count: 0,
   checked_in_count: 0,
@@ -240,6 +258,14 @@ const buildLogLink = (params: Record<string, string>) => ({
                 </option>
               </select>
             </div>
+            <div
+              v-if="showRefreshingState"
+              class="sm:col-span-2"
+            >
+              <div class="rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground backdrop-blur">
+                {{ uiText('Refreshing attendance insights...') }}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -265,9 +291,9 @@ const buildLogLink = (params: Record<string, string>) => ({
             </div>
             <div class="text-4xl font-semibold tracking-tight text-foreground dark:text-slate-50">
               <span
-                v-if="pending"
-                class="animate-pulse text-muted-foreground"
-              >...</span>
+                v-if="showInitialSkeleton"
+                class="block h-10 w-24 animate-pulse rounded-xl bg-muted"
+              ></span>
               <span v-else>{{ item.value }}</span>
             </div>
           </CardContent>
@@ -294,7 +320,7 @@ const buildLogLink = (params: Record<string, string>) => ({
           </CardHeader>
           <CardContent>
             <div
-              v-if="pending"
+              v-if="showInitialSkeleton"
               class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
             >
               <div
@@ -401,7 +427,7 @@ const buildLogLink = (params: Record<string, string>) => ({
           </CardHeader>
           <CardContent class="space-y-4">
             <div
-              v-if="pending"
+              v-if="showInitialSkeleton"
               class="space-y-3"
             >
               <div

@@ -14,6 +14,10 @@ type SelectOption = {
 }
 
 type AttendanceLogRow = Record<string, unknown>
+type EmployeeFilterItem = { id: string, employee_no: string, full_name: string }
+type OrgUnitFilterItem = { id: string, name: string, category: string }
+type BranchFilterItem = { id: string, name: string }
+type WorkLocationFilterItem = { id: string, name: string }
 
 const route = useRoute()
 const router = useRouter()
@@ -122,10 +126,38 @@ const exceptionOptions = computed<SelectOption[]>(() => withAnyOption('All excep
   { value: 'missing_check_in', label: uiText('Missing Check In') },
 ]))
 
-const employeeOptions = ref<SelectOption[]>(withAnyOption('All employees', []))
-const orgUnitOptions = ref<SelectOption[]>(withAnyOption('All org units', []))
-const branchOptions = ref<SelectOption[]>(withAnyOption('All branches', []))
-const workLocationOptions = ref<SelectOption[]>(withAnyOption('All work locations', []))
+const employeeItems = ref<EmployeeFilterItem[]>([])
+const orgUnitItems = ref<OrgUnitFilterItem[]>([])
+const branchItems = ref<BranchFilterItem[]>([])
+const workLocationItems = ref<WorkLocationFilterItem[]>([])
+const employeeOptions = computed<SelectOption[]>(() => withAnyOption(
+  'All employees',
+  employeeItems.value.map(item => ({
+    value: item.id,
+    label: `${item.full_name} (${item.employee_no})`,
+  })),
+))
+const orgUnitOptions = computed<SelectOption[]>(() => withAnyOption(
+  'All org units',
+  orgUnitItems.value.map(item => ({
+    value: item.id,
+    label: item.category ? `${item.name} (${uiText(item.category)})` : item.name,
+  })),
+))
+const branchOptions = computed<SelectOption[]>(() => withAnyOption(
+  'All branches',
+  branchItems.value.map(item => ({
+    value: item.id,
+    label: item.name,
+  })),
+))
+const workLocationOptions = computed<SelectOption[]>(() => withAnyOption(
+  'All work locations',
+  workLocationItems.value.map(item => ({
+    value: item.id,
+    label: item.name,
+  })),
+))
 const exportLoading = ref(false)
 const exportListLoading = ref(false)
 const exportItems = ref<ExportJob[]>([])
@@ -298,8 +330,7 @@ const clearFilters = () => {
 }
 
 const listQuery = computed(() => buildFilterQuery())
-const advancedFilterKeys = ['type', 'source', 'selfie_status', 'org_unit_id', 'branch_id', 'work_location_id'] as const
-const primaryFilterKeys = ['date_from', 'date_to', 'employee_id', 'exception_type', 'status'] as const
+const advancedFilterKeys = ['type', 'source', 'selfie_status', 'org_unit_id', 'branch_id', 'work_location_id', 'exception_type'] as const
 const advancedFiltersOpen = ref(false)
 
 const getOptionLabel = (options: SelectOption[], value: string) =>
@@ -312,12 +343,7 @@ const activeFilterChips = computed(() => {
     chips.push({
       key: filters.date_from ? 'date_from' : 'date_to',
       label: uiText('Date range'),
-      value:
-        filters.date_from && filters.date_to
-          ? filters.date_from === filters.date_to
-            ? filters.date_from
-            : `${filters.date_from} to ${filters.date_to}`
-          : (filters.date_from || filters.date_to),
+      value: dateRangeSummary.value,
     })
   }
 
@@ -349,7 +375,7 @@ const activeFilterChips = computed(() => {
 
 const activeFilterCount = computed(() => activeFilterChips.value.length)
 const advancedFilterCount = computed(() => advancedFilterKeys.filter(key => filters[key]).length)
-const primaryFilterCount = computed(() => primaryFilterKeys.filter(key => filters[key]).length)
+const hasActiveFilters = computed(() => activeFilterCount.value > 0)
 
 const formatFilterDateLabel = (value: string) => (
   formatDateOnlyLabel(value, {
@@ -373,9 +399,39 @@ const dateRangeSummary = computed(() => {
   return formatFilterDateLabel(filters.date_from || filters.date_to)
 })
 
+const isDatePresetActive = (preset: 'today' | 'yesterday' | 'this_week' | 'this_month') => {
+  const currentDay = today()
+
+  if (preset === 'today') {
+    return filters.date_from === currentDay && filters.date_to === currentDay
+  }
+
+  if (preset === 'yesterday') {
+    const yesterday = shiftDate(currentDay, -1)
+    return filters.date_from === yesterday && filters.date_to === yesterday
+  }
+
+  if (preset === 'this_week') {
+    return filters.date_from === getWeekStart() && filters.date_to === currentDay
+  }
+
+  return filters.date_from === getMonthStart() && filters.date_to === currentDay
+}
+
 const completedExportCount = computed(() => exportItems.value.filter(item => item.status === 'completed').length)
 const pendingExportCount = computed(() => exportItems.value.filter(item => item.status === 'pending' || item.status === 'processing').length)
 const latestExport = computed(() => exportItems.value[0] ?? null)
+const exportActivitySummary = computed(() => {
+  if (pendingExportCount.value > 0) {
+    return uiText(`${pendingExportCount.value} in queue`)
+  }
+
+  if (completedExportCount.value > 0) {
+    return uiText(`${completedExportCount.value} ready files`)
+  }
+
+  return uiText('No export requests yet')
+})
 
 watch(
   advancedFilterCount,
@@ -401,63 +457,33 @@ const toggleAdvancedFilters = () => {
   advancedFiltersOpen.value = !advancedFiltersOpen.value
 }
 
-const mapOptions = <T extends Record<string, unknown>>(
+const mapItems = <T extends Record<string, unknown>>(
   response: ApiResponse<ListResponse<T>> | ApiResponse<{ items: T[] }>,
-  getOption: (item: T) => SelectOption | null,
 ) => {
   const items = response.data && 'items' in response.data ? response.data.items : []
   return items
-    .map(getOption)
-    .filter((item): item is SelectOption => item !== null)
 }
 
 const loadFilterOptions = async () => {
   const [employeeResponse, orgUnitResponse, branchResponse, workLocationResponse] = await Promise.all([
-    apiFetch<ListResponse<{ id: string, employee_no: string, full_name: string }>>('/employees', {
+    apiFetch<ListResponse<EmployeeFilterItem>>('/employees', {
       query: { limit: 200 },
     }),
-    apiFetch<ListResponse<{ id: string, name: string, category: string }>>('/org-units', {
+    apiFetch<ListResponse<OrgUnitFilterItem>>('/org-units', {
       query: { limit: 300 },
     }),
-    apiFetch<ListResponse<{ id: string, name: string }>>('/org-units', {
+    apiFetch<ListResponse<BranchFilterItem>>('/org-units', {
       query: { category: 'branch', limit: 200 },
     }),
-    apiFetch<ListResponse<{ id: string, name: string }>>('/work-locations', {
+    apiFetch<ListResponse<WorkLocationFilterItem>>('/work-locations', {
       query: { limit: 200 },
     }),
   ])
 
-  employeeOptions.value = withAnyOption(
-    'All employees',
-    mapOptions(employeeResponse, item => ({
-      value: item.id,
-      label: `${item.full_name} (${item.employee_no})`,
-    })),
-  )
-
-  orgUnitOptions.value = withAnyOption(
-    'All org units',
-    mapOptions(orgUnitResponse, item => ({
-      value: item.id,
-      label: item.category ? `${item.name} (${item.category})` : item.name,
-    })),
-  )
-
-  branchOptions.value = withAnyOption(
-    'All branches',
-    mapOptions(branchResponse, item => ({
-      value: item.id,
-      label: item.name,
-    })),
-  )
-
-  workLocationOptions.value = withAnyOption(
-    'All work locations',
-    mapOptions(workLocationResponse, item => ({
-      value: item.id,
-      label: item.name,
-    })),
-  )
+  employeeItems.value = mapItems(employeeResponse)
+  orgUnitItems.value = mapItems(orgUnitResponse)
+  branchItems.value = mapItems(branchResponse)
+  workLocationItems.value = mapItems(workLocationResponse)
 }
 
 onMounted(() => {
@@ -867,6 +893,17 @@ const downloadExport = (item: ExportJob) => {
                 </div>
 
                 <div class="space-y-1">
+                  <Label class="text-xs text-muted-foreground">{{ uiText('Exception') }}</Label>
+                  <SearchableSelect
+                    v-model="filters.exception_type"
+                    :options="exceptionOptions"
+                    :placeholder="uiText('All exceptions')"
+                    :search-placeholder="uiText('Search exception...')"
+                    class="w-full"
+                  />
+                </div>
+
+                <div class="space-y-1">
                   <Label class="text-xs text-muted-foreground">{{ uiText('Photo proof') }}</Label>
                   <SearchableSelect
                     v-model="filters.selfie_status"
@@ -899,7 +936,7 @@ const downloadExport = (item: ExportJob) => {
                   />
                 </div>
 
-                <div class="space-y-1">
+                <div class="space-y-1 sm:col-span-2">
                   <Label class="text-xs text-muted-foreground">{{ uiText('Work location') }}</Label>
                   <SearchableSelect
                     v-model="filters.work_location_id"
@@ -954,7 +991,11 @@ const downloadExport = (item: ExportJob) => {
               </Badge>
             </div>
 
-            <div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+            <p class="mt-3 text-sm leading-6 text-slate-200/90 dark:text-slate-200">
+              {{ uiText('Exports the current filtered attendance logs to XLSX.') }}
+            </p>
+
+            <div class="mt-4 grid grid-cols-2 gap-2">
               <div class="rounded-2xl border border-white/12 bg-white/12 px-3 py-2 dark:border-white/14 dark:bg-white/14">
                 <div class="text-[11px] uppercase tracking-[0.18em] text-slate-200/85 dark:text-slate-200">
                   {{ uiText('Ready files') }}
@@ -973,15 +1014,6 @@ const downloadExport = (item: ExportJob) => {
               </div>
             </div>
 
-            <div class="mt-4 rounded-2xl border border-white/12 bg-white/8 px-3 py-3 dark:border-white/14 dark:bg-white/10">
-              <div class="text-[11px] uppercase tracking-[0.18em] text-slate-200/85 dark:text-slate-200">
-                {{ uiText('Current range') }}
-              </div>
-              <div class="mt-1 text-sm font-medium leading-5 text-slate-50">
-                {{ dateRangeSummary }}
-              </div>
-            </div>
-
             <Button
               size="sm"
               class="mt-4 h-10 w-full border border-white/15 bg-white text-slate-950 hover:bg-slate-100"
@@ -991,22 +1023,26 @@ const downloadExport = (item: ExportJob) => {
               {{ exportLoading ? uiText('Queueing...') : uiText('Export') }}
             </Button>
 
-            <p class="mt-2 text-xs leading-5 text-slate-200/85 dark:text-slate-200/90">
-              {{ uiText('Exports the current filtered attendance logs to XLSX.') }}
-            </p>
-
             <div
               v-if="latestExport"
               class="mt-4 rounded-2xl border border-white/12 bg-black/15 px-3 py-3 text-xs text-slate-200/90 dark:border-white/14 dark:bg-black/20 dark:text-slate-200"
             >
-              <div class="font-medium text-slate-50">
-                {{ uiText('Latest request') }}
+              <div class="flex items-center justify-between gap-3">
+                <div class="font-medium text-slate-50">
+                  {{ uiText('Latest request') }}
+                </div>
+                <Badge
+                  variant="secondary"
+                  class="rounded-full border-0 bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white"
+                >
+                  {{ toTitleCase(latestExport.status) }}
+                </Badge>
               </div>
-              <div class="mt-1">
+              <div class="mt-2">
                 {{ latestExport.requested_by_name }} • {{ formatTimestamp(latestExport.created_at) }}
               </div>
-              <div class="mt-1">
-                {{ uiText('Status') }}: {{ toTitleCase(latestExport.status) }}
+              <div class="mt-2 text-slate-200/85">
+                {{ exportActivitySummary }}
               </div>
             </div>
             <p
@@ -1030,40 +1066,7 @@ const downloadExport = (item: ExportJob) => {
                 {{ uiText('Keep the primary filters visible and open advanced filters only when you need more precision.') }}
               </div>
             </div>
-            <div class="grid min-w-[220px] gap-2 sm:grid-cols-2">
-              <div class="rounded-2xl border border-slate-200/80 bg-white/90 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/85">
-                <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground dark:text-slate-300">
-                  {{ uiText('Current range') }}
-                </div>
-                <div class="mt-1 text-sm font-medium text-slate-950 dark:text-slate-100">
-                  {{ dateRangeSummary }}
-                </div>
-              </div>
-              <div class="rounded-2xl border border-slate-200/80 bg-white/90 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/85">
-                <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground dark:text-slate-300">
-                  {{ uiText('Primary filters') }}
-                </div>
-                <div class="mt-1 text-sm font-medium text-slate-950 dark:text-slate-100">
-                  {{ primaryFilterCount }}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-4 flex flex-wrap items-center gap-2">
-            <Badge
-              variant="secondary"
-              class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-            >
-              {{ uiText(`${activeFilterCount} filters active`) }}
-            </Badge>
-            <Badge
-              variant="outline"
-              class="rounded-full border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-            >
-              {{ uiText(`${advancedFilterCount} advanced filters active`) }}
-            </Badge>
-            <div class="ml-auto flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <Badge
                 v-if="pendingExportCount > 0"
                 variant="outline"
@@ -1085,17 +1088,68 @@ const downloadExport = (item: ExportJob) => {
                   ({{ advancedFilterCount }})
                 </span>
               </Button>
+              <Button
+                v-if="hasActiveFilters"
+                variant="ghost"
+                size="sm"
+                class="rounded-full px-3"
+                @click="clearFilters"
+              >
+                {{ uiText('Reset Filters') }}
+              </Button>
             </div>
           </div>
 
-          <div class="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
-            <div class="space-y-1 lg:col-span-2">
+          <div class="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]">
+            <div class="space-y-2">
               <Label class="text-xs text-muted-foreground">{{ uiText('Date range') }}</Label>
               <DateRangePicker
                 v-model:from="filters.date_from"
                 v-model:to="filters.date_to"
                 :placeholder="uiText('Select attendance date range')"
               />
+
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-slate-300">
+                  {{ uiText('Quick ranges') }}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  :class="isDatePresetActive('today') ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200' : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'"
+                  class="rounded-full px-3"
+                  @click="applyDatePreset('today')"
+                >
+                  {{ uiText('Today') }}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  :class="isDatePresetActive('yesterday') ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200' : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'"
+                  class="rounded-full px-3"
+                  @click="applyDatePreset('yesterday')"
+                >
+                  {{ uiText('Yesterday') }}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  :class="isDatePresetActive('this_week') ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200' : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'"
+                  class="rounded-full px-3"
+                  @click="applyDatePreset('this_week')"
+                >
+                  {{ uiText('This Week') }}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  :class="isDatePresetActive('this_month') ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200' : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'"
+                  class="rounded-full px-3"
+                  @click="applyDatePreset('this_month')"
+                >
+                  {{ uiText('This Month') }}
+                </Button>
+              </div>
             </div>
 
             <div class="space-y-1">
@@ -1105,17 +1159,6 @@ const downloadExport = (item: ExportJob) => {
                 :options="employeeOptions"
                 :placeholder="uiText('All employees')"
                 :search-placeholder="uiText('Search employees...')"
-                class="w-full"
-              />
-            </div>
-
-            <div class="space-y-1">
-              <Label class="text-xs text-muted-foreground">{{ uiText('Exception') }}</Label>
-              <SearchableSelect
-                v-model="filters.exception_type"
-                :options="exceptionOptions"
-                :placeholder="uiText('All exceptions')"
-                :search-placeholder="uiText('Search exception...')"
                 class="w-full"
               />
             </div>
@@ -1132,67 +1175,11 @@ const downloadExport = (item: ExportJob) => {
             </div>
           </div>
 
-          <div class="mt-4 rounded-2xl border border-slate-200/80 bg-white/80 p-3 dark:border-slate-700 dark:bg-slate-900/80">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground dark:text-slate-300">
-                  {{ uiText('Quick ranges') }}
-                </div>
-                <div class="mt-1 text-xs leading-5 text-muted-foreground dark:text-slate-300">
-                  {{ uiText('Use quick presets for common audit windows.') }}
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                class="h-8 rounded-full px-3 text-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
-                @click="clearFilters"
-              >
-                {{ uiText('Reset Filters') }}
-              </Button>
-            </div>
-
-            <div class="mt-3 flex flex-wrap items-end gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                class="rounded-full border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-                @click="applyDatePreset('today')"
-              >
-                {{ uiText('Today') }}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                class="rounded-full border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-                @click="applyDatePreset('yesterday')"
-              >
-                {{ uiText('Yesterday') }}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                class="rounded-full border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-                @click="applyDatePreset('this_week')"
-              >
-                {{ uiText('This Week') }}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                class="rounded-full border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-                @click="applyDatePreset('this_month')"
-              >
-                {{ uiText('This Month') }}
-              </Button>
-            </div>
-          </div>
-
           <div
-            v-if="activeFilterChips.length > 0"
+            v-if="hasActiveFilters"
             class="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200/80 pt-4 dark:border-slate-700"
           >
-            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-slate-300">{{ uiText('Active filters') }}</span>
+            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-slate-300">{{ uiText(`${activeFilterCount} filters active`) }}</span>
             <button
               v-for="chip in activeFilterChips"
               :key="`${chip.key}:${chip.value}`"
@@ -1204,6 +1191,14 @@ const downloadExport = (item: ExportJob) => {
               <span>{{ chip.value }}</span>
               <span class="text-muted-foreground">{{ uiText('Clear') }}</span>
             </button>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="rounded-full px-3"
+              @click="clearFilters"
+            >
+              {{ uiText('Reset all') }}
+            </Button>
           </div>
         </div>
       </template>

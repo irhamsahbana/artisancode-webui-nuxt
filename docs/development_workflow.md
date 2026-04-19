@@ -10,7 +10,8 @@
 
 3. **Wire Data**:
    - Use `useApi().apiFetch(...)` for app API calls.
-   - Use `useAsyncData` only when it matches the existing feature pattern.
+   - Use `useAsyncData` only when it matches the existing feature pattern and does not block route entry unnecessarily.
+   - Prefer non-blocking client fetch for list pages, dashboards, and similar screens where the shell can render before the data returns.
    - Centralize reusable transport types in `app/types/` when needed.
 
 4. **Add Routing & Middleware**:
@@ -19,6 +20,8 @@
 
 5. **Validate UX**:
   - Confirm loading, empty, and error states.
+  - Confirm navigation enters the page immediately even on slower network conditions.
+  - Keep old content visible during refresh when it helps preserve orientation.
    - Ensure client/server rendering behaves as expected.
    - Check browser console for hydration warnings and runtime errors.
    - Verify success and error banners when form submission is involved.
@@ -63,3 +66,4 @@ If shared infrastructure changed, also verify:
 - **Skeleton loading**:
   - Table-based lists use row skeletons while loading.
   - Checkbox lists use skeleton rows matching the current limit.
+  - Initial load may use full skeleton content, but subsequent refreshes should prefer inline progress while keeping the current rows visible.

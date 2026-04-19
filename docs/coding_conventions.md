@@ -17,6 +17,9 @@
 - **API Calls**: Prefer `useApi().apiFetch(...)` over direct `$fetch` calls in pages/components.
 - **Page Structure**: Keep `app/pages/` thin and move feature logic into `app/modules/` when the page is non-trivial.
 - **Local Types**: Add small local response types when they improve safety and readability instead of falling back to `any`.
+- **Async Route UX**: Prefer non-blocking page rendering for client-fetched pages. Do not make route entry wait on data unless the page is unusable without it.
+- **useAsyncData**: Avoid `await useAsyncData(...)` in route wrappers, shared page shells, and `ResourceList`-style primitives when the goal is ordinary in-page data loading.
+- **Refresh UX**: Keep the last successful dataset visible during refresh when possible, and pair it with inline progress rather than swapping the whole page back to a blank loading state.
 
 ## Error Handling
 
@@ -61,6 +64,7 @@
 - Reuse `ResourceList` and `ResourceTable` for CRUD-style resources unless the feature clearly needs a custom layout.
 - Reuse `SearchableSelect` for flat option lists and `SearchableTreeSelect` for hierarchical org-unit style selection.
 - When a route needs a detail/manage experience, prefer a separate page if the feature is large and a modal if it is lightweight.
+- For shared list and dashboard shells, use skeletons that resemble the final layout so navigation feels immediate and content swaps without large layout shift.
 
 ## SSR And Client Rendering
 

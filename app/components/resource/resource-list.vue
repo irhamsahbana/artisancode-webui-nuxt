@@ -60,6 +60,8 @@ const detailOpen = ref(false);
 const detailRow = ref<Record<string, unknown> | null>(null);
 const detailLoading = ref(false);
 const detailId = ref<string | null>(null);
+const listRequestController = ref<AbortController | null>(null);
+const detailRequestController = ref<AbortController | null>(null);
 const deleteOpen = ref(false);
 const deleteRowTarget = ref<Record<string, unknown> | null>(null);
 const deleteLoading = ref(false);
@@ -87,12 +89,16 @@ const buildQuery = () => {
 
 const asyncKey = `resource-list:${props.endpoint}`;
 
-const { data, pending, refresh, error } = await useAsyncData(
+const { data, pending, refresh, error } = useAsyncData(
   asyncKey,
-  () =>
-    apiFetch<ListResponse<Record<string, unknown>>>(props.endpoint, {
+  () => {
+    listRequestController.value?.abort();
+    listRequestController.value = import.meta.client ? new AbortController() : null;
+    return apiFetch<ListResponse<Record<string, unknown>>>(props.endpoint, {
       query: buildQuery(),
-    }),
+      signal: listRequestController.value?.signal,
+    });
+  },
   { server: false }
 );
 
@@ -141,14 +147,33 @@ onBeforeUnmount(() => {
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer);
   }
+  listRequestController.value?.abort();
+  detailRequestController.value?.abort();
 });
 
+const lastSuccessfulResponse = ref<
+  ApiResponse<ListResponse<Record<string, unknown>>> | undefined
+>(undefined);
 const response = computed(
   () =>
     data.value as ApiResponse<ListResponse<Record<string, unknown>>> | undefined
 );
-const rows = computed(() => response.value?.data?.items ?? []);
-const pagination = computed(() => response.value?.data?.pagination);
+const resolvedResponse = computed(() =>
+  response.value?.success ? response.value : lastSuccessfulResponse.value,
+);
+watch(
+  () => response.value,
+  (value) => {
+    if (value?.success) {
+      lastSuccessfulResponse.value = value;
+    }
+  },
+  { immediate: true },
+);
+const rows = computed(() => resolvedResponse.value?.data?.items ?? []);
+const showInitialSkeleton = computed(() => pending.value && rows.value.length === 0);
+const showRefreshingState = computed(() => pending.value && rows.value.length > 0);
+const pagination = computed(() => resolvedResponse.value?.data?.pagination);
 const currentPage = computed(() => pagination.value?.page ?? query.page ?? 1);
 const lastPage = computed(() => pagination.value?.last_page ?? 1);
 const skeletonRows = computed(() => Math.max(1, Number(query.limit ?? 1)));
@@ -256,8 +281,11 @@ const openDetailById = async (id: string) => {
   detailOpen.value = true;
   detailLoading.value = true;
   detailRow.value = null;
+  detailRequestController.value?.abort();
+  detailRequestController.value = import.meta.client ? new AbortController() : null;
   const response = await apiFetch<Record<string, unknown>>(
-    `${props.endpoint}/${id}`
+    `${props.endpoint}/${id}`,
+    { signal: detailRequestController.value?.signal }
   );
   if (response.success && response.data) {
     detailRow.value = response.data;
@@ -466,7 +494,13 @@ watch(
           </div>
         </div>
         <div v-else>
-          <div v-if="pending">
+          <div
+            v-if="showRefreshingState"
+            class="mb-4 rounded-2xl border border-border/70 bg-muted/35 px-4 py-3 text-sm text-muted-foreground"
+          >
+            {{ t("common.loading") }}
+          </div>
+          <div v-if="showInitialSkeleton">
             <Table v-if="props.loadingVariant === 'skeleton'">
               <TableHeader>
                 <TableRow>

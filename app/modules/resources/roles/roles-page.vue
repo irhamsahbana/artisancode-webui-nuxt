@@ -74,25 +74,50 @@ const editPermissionQueryInput = ref('')
 const editPermissionQuery = ref('')
 let editPermissionQueryTimer: ReturnType<typeof setTimeout> | null = null
 
-const { data, pending, error, refresh } = await useAsyncData(
+const permissionsRequestController = ref<AbortController | null>(null)
+
+const { data, pending, error, refresh } = useAsyncData(
   'permissions:list',
-  () =>
-    apiFetch<ListResponse<PermissionItem>>('/role-and-permissions/permissions', {
+  () => {
+    permissionsRequestController.value?.abort()
+    permissionsRequestController.value = import.meta.client ? new AbortController() : null
+    return apiFetch<ListResponse<PermissionItem>>('/role-and-permissions/permissions', {
       query: {
         page: permissionPage.value,
         limit: permissionLimit.value,
         q: permissionListQuery.value || undefined,
       },
-    }),
+      signal: permissionsRequestController.value?.signal,
+    })
+  },
   { server: false },
 )
 
+const lastSuccessfulPermissionResponse = ref<
+  ApiResponse<ListResponse<PermissionItem>> | undefined
+>(undefined)
+watch(
+  () => data.value as ApiResponse<ListResponse<PermissionItem>> | undefined,
+  (value) => {
+    if (value?.success) {
+      lastSuccessfulPermissionResponse.value = value
+    }
+  },
+  { immediate: true },
+)
+
 const permissions = computed(() => {
-  const response = data.value as ApiResponse<ListResponse<PermissionItem>> | undefined
+  const response =
+    (data.value as ApiResponse<ListResponse<PermissionItem>> | undefined)?.success
+      ? data.value as ApiResponse<ListResponse<PermissionItem>> | undefined
+      : lastSuccessfulPermissionResponse.value
   return response?.data?.items ?? []
 })
 const permissionPagination = computed(() => {
-  const response = data.value as ApiResponse<ListResponse<PermissionItem>> | undefined
+  const response =
+    (data.value as ApiResponse<ListResponse<PermissionItem>> | undefined)?.success
+      ? data.value as ApiResponse<ListResponse<PermissionItem>> | undefined
+      : lastSuccessfulPermissionResponse.value
   return response?.data?.pagination
 })
 const permissionCurrentPage = computed(() => permissionPagination.value?.page ?? permissionPage.value ?? 1)
@@ -300,6 +325,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  permissionsRequestController.value?.abort()
   if (permissionListQueryTimer) {
     clearTimeout(permissionListQueryTimer)
   }

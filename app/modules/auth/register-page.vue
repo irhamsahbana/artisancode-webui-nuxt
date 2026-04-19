@@ -5,10 +5,17 @@ import { useAuth } from '~/composables/useAuth'
 
 defineOptions({ name: 'RegisterPage' })
 
+const runtimeConfig = useRuntimeConfig()
 const { register } = useAuth()
 const { locale, options: localeOptions, setLocale, t } = useLocale()
 const isLoading = ref(false)
 const errorMessage = ref('')
+const appName = computed(() => runtimeConfig.public.appName || 'ArtisanCode')
+const registerDescription = computed(() =>
+  locale.value === 'id'
+    ? `Siapkan organisasi Anda di ${appName.value}`
+    : `Set up your organization on ${appName.value}`,
+)
 
 const form = reactive({
   name: '',
@@ -93,14 +100,18 @@ const submit = async () => {
 
     <Card class="relative w-full max-w-lg shadow-lg">
       <CardHeader class="space-y-1 text-center">
-        <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">
-          AC
+        <div class="mx-auto mb-2 flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl ring-1 ring-border/60">
+          <img
+            src="/brand/presense-app-icon.svg"
+            :alt="`${appName} logo`"
+            class="h-full w-full object-cover"
+          >
         </div>
         <CardTitle class="text-2xl">
           {{ t('auth.createAccount') }}
         </CardTitle>
         <p class="text-sm text-muted-foreground">
-          {{ t('auth.registerDescription') }}
+          {{ registerDescription }}
         </p>
       </CardHeader>
       <CardContent class="space-y-4">

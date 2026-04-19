@@ -5,10 +5,17 @@ import { useAuth } from '~/composables/useAuth'
 
 defineOptions({ name: 'LoginPage' })
 
+const runtimeConfig = useRuntimeConfig()
 const { login } = useAuth()
 const { locale, options: localeOptions, setLocale, t } = useLocale()
 const isLoading = ref(false)
 const errorMessage = ref('')
+const appName = computed(() => runtimeConfig.public.appName || 'ArtisanCode')
+const signInDescription = computed(() =>
+  locale.value === 'id'
+    ? `Masuk ke akun ${appName.value} Anda`
+    : `Sign in to your ${appName.value} account`,
+)
 
 const form = reactive({
   email: '',
@@ -46,26 +53,30 @@ const submit = async () => {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-muted/30 px-6">
+  <div class="auth-shell flex min-h-screen items-center justify-center bg-muted/30 px-6">
     <!-- Decorative background elements -->
     <div class="pointer-events-none fixed inset-0 overflow-hidden">
       <div class="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
       <div class="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
     </div>
 
-    <Card class="relative w-full max-w-md shadow-lg">
-      <CardHeader class="space-y-1 text-center">
-        <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">
-          AC
+    <Card class="auth-card relative w-full max-w-md shadow-lg">
+      <CardHeader class="auth-card-header space-y-1 text-center">
+        <div class="auth-logo-frame mx-auto mb-2 flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl ring-1 ring-border/60">
+          <img
+            src="/brand/presense-app-icon.svg"
+            :alt="`${appName} logo`"
+            class="h-full w-full object-cover"
+          >
         </div>
-        <CardTitle class="text-2xl">
+        <CardTitle class="auth-title text-2xl">
           {{ t('auth.welcomeBack') }}
         </CardTitle>
-        <p class="text-sm text-muted-foreground">
-          {{ t('auth.signInDescription') }}
+        <p class="auth-description text-sm text-muted-foreground">
+          {{ signInDescription }}
         </p>
       </CardHeader>
-      <CardContent class="space-y-4">
+      <CardContent class="auth-card-content space-y-4">
         <div class="space-y-2">
           <Label for="login-language">
             {{ t('common.language') }}
@@ -123,7 +134,7 @@ const submit = async () => {
           {{ errorMessage }}
         </div>
       </CardContent>
-      <CardFooter class="flex-col gap-4">
+      <CardFooter class="auth-card-footer flex-col gap-4">
         <Button
           id="login-submit"
           class="w-full"

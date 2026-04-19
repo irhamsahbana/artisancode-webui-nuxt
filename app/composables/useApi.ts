@@ -6,12 +6,35 @@ type ApiFetchOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   query?: Record<string, unknown>
   body?: BodyInit | Record<string, unknown> | null
+  signal?: AbortSignal | null
 }
 
 export const useApi = () => {
   const token = useCookie<string | null>('sb_token')
   const { show } = useBanner()
   const { locale, t } = useLocale()
+
+  const isAbortedRequestError = (error: unknown) => {
+    if (!(error instanceof Error)) {
+      return false
+    }
+
+    if (error.name === 'AbortError') {
+      return true
+    }
+
+    const message = error.message.toLowerCase()
+    if (
+      message.includes('signal is aborted')
+      || message.includes('request was aborted')
+      || message.includes('aborted without reason')
+    ) {
+      return true
+    }
+
+    const cause = 'cause' in error ? error.cause : undefined
+    return cause instanceof Error && cause.name === 'AbortError'
+  }
 
   const apiFetch = async <T>(path: string, options: ApiFetchOptions = {}) => {
     const headers: Record<string, string> = {}
@@ -27,6 +50,7 @@ export const useApi = () => {
         query: options.query,
         body: options.body,
         headers,
+        signal: options.signal ?? undefined,
         ignoreResponseError: true,
       })
 
@@ -58,6 +82,14 @@ export const useApi = () => {
         errors: data ?? null,
       }
     } catch (error) {
+      if (isAbortedRequestError(error)) {
+        return {
+          success: false,
+          message: '',
+          data: null,
+          errors: null,
+        }
+      }
       const message = error instanceof Error ? error.message : t('api.networkError')
       show(message, 'error')
       return {
