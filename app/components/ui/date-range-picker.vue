@@ -227,7 +227,11 @@ const clearRange = () => {
             </div>
 
             <div class="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
-              <div v-for="day in dayLabels" :key="day" class="py-1">
+              <div
+                v-for="day in dayLabels"
+                :key="day"
+                class="py-1"
+              >
                 {{ day }}
               </div>
             </div>
@@ -269,7 +273,11 @@ const clearRange = () => {
             </div>
 
             <div class="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
-              <div v-for="day in dayLabels" :key="day" class="py-1">
+              <div
+                v-for="day in dayLabels"
+                :key="day"
+                class="py-1"
+              >
                 {{ day }}
               </div>
             </div>

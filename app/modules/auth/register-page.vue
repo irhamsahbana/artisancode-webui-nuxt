@@ -80,7 +80,12 @@ const submit = async () => {
       errorMessage.value = response.message
     }
     if (response.success) {
-      await navigateTo('/')
+      await navigateTo({
+        path: '/auth/check-email',
+        query: {
+          email: form.email,
+        },
+      })
     }
   } catch {
     errorMessage.value = t('auth.registrationFailed')

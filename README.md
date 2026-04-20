@@ -1,23 +1,21 @@
-# Nuxt Minimal Starter
+# Web UI
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Nuxt 4 + Vue 3 frontend for the ArtisanCode admin web application.
+
+## Docs
+
+- [Architecture](./docs/architecture.md)
+- [Coding Conventions](./docs/coding_conventions.md)
+- [Development Workflow](./docs/development_workflow.md)
+- [Localization](./docs/localization.md)
+- [Tech Stack](./docs/tech_stack.md)
 
 ## Setup
 
 Make sure to install dependencies:
 
 ```bash
-# npm
-npm install
-
-# pnpm
 pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
 ## Development Server
@@ -25,17 +23,7 @@ bun install
 Start the development server on `http://localhost:3000`:
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
 pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
 ## Production
@@ -43,33 +31,43 @@ bun run dev
 Build the application for production:
 
 ```bash
-# npm
-npm run build
-
-# pnpm
 pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
 Locally preview production build:
 
 ```bash
-# npm
-npm run preview
-
-# pnpm
 pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Verification
+
+```bash
+pnpm typecheck
+pnpm lint
+```
+
+## Public Auth Routes
+
+- `/login`
+- `/register`
+- `/auth/check-email`
+- `/auth/email-verification`
+- `/auth/forgot-password`
+- `/auth/reset-password`
+
+## App Data Flow
+
+- app code calls `useApi().apiFetch(...)`
+- requests go through Nitro proxy at `server/api/proxy/[...path].ts`
+- proxy forwards requests to `runtimeConfig.apiBase`
+
+## Resource Route Notes
+
+Resource pages currently use a mix of:
+
+- thin route wrappers to module pages
+- optional-id routes like `/resources/roles/:id?`
+- dedicated detail pages like `/resources/companies/[id]`
+
+See [Architecture](./docs/architecture.md) for the current route map and module inventory.

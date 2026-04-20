@@ -76,6 +76,41 @@ type LocaleMessageKey =
   | 'auth.creatingAccount'
   | 'auth.alreadyHaveAccount'
   | 'auth.registrationFailed'
+  | 'auth.forgotPassword'
+  | 'auth.forgotPasswordDescription'
+  | 'auth.sendResetLink'
+  | 'auth.sendingResetLink'
+  | 'auth.resetPassword'
+  | 'auth.resetPasswordDescription'
+  | 'auth.resetPasswordAction'
+  | 'auth.resettingPassword'
+  | 'auth.confirmPassword'
+  | 'auth.passwordMismatch'
+  | 'auth.backToLogin'
+  | 'auth.checkEmail'
+  | 'auth.checkEmailDescription'
+  | 'auth.verifyingEmail'
+  | 'auth.emailVerificationFailed'
+  | 'auth.resendVerificationEmail'
+  | 'auth.resendingVerificationEmail'
+  | 'auth.verificationRequiredNotice'
+  | 'auth.passwordResetFailed'
+  | 'auth.checkEmailBadge'
+  | 'auth.checkEmailHero'
+  | 'auth.checkEmailHelp'
+  | 'auth.emailSentTo'
+  | 'auth.emailUnavailable'
+  | 'auth.checkInboxStep'
+  | 'auth.checkInboxHint'
+  | 'auth.openVerificationLinkStep'
+  | 'auth.openVerificationLinkHint'
+  | 'auth.returnToSignInStep'
+  | 'auth.returnToSignInHint'
+  | 'auth.didNotReceiveEmail'
+  | 'auth.didNotReceiveEmailHint'
+  | 'auth.openEmailApp'
+  | 'auth.spamFolderHint'
+  | 'auth.resendInCountdown'
   | 'layout.close'
   | 'layout.dashboard'
   | 'layout.resources'
@@ -241,6 +276,41 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'auth.creatingAccount': 'Sedang membuat akun...',
     'auth.alreadyHaveAccount': 'Sudah punya akun?',
     'auth.registrationFailed': 'Pendaftaran gagal',
+    'auth.forgotPassword': 'Lupa kata sandi?',
+    'auth.forgotPasswordDescription': 'Masukkan email Anda dan kami akan mengirim tautan reset password.',
+    'auth.sendResetLink': 'Kirim tautan reset',
+    'auth.sendingResetLink': 'Mengirim tautan reset...',
+    'auth.resetPassword': 'Reset kata sandi',
+    'auth.resetPasswordDescription': 'Masukkan kata sandi baru untuk akun Anda.',
+    'auth.resetPasswordAction': 'Reset kata sandi',
+    'auth.resettingPassword': 'Mereset kata sandi...',
+    'auth.confirmPassword': 'Konfirmasi kata sandi',
+    'auth.passwordMismatch': 'Konfirmasi kata sandi tidak cocok',
+    'auth.backToLogin': 'Kembali ke login',
+    'auth.checkEmail': 'Verifikasi email',
+    'auth.checkEmailDescription': 'Selesaikan langkah verifikasi atau kembali ke login.',
+    'auth.verifyingEmail': 'Sedang memverifikasi email Anda...',
+    'auth.emailVerificationFailed': 'Verifikasi email gagal',
+    'auth.resendVerificationEmail': 'Kirim ulang email verifikasi',
+    'auth.resendingVerificationEmail': 'Mengirim ulang email verifikasi...',
+    'auth.verificationRequiredNotice': 'Pendaftaran berhasil. Silakan cek email Anda untuk verifikasi akun.',
+    'auth.passwordResetFailed': 'Reset kata sandi gagal',
+    'auth.checkEmailBadge': 'Langkah terakhir',
+    'auth.checkEmailHero': 'Cek email Anda untuk mengaktifkan akun',
+    'auth.checkEmailHelp': 'Kami sudah mengirim tautan verifikasi ke inbox Anda. Buka email tersebut, klik tautannya, lalu kembali masuk ke ArtisanCode.',
+    'auth.emailSentTo': 'Email dikirim ke',
+    'auth.emailUnavailable': 'Email tidak tersedia',
+    'auth.checkInboxStep': 'Buka inbox',
+    'auth.checkInboxHint': 'Cari email verifikasi dari ArtisanCode di inbox utama atau folder promosi.',
+    'auth.openVerificationLinkStep': 'Klik tautan verifikasi',
+    'auth.openVerificationLinkHint': 'Tautan verifikasi akan mengaktifkan akun Anda dan mengonfirmasi alamat email tersebut.',
+    'auth.returnToSignInStep': 'Masuk kembali',
+    'auth.returnToSignInHint': 'Setelah verifikasi selesai, kembali ke halaman login dan masuk seperti biasa.',
+    'auth.didNotReceiveEmail': 'Belum menerima email?',
+    'auth.didNotReceiveEmailHint': 'Anda bisa kirim ulang email verifikasi atau langsung buka aplikasi email Anda.',
+    'auth.openEmailApp': 'Buka aplikasi email',
+    'auth.spamFolderHint': 'Tip: periksa folder spam, update, atau promotion jika email belum terlihat dalam beberapa menit.',
+    'auth.resendInCountdown': 'Kirim ulang dalam {seconds} detik',
     'layout.close': 'Tutup',
     'layout.dashboard': 'Dashboard',
     'layout.resources': 'Resource',
@@ -405,6 +475,41 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'auth.creatingAccount': 'Creating account...',
     'auth.alreadyHaveAccount': 'Already have an account?',
     'auth.registrationFailed': 'Registration failed',
+    'auth.forgotPassword': 'Forgot password?',
+    'auth.forgotPasswordDescription': 'Enter your email and we will send a password reset link.',
+    'auth.sendResetLink': 'Send reset link',
+    'auth.sendingResetLink': 'Sending reset link...',
+    'auth.resetPassword': 'Reset password',
+    'auth.resetPasswordDescription': 'Enter a new password for your account.',
+    'auth.resetPasswordAction': 'Reset password',
+    'auth.resettingPassword': 'Resetting password...',
+    'auth.confirmPassword': 'Confirm password',
+    'auth.passwordMismatch': 'Password confirmation does not match',
+    'auth.backToLogin': 'Back to login',
+    'auth.checkEmail': 'Verify email',
+    'auth.checkEmailDescription': 'Complete the verification step or head back to login.',
+    'auth.verifyingEmail': 'Verifying your email...',
+    'auth.emailVerificationFailed': 'Email verification failed',
+    'auth.resendVerificationEmail': 'Resend verification email',
+    'auth.resendingVerificationEmail': 'Resending verification email...',
+    'auth.verificationRequiredNotice': 'Registration succeeded. Please check your email to verify your account.',
+    'auth.passwordResetFailed': 'Password reset failed',
+    'auth.checkEmailBadge': 'Final step',
+    'auth.checkEmailHero': 'Check your email to activate your account',
+    'auth.checkEmailHelp': 'We have sent a verification link to your inbox. Open the email, click the link, then come back and sign in to ArtisanCode.',
+    'auth.emailSentTo': 'Email sent to',
+    'auth.emailUnavailable': 'Email unavailable',
+    'auth.checkInboxStep': 'Open your inbox',
+    'auth.checkInboxHint': 'Look for the ArtisanCode verification email in your primary inbox or promotions tab.',
+    'auth.openVerificationLinkStep': 'Click the verification link',
+    'auth.openVerificationLinkHint': 'The verification link activates your account and confirms this email address.',
+    'auth.returnToSignInStep': 'Sign in again',
+    'auth.returnToSignInHint': 'Once verification is done, return to the login page and sign in normally.',
+    'auth.didNotReceiveEmail': 'Didn’t receive the email?',
+    'auth.didNotReceiveEmailHint': 'You can resend the verification email or jump straight to your mail app.',
+    'auth.openEmailApp': 'Open email app',
+    'auth.spamFolderHint': 'Tip: check spam, updates, or promotions if the message does not show up after a few minutes.',
+    'auth.resendInCountdown': 'Resend in {seconds}s',
     'layout.close': 'Close',
     'layout.dashboard': 'Dashboard',
     'layout.resources': 'Resources',

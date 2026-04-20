@@ -1,150 +1,203 @@
 # Architecture
 
-The web UI uses **Nuxt 4** with Vue 3 and the standard Nuxt directory structure.
+Web UI berjalan di atas **Nuxt 4**, **Vue 3**, **TypeScript**, dan **Tailwind CSS**.
 Project root: `webui/`
 
-## Key Directories
+## Active Directory Structure
 
-1. **app/**: Nuxt app entry (e.g., `app.vue`), layouts, and app-level UI.
-2. **app/pages/**: File-based routing. Each `.vue` file becomes a route.
-3. **app/modules/**: Feature module pages (business logic per resource).
-4. **app/components/**: Reusable UI components.
-   - `app/components/ui/` — Base UI components (Button, Input, Label, SearchableSelect, etc.)
-   - `app/components/resource/` — Shared resource components (ResourceList)
-   - `app/components/searchable-tree-select.vue` — Tree dropdown component
-5. **app/composables/**: Reusable composition functions (`useApi`, `useAuth`, `useBanner`).
-6. **app/middleware/**: Route middleware for auth/guards.
-7. **app/assets/**: Uncompiled assets (CSS, images used by CSS).
-8. **app/layouts/**: Layout components (`default.vue` with sidebar navigation).
-9. **public/**: Static files served as-is.
-10. **server/**: Nitro server routes and utilities.
+Direktori yang benar-benar aktif saat ini:
 
-## Path Aliases
+1. `app/`
+   - entry Nuxt app dan UI shell utama
+2. `app/pages/`
+   - file-based routes yang umumnya tipis
+3. `app/modules/`
+   - implementasi page/resource yang lebih besar
+4. `app/components/`
+   - shared UI primitives dan reusable shells
+5. `app/composables/`
+   - shared app logic seperti API, auth, banner, locale
+6. `app/layouts/`
+   - app shell utama, termasuk sidebar dan top bar
+7. `app/middleware/`
+   - auth guard global
+8. `app/types/`
+   - tipe shared untuk API dan page modules
+9. `app/utils/`
+   - helper presentasional dan UI localization
+10. `server/`
+   - Nitro proxy layer
 
-- `~` maps to the `app/` root for this project.
-- Use `~/assets/...` for assets under `app/assets/`.
-- Use `~/composables/...` for composables under `app/composables/`.
-- Avoid `~/app/...` to prevent double `app/` paths.
+Saat ini `server/` secara efektif hanya dipakai untuk proxy backend:
 
-## Component Auto-Registration
+- `server/api/proxy/[...path].ts`
 
-Nuxt config uses `pathPrefix: false`, meaning the directory prefix is **not** included in the component name. Always use the **filename only** (PascalCase) as the component tag:
+## Runtime Highlights
 
-| File | Tag Name |
-|------|----------|
-| `components/ui/button.vue` | `<Button>` |
-| `components/ui/input.vue` | `<Input>` |
-| `components/ui/label.vue` | `<Label>` |
-| `components/ui/searchable-select.vue` | `<SearchableSelect>` |
-| `components/searchable-tree-select.vue` | `<SearchableTreeSelect>` |
-| `components/resource/resource-list.vue` | `<ResourceList>` |
-| `components/auth-menu.vue` | `<AuthMenu>` |
+- Nuxt config memakai `components: [{ path: '~/components', pathPrefix: false }]`
+- alias `~` mengarah ke root `app/`
+- global CSS masuk lewat `~/assets/css/main.css`
+- color mode dikelola oleh `@nuxtjs/color-mode`
+- runtime config public saat ini memuat `appName`
+- backend access dari app code selalu lewat proxy `/api/proxy/...`
 
-## Module Page Pattern
+## Auth Route Map
 
-Most resource pages follow a consistent pattern:
+Public auth routes yang aktif sekarang:
 
-- **Feature module**: `app/modules/resources/{resource-name}/{resource-name}-page.vue`
-- **Route file** (thin wrapper): `app/pages/resources/{resource-name}.vue`
+- `/login`
+- `/register`
+- `/auth/check-email`
+- `/auth/email-verification`
+- `/auth/forgot-password`
+- `/auth/reset-password`
 
-Some features also use explicit detail/manage pages when the CRUD flow is too large for a single list page:
+File route wrapper aktif:
+
+- `app/pages/login.vue`
+- `app/pages/register.vue`
+- `app/pages/auth/check-email.vue`
+- `app/pages/auth/email-verification.vue`
+- `app/pages/auth/forgot-password.vue`
+- `app/pages/auth/reset-password.vue`
+
+Module auth aktif:
+
+- `app/modules/auth/login-page.vue`
+- `app/modules/auth/register-page.vue`
+- `app/modules/auth/check-email-page.vue`
+- `app/modules/auth/email-verification-page.vue`
+- `app/modules/auth/forgot-password-page.vue`
+- `app/modules/auth/reset-password-page.vue`
+
+Auth middleware saat ini menjaga allowlist public route di `app/middleware/auth.global.ts`. Bila menambah auth page public baru, file ini wajib ikut diupdate.
+
+## Dashboard Pattern
+
+Dashboard home route saat ini memakai:
+
+- route wrapper: `app/pages/index.vue`
+- module page: `app/modules/dashboard/index-page.vue`
+
+Dokumen lama yang masih menyebut `dashboard-page.vue` sudah tidak akurat.
+
+## Resource Route Patterns
+
+Frontend sekarang memakai beberapa pola resource yang hidup berdampingan.
+
+### 1. Thin wrapper ke module page
+
+Contoh:
+
+- `app/pages/resources/attendance-logs.vue` -> `app/modules/resources/attendance-logs/attendance-logs-page.vue`
+- `app/pages/resources/employees.vue` -> `app/modules/resources/employees/employees-page.vue`
+- `app/pages/resources/work-shifts.vue` -> `app/modules/resources/work-shifts/work-shifts-page.vue`
+
+### 2. Thin wrapper dengan optional route param di file yang sama
+
+Dipakai saat satu module menangani list/manage flow sendiri melalui route seperti `:id?`.
+
+Contoh:
+
+- `app/pages/resources/users.vue` -> path `/resources/users/:id?`
+- `app/pages/resources/roles.vue` -> path `/resources/roles/:id?`
+- `app/pages/resources/categories.vue` -> path `/resources/categories/:id?`
+- `app/pages/resources/teachers.vue` -> path `/resources/teachers/:id?`
+- `app/pages/resources/programs.vue` -> path `/resources/programs/:id?`
+- `app/pages/resources/enrollments.vue` -> path `/resources/enrollments/:id?`
+- `app/pages/resources/invoices.vue` -> path `/resources/invoices/:id?`
+- `app/pages/resources/permissions.vue` -> path `/resources/permissions/:id?`
+
+Catatan:
+
+- route `permissions` saat ini hanya redirect ke `/resources/roles`
+
+### 3. Dedicated detail/manage page
+
+Dipakai saat detail page memang berdiri sendiri.
+
+Contoh:
 
 - `app/pages/resources/companies/[id].vue` -> `app/modules/resources/companies/companies-manage-page.vue`
 - `app/pages/resources/org-units/[id].vue` -> `app/modules/resources/org-units/org-unit-detail-page.vue`
 - `app/pages/resources/students/[id].vue` -> `app/modules/resources/students/student-detail-page.vue`
 
-### Current Resource Pages
+## Current Resource Modules
 
-| Resource | Route | Module File |
-|----------|-------|-------------|
-| Dashboard | `/` | `modules/dashboard/...` |
-| Attendance Logs | `/resources/attendance-logs` | `modules/resources/attendance-logs/attendance-logs-page.vue` |
-| Users | `/resources/users` | `modules/resources/users/users-page.vue` |
-| Companies | `/resources/companies` | `modules/resources/companies/companies-page.vue` |
-| Company Manage | `/resources/companies/:id` | `modules/resources/companies/companies-manage-page.vue` |
-| Employees | `/resources/employees` | `modules/resources/employees/employees-page.vue` |
-| Job Positions | `/resources/job-positions` | `modules/resources/job-positions/job-positions-page.vue` |
-| Org Units | `/resources/org-units` | `modules/resources/org-units/org-units-page.vue` |
-| Org Unit Detail | `/resources/org-units/:id` | `modules/resources/org-units/org-unit-detail-page.vue` |
-| Work Locations | `/resources/work-locations` | `modules/resources/work-locations/work-locations-page.vue` |
-| Work Shifts | `/resources/work-shifts` | `modules/resources/work-shifts/work-shifts-page.vue` |
-| Roles | `/resources/roles` | `modules/resources/roles/roles-page.vue` |
-| Students Detail | `/resources/students/:id` | `modules/resources/students/student-detail-page.vue` |
+Module resource yang aktif di repo saat ini:
+
+- attendance logs
+- branches
+- categories
+- companies
+- employees
+- enrollments
+- invoices
+- job positions
+- org units
+- permissions
+- programs
+- roles
+- students
+- teachers
+- users
+- work locations
+- work shifts
+
+Catatan penting:
+
+- `branches` module ada di `app/modules/resources/branches/branches-page.vue`
+- sampai saat ini belum ada file route `app/pages/resources/branches.vue`, jadi module itu belum terekspos sebagai route normal
+
+## App Shell Notes
+
+Default app shell ada di `app/layouts/default.vue`.
+
+Shell ini saat ini menangani:
+
+- page title dan document title
+- sidebar navigation desktop
+- mobile navigation drawer
+- theme toggle
+- locale switcher
+- global banner rendering
+
+Sidebar yang aktif sekarang hanya mengekspos subset resource inti:
+
+- dashboard
+- users
+- companies
+- employees
+- attendance logs
+- job positions
+- work locations
+- work shifts
+- roles
+
+Jadi, tidak semua page/resource yang ada di repo otomatis muncul di navigasi utama.
 
 ## Reusable Components
 
-### SearchableSelect
-Flat searchable dropdown for simple key-value options.
-- **Props**: `modelValue`, `options` (array of `{ value, label }`), `placeholder`, `searchPlaceholder`, `disabled`
-- **Usage**: For Job Positions, Work Locations, Work Shifts, Status fields
+Shared components yang jadi fondasi UI sekarang:
 
-### SearchableTreeSelect
-Hierarchical searchable tree dropdown for items with `parent_id`.
-- **Props**: `modelValue`, `items` (array of `{ id, name, parent_id }`), `placeholder`, `searchPlaceholder`, `disabled`
-- **Usage**: For Org Units (tree structure with parent-child relationships)
-- **Features**: Indented tree display, search with ancestor preservation, clear button
+- `ResourceList`
+- `ResourceTable`
+- `FormDialogShell`
+- `SearchableSelect`
+- `SearchableTreeSelect`
+- `LocationMapPicker`
+- primitive `ui/*` seperti `Button`, `Input`, `Card`, `Badge`, `Table`
 
-### ResourceList
-Generic CRUD list with pagination, search, and delete support.
-- **Props**: `title`, `endpoint`, `columns`, `loadingVariant`, `deleteLabelFormatter`, `canViewDetail`
-- **Slots**: `filters`, `header-actions`, `row-actions`, `detail`
-- **Behavior**:
-  - Uses `useApi().apiFetch(...)`
-  - Fetches data client-side
-  - Supports page-based detail navigation when no `detail` slot is provided
-  - Supports modal-style detail flow when a `detail` slot is provided
+`ResourceList` dan `ResourceTable` saat ini adalah shared shell paling penting untuk banyak CRUD-style resource.
 
-#### ResourceList Slot Guidance
+## Data Flow
 
-- Keep the built-in search input as the light global finder for the page.
-- Use the `filters` slot for full-width filter surfaces:
-  - primary filters
-  - quick presets
-  - active filter chips
-  - small supporting summaries tied to the current query state
-- Use `header-actions` for async CTAs and status callouts such as export, refresh, sync, or queue summaries.
-- Prefer one strong CTA surface over multiple detached buttons when the page has export or background-job actions.
-- When custom slot content introduces explicit light-theme colors or gradients, add paired `dark:` styles at the same time so text, badges, and helper copy preserve accessible contrast in dark mode.
-- Shared shell surfaces such as the default layout header, sidebar, and dashboard summary cards should maintain obvious surface separation in both light and dark themes; avoid styles that read like plain page background blocks.
-- For resource modules, prefer evolving shared primitives (`ResourceList`, `ResourceTable`, layout shell) so pages keep a coherent visual language instead of each module inventing its own styling rules.
+Alur data frontend saat ini:
 
-### FormDialogShell
-Shared modal shell for resource create/edit flows.
-- Use for legacy CRUD modals that still open in-page instead of routing to dedicated detail pages.
-- Provides a consistent overlay, header, close affordance, scroll handling, and footer rhythm across modules.
-- Prefer updating old resource forms to this shell instead of restyling each modal inline.
+1. page/module memanggil `useApi().apiFetch(...)`
+2. `useApi` menambahkan auth header dan `Accept-Language`
+3. request dikirim ke `/api/proxy/...`
+4. Nitro proxy meneruskan request ke backend `runtimeConfig.apiBase`
+5. response backend dipakai langsung oleh page/module
 
-### ResourceTable
-Shared table renderer used by `ResourceList`.
-- Handles row selection
-- Handles row action menu placement
-- Supports built-in `Manage` and `Delete` actions plus custom row action slots
-- On mobile, switches to stacked cards instead of forcing dense table scanning
-- Keep custom `row-actions` slot content usable as full-width tap targets on small screens
-
-### Mobile Shell Notes
-- The default layout mobile navigation should read as an opaque sheet, not a translucent overlay over page content.
-- App-shell footer/auth surfaces should stay pinned visually and remain readable above safe-area insets.
-- When a resource page relies on `ResourceList`/`ResourceTable`, verify the small-screen card layout before adding feature-local mobile overrides.
-
-## API Proxy Pattern
-
-The frontend does not call the backend base URL directly from page components.
-
-- App code calls `useApi().apiFetch(...)`
-- `useApi` targets `/api/proxy/...`
-- Nitro forwards requests through `server/api/proxy/[...path].ts`
-- Runtime config key: `apiBase`
-
-This proxy centralizes:
-- auth header forwarding
-- backend base URL switching by environment
-- network error normalization
-
-## Rendering Notes
-
-- Many resource pages fetch on the client and should be checked for hydration safety after UI changes.
-- When changing shared list/table primitives, verify:
-  - SSR/client markup consistency
-  - console warnings
-  - empty and loading states
+Untuk resource pages, pola fetch yang dominan saat ini adalah client-side fetch non-blocking, sering dikombinasikan dengan penyimpanan last successful result agar konten lama tetap tampil saat refresh.

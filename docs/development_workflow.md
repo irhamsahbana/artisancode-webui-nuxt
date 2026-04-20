@@ -17,6 +17,7 @@
 4. **Add Routing & Middleware**:
   - Create or update files in `app/pages/`.
   - Add route middleware in `app/middleware/` when needed.
+  - When adding public auth pages, update the guest/public route allowlist in `app/middleware/auth.global.ts`.
 
 5. **Validate UX**:
   - Confirm loading, empty, and error states.
@@ -25,6 +26,7 @@
    - Ensure client/server rendering behaves as expected.
    - Check browser console for hydration warnings and runtime errors.
    - Verify success and error banners when form submission is involved.
+   - For auth email flows, verify `Retry-After` handling, resend cooldown, and redirect behavior between register, check-email, verify-email, forgot-password, and reset-password pages.
 
 ## Shared Resource Flow
 
@@ -44,7 +46,7 @@ Use a custom page only when the feature has significantly different behavior, su
 
 After meaningful changes, run:
 
-1. `pnpm exec nuxi typecheck`
+1. `pnpm typecheck` or `pnpm exec nuxi typecheck`
 2. `pnpm lint`
 3. route-level browser smoke test
 

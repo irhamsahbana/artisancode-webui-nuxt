@@ -76,7 +76,7 @@
 
 - ✅ Always check for eslint warnings after making changes
 - ✅ Fix all warnings before declaring completion
-- ✅ Run `pnpm exec nuxi typecheck` before finishing a TypeScript-heavy task
+- ✅ Run `pnpm typecheck` (or `pnpm exec nuxi typecheck`) before finishing a TypeScript-heavy task
 - ✅ Run `pnpm lint` to verify before finishing a task
 - ✅ Smoke test the affected route in the browser for shared component changes
 - ✅ Never ignore or leave eslint warnings

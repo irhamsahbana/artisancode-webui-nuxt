@@ -24,6 +24,13 @@ type AuthTokenResponse = {
   refresh_token: string
 }
 
+type RegisterResponse = {
+  email: string
+  verification_required: boolean
+}
+
+type EmptyResponse = Record<string, never>
+
 export const useAuth = () => {
   const token = useCookie<string | null>('sb_token')
   const refreshToken = useCookie<string | null>('sb_refresh_token')
@@ -63,17 +70,40 @@ export const useAuth = () => {
   }
 
   const register = async (payload: RegisterPayload) => {
-    const response = await apiFetch<AuthTokenResponse>('/users/register', {
+    const response = await apiFetch<RegisterResponse>('/users/register', {
       method: 'POST',
       body: payload,
     })
 
-    if (response.success && response.data) {
-      token.value = response.data.access_token
-      refreshToken.value = response.data.refresh_token
-    }
+    return response as ApiResponse<RegisterResponse>
+  }
 
-    return response as ApiResponse<AuthTokenResponse>
+  const verifyEmail = async (tokenValue: string) => {
+    return apiFetch<EmptyResponse>('/users/verify-email', {
+      method: 'POST',
+      body: { token: tokenValue },
+    }) as Promise<ApiResponse<EmptyResponse>>
+  }
+
+  const resendVerificationEmail = async (email: string) => {
+    return apiFetch<EmptyResponse>('/users/resend-verification-email', {
+      method: 'POST',
+      body: { email },
+    }) as Promise<ApiResponse<EmptyResponse>>
+  }
+
+  const forgotPassword = async (email: string) => {
+    return apiFetch<EmptyResponse>('/users/forgot-password', {
+      method: 'POST',
+      body: { email },
+    }) as Promise<ApiResponse<EmptyResponse>>
+  }
+
+  const resetPassword = async (tokenValue: string, password: string) => {
+    return apiFetch<EmptyResponse>('/users/reset-password', {
+      method: 'POST',
+      body: { token: tokenValue, password },
+    }) as Promise<ApiResponse<EmptyResponse>>
   }
 
   const logout = async () => {
@@ -88,6 +118,10 @@ export const useAuth = () => {
     user,
     login,
     register,
+    verifyEmail,
+    resendVerificationEmail,
+    forgotPassword,
+    resetPassword,
     logout,
   }
 }

@@ -28,6 +28,18 @@
 - The `~` alias points to the `app/` root. Avoid `~/app/...`.
 - Prefer `~` imports over deep relative imports inside `app/`.
 
+## Current Frontend Reality Check
+
+- Dashboard home route currently renders `app/modules/dashboard/index-page.vue` via `app/pages/index.vue`.
+- Resource routing currently mixes three patterns:
+  - thin list wrappers such as `attendance-logs.vue`
+  - wrappers with `definePageMeta({ path: '/resources/.../:id?' })`
+  - dedicated detail routes such as `companies/[id].vue`, `org-units/[id].vue`, and `students/[id].vue`
+- `app/pages/resources/permissions.vue` currently redirects to `/resources/roles`, so permissions do not behave like an independent page flow.
+- `app/modules/resources/branches/branches-page.vue` exists, but there is no matching `app/pages/resources/branches.vue` route file yet.
+- The default sidebar in `app/layouts/default.vue` exposes only the core admin resources. Do not assume every module under `app/modules/resources/` is already linked from the shell navigation.
+- Nitro server usage is intentionally small right now: `server/api/proxy/[...path].ts` is the main active server-side integration point.
+
 ## UI System
 
 - Use the existing shadcn-style component patterns with Tailwind utilities.
@@ -70,6 +82,14 @@
   - `app/pages/resources/companies/[id].vue` -> `companies-manage-page.vue`
   - `app/pages/resources/org-units/[id].vue` -> `org-unit-detail-page.vue`
   - `app/pages/resources/students/[id].vue` -> `student-detail-page.vue`
+- The repo also uses optional-id route wrappers when one module owns list and manage states together:
+  - `app/pages/resources/users.vue` -> path `/resources/users/:id?`
+  - `app/pages/resources/roles.vue` -> path `/resources/roles/:id?`
+  - `app/pages/resources/categories.vue` -> path `/resources/categories/:id?`
+  - `app/pages/resources/teachers.vue` -> path `/resources/teachers/:id?`
+  - `app/pages/resources/programs.vue` -> path `/resources/programs/:id?`
+  - `app/pages/resources/enrollments.vue` -> path `/resources/enrollments/:id?`
+  - `app/pages/resources/invoices.vue` -> path `/resources/invoices/:id?`
 - Prefer matching the existing pattern for the feature you are editing rather than forcing everything into one template.
 - For list pages that need both persistent filters and exports, prefer this structure:
   - `ResourceList` search stays in the header
@@ -87,6 +107,8 @@
 - UI locale source of truth is `app/composables/useLocale.ts`.
 - Persist locale changes through `useLocale().setLocale(...)` so cookie `ac_locale` stays in sync.
 - `useApi` already sends `Accept-Language` to backend. Do not reimplement language headers per feature.
+- Public auth routes (`/login`, `/register`, `/auth/check-email`, `/auth/email-verification`, `/auth/forgot-password`, `/auth/reset-password`) must remain explicitly allowlisted in `app/middleware/auth.global.ts`.
+- Auth email recovery flows should respect backend `Retry-After` metadata so resend cooldown state stays aligned with server-side rate limits.
 - For app-level copy, use `useLocale().t(...)`. For raw UI/library labels still stored as plain strings, use `app/utils/ui-localization.ts`.
 
 ## Reusable Components
@@ -100,7 +122,7 @@
 
 - After meaningful UI changes, run the smallest relevant checks first.
 - Default verification order:
-  1. `pnpm exec nuxi typecheck`
+  1. `pnpm typecheck` or `pnpm exec nuxi typecheck`
   2. `pnpm lint`
   3. browser smoke test for the affected route
 - If a page uses client-only fetching or interactive overlays, explicitly check for:

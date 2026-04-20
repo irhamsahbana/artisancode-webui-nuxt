@@ -1,8 +1,14 @@
+export interface ApiResponseMeta {
+  status?: number
+  retryAfterSeconds?: number | null
+}
+
 export interface ApiResponse<T> {
   success: boolean
   message: string
   data: T | null
   errors: unknown
+  meta?: ApiResponseMeta
 }
 
 export interface PaginationMeta {

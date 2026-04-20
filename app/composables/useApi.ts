@@ -56,10 +56,12 @@ export const useApi = () => {
 
       const data = response._data
       const status = response.status
+      const retryAfterHeader = response.headers.get('retry-after')
+      const retryAfterSeconds = retryAfterHeader ? Number.parseInt(retryAfterHeader, 10) : null
       const hasSuccessFlag = typeof data?.success === 'boolean'
       const message = hasSuccessFlag ? data?.message : `${t('api.requestFailed')} (${status})`
 
-      if (status === 401 || status === 403) {
+      if ((status === 401 || status === 403) && token.value) {
         token.value = null
         const user = useState<unknown | null>('auth_user', () => null)
         user.value = null
@@ -72,7 +74,14 @@ export const useApi = () => {
       }
 
       if (hasSuccessFlag) {
-        return data as ApiResponse<T>
+        return {
+          ...(data as ApiResponse<T>),
+          meta: {
+            ...(data as ApiResponse<T>).meta,
+            status,
+            retryAfterSeconds: Number.isFinite(retryAfterSeconds) ? retryAfterSeconds : null,
+          },
+        }
       }
 
       return {
@@ -80,6 +89,10 @@ export const useApi = () => {
         message: message ?? t('api.requestFailed'),
         data: null,
         errors: data ?? null,
+        meta: {
+          status,
+          retryAfterSeconds: Number.isFinite(retryAfterSeconds) ? retryAfterSeconds : null,
+        },
       }
     } catch (error) {
       if (isAbortedRequestError(error)) {
@@ -88,6 +101,9 @@ export const useApi = () => {
           message: '',
           data: null,
           errors: null,
+          meta: {
+            retryAfterSeconds: null,
+          },
         }
       }
       const message = error instanceof Error ? error.message : t('api.networkError')
@@ -97,6 +113,9 @@ export const useApi = () => {
         message,
         data: null,
         errors: error,
+        meta: {
+          retryAfterSeconds: null,
+        },
       }
     }
   }

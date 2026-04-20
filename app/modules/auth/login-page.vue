@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import { navigateTo } from '#app'
 import { useAuth } from '~/composables/useAuth'
 
 defineOptions({ name: 'LoginPage' })
 
 const runtimeConfig = useRuntimeConfig()
-const { login } = useAuth()
+const route = useRoute()
+const { login, resendVerificationEmail } = useAuth()
 const { locale, options: localeOptions, setLocale, t } = useLocale()
 const isLoading = ref(false)
+const isResending = ref(false)
 const errorMessage = ref('')
+const infoMessage = ref('')
 const appName = computed(() => runtimeConfig.public.appName || 'ArtisanCode')
 const signInDescription = computed(() =>
   locale.value === 'id'
@@ -23,6 +26,19 @@ const form = reactive({
   tenant_code: '',
 })
 
+const showResendVerification = computed(() =>
+  errorMessage.value.toLowerCase().includes('verif')
+  && form.email.length > 0,
+)
+
+if (typeof route.query.email === 'string' && route.query.email) {
+  form.email = route.query.email
+}
+
+if (route.query.notice === 'verify-email') {
+  infoMessage.value = t('auth.verificationRequiredNotice')
+}
+
 // Ensure tenant code is always uppercase alphanumeric
 watch(() => form.tenant_code, (newVal) => {
   const cleaned = newVal
@@ -35,10 +51,20 @@ watch(() => form.tenant_code, (newVal) => {
 
 const submit = async () => {
   errorMessage.value = ''
+  infoMessage.value = route.query.notice === 'verify-email' ? t('auth.verificationRequiredNotice') : ''
   isLoading.value = true
   try {
     const response = await login({ ...form })
     if (!response.success) {
+      if (response.message.toLowerCase().includes('verif') && form.email) {
+        await navigateTo({
+          path: '/auth/check-email',
+          query: {
+            email: form.email,
+          },
+        })
+        return
+      }
       errorMessage.value = response.message
     }
     if (response.success) {
@@ -48,6 +74,26 @@ const submit = async () => {
     errorMessage.value = t('auth.loginFailed')
   } finally {
     isLoading.value = false
+  }
+}
+
+const resendVerification = async () => {
+  if (!form.email) {
+    return
+  }
+
+  errorMessage.value = ''
+  isResending.value = true
+  try {
+    const response = await resendVerificationEmail(form.email)
+    if (!response.success) {
+      errorMessage.value = response.message
+      return
+    }
+
+    infoMessage.value = response.message
+  } finally {
+    isResending.value = false
   }
 }
 </script>
@@ -128,11 +174,26 @@ const submit = async () => {
           </p>
         </div>
         <div
+          v-if="infoMessage"
+          class="rounded-md bg-primary/10 px-3 py-2 text-sm text-primary"
+        >
+          {{ infoMessage }}
+        </div>
+        <div
           v-if="errorMessage"
           class="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
         >
           {{ errorMessage }}
         </div>
+        <Button
+          v-if="showResendVerification"
+          variant="outline"
+          class="w-full"
+          :disabled="isResending"
+          @click="resendVerification"
+        >
+          {{ isResending ? t('auth.resendingVerificationEmail') : t('auth.resendVerificationEmail') }}
+        </Button>
       </CardContent>
       <CardFooter class="auth-card-footer flex-col gap-4">
         <Button
@@ -147,6 +208,14 @@ const submit = async () => {
           />
           {{ isLoading ? t('auth.signingIn') : t('auth.signIn') }}
         </Button>
+        <p class="text-center text-sm text-muted-foreground">
+          <NuxtLink
+            to="/auth/forgot-password"
+            class="font-medium text-primary underline-offset-4 transition-colors hover:underline"
+          >
+            {{ t('auth.forgotPassword') }}
+          </NuxtLink>
+        </p>
         <p class="text-center text-sm text-muted-foreground">
           {{ t('auth.noAccount') }}
           <NuxtLink

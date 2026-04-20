@@ -293,7 +293,7 @@ const buildLogLink = (params: Record<string, string>) => ({
               <span
                 v-if="showInitialSkeleton"
                 class="block h-10 w-24 animate-pulse rounded-xl bg-muted"
-              ></span>
+              />
               <span v-else>{{ item.value }}</span>
             </div>
           </CardContent>
