@@ -39,7 +39,6 @@ type DashboardPayload = {
 }
 
 const cards = [
-  { label: 'Users', href: '/resources/users' },
   { label: 'Companies', href: '/resources/companies' },
   { label: 'Employees', href: '/resources/employees' },
   { label: 'Attendance Logs', href: '/resources/attendance-logs' },

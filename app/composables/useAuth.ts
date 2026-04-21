@@ -29,6 +29,11 @@ type RegisterResponse = {
   verification_required: boolean
 }
 
+type TenantScopedEmailPayload = {
+  email: string
+  tenant_code: string
+}
+
 type EmptyResponse = Record<string, never>
 
 export const useAuth = () => {
@@ -85,17 +90,17 @@ export const useAuth = () => {
     }) as Promise<ApiResponse<EmptyResponse>>
   }
 
-  const resendVerificationEmail = async (email: string) => {
+  const resendVerificationEmail = async (payload: TenantScopedEmailPayload) => {
     return apiFetch<EmptyResponse>('/users/resend-verification-email', {
       method: 'POST',
-      body: { email },
+      body: payload,
     }) as Promise<ApiResponse<EmptyResponse>>
   }
 
-  const forgotPassword = async (email: string) => {
+  const forgotPassword = async (payload: TenantScopedEmailPayload) => {
     return apiFetch<EmptyResponse>('/users/forgot-password', {
       method: 'POST',
-      body: { email },
+      body: payload,
     }) as Promise<ApiResponse<EmptyResponse>>
   }
 

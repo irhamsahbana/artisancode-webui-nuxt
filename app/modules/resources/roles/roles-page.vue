@@ -9,11 +9,19 @@ import { localizeUiText } from '~/utils/ui-localization'
 defineOptions({ name: 'RolesPage' })
 const { locale } = useLocale()
 const uiText = (value: string) => localizeUiText(locale.value, value)
+const { user } = useAuth()
+const appOrigin = computed(() => (import.meta.client ? window.location.origin : ''))
 
 type PermissionItem = {
   id: string
   name?: string
   description?: string
+}
+
+type InvitationResponse = {
+  id: string
+  accept_token: string
+  expires_at: string
 }
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -73,8 +81,16 @@ const editPermissionItems = ref<PermissionItem[]>([])
 const editPermissionQueryInput = ref('')
 const editPermissionQuery = ref('')
 let editPermissionQueryTimer: ReturnType<typeof setTimeout> | null = null
+const adminInviteOpen = ref(false)
+const adminInviteLoading = ref(false)
+const adminInviteEmail = ref('')
+const adminInviteResult = ref<InvitationResponse | null>(null)
 
 const permissionsRequestController = ref<AbortController | null>(null)
+const canInviteAdmins = computed(() => {
+  const roles = Array.isArray(user.value?.roles) ? user.value.roles : []
+  return roles.includes('owner')
+})
 
 const { data, pending, error, refresh } = useAsyncData(
   'permissions:list',
@@ -501,6 +517,62 @@ const prevCreatePermissionPage = () => {
     createPermissionPage.value -= 1
   }
 }
+
+const openAdminInvite = () => {
+  adminInviteEmail.value = ''
+  adminInviteResult.value = null
+  adminInviteOpen.value = true
+}
+
+const closeAdminInvite = () => {
+  adminInviteOpen.value = false
+  adminInviteLoading.value = false
+  adminInviteEmail.value = ''
+  adminInviteResult.value = null
+}
+
+const adminInvitationLink = computed(() => {
+  if (!adminInviteResult.value?.accept_token || !appOrigin.value) {
+    return ''
+  }
+
+  return `${appOrigin.value}/auth/invitation?token=${encodeURIComponent(adminInviteResult.value.accept_token)}`
+})
+
+const copyToClipboard = async (value: string, successMessage: string) => {
+  if (!value || !import.meta.client || !navigator.clipboard) {
+    show(uiText('Clipboard is not available in this browser'), 'error')
+    return
+  }
+
+  await navigator.clipboard.writeText(value)
+  show(uiText(successMessage), 'success')
+}
+
+const submitAdminInvite = async () => {
+  const email = adminInviteEmail.value.trim()
+  if (!email) {
+    show(uiText('Email is required'), 'error')
+    return
+  }
+
+  adminInviteLoading.value = true
+  const response = await apiFetch<InvitationResponse>('/user-invitations', {
+    method: 'POST',
+    body: {
+      email,
+      role_code: 'admin',
+    },
+  })
+  adminInviteLoading.value = false
+
+  if (!response.success || !response.data) {
+    return
+  }
+
+  adminInviteResult.value = response.data
+  show(uiText('Admin invitation created successfully'), 'success')
+}
 </script>
 
 <template>
@@ -520,6 +592,14 @@ const prevCreatePermissionPage = () => {
           @click="openCreate"
         >
           {{ uiText('Create role') }}
+        </Button>
+        <Button
+          v-if="canInviteAdmins"
+          size="sm"
+          variant="outline"
+          @click="openAdminInvite"
+        >
+          {{ uiText('Invite Admin') }}
         </Button>
       </template>
       <template #detail="{ row, loading, close, refresh: refreshList }">
@@ -732,6 +812,104 @@ const prevCreatePermissionPage = () => {
         </div>
       </CardFooter>
     </Card>
+  </div>
+
+  <div
+    v-if="adminInviteOpen"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+  >
+    <div class="w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg">
+      <div class="flex items-center justify-between">
+        <div class="text-lg font-semibold">
+          {{ uiText('Invite Admin Access') }}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="adminInviteLoading"
+          @click="closeAdminInvite"
+        >
+          {{ uiText('Close') }}
+        </Button>
+      </div>
+      <div class="mt-2 text-sm text-muted-foreground">
+        {{ uiText('Use this flow for admin account access while users stay hidden from the main product navigation.') }}
+      </div>
+      <div class="mt-4 grid gap-4">
+        <div class="grid gap-2">
+          <Label for="admin-invite-email">{{ uiText('Admin email') }}</Label>
+          <Input
+            id="admin-invite-email"
+            v-model="adminInviteEmail"
+            type="email"
+            :placeholder="uiText('e.g. admin@example.com')"
+          />
+        </div>
+        <div
+          v-if="adminInviteResult"
+          class="space-y-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 p-4 text-sm dark:border-emerald-900/60 dark:bg-emerald-950/20"
+        >
+          <div class="font-medium text-emerald-900 dark:text-emerald-100">
+            {{ uiText('Invitation token is ready') }}
+          </div>
+          <div class="text-emerald-800 dark:text-emerald-200">
+            {{ uiText('Email delivery is not wired yet, so keep this token for the acceptance flow.') }}
+          </div>
+          <div class="space-y-1">
+            <Label for="admin-invitation-token">{{ uiText('Invitation token') }}</Label>
+            <Input
+              id="admin-invitation-token"
+              :model-value="adminInviteResult.accept_token"
+              readonly
+            />
+          </div>
+          <div class="space-y-1">
+            <Label for="admin-invitation-link">{{ uiText('Invitation link') }}</Label>
+            <Input
+              id="admin-invitation-link"
+              :model-value="adminInvitationLink"
+              readonly
+            />
+          </div>
+          <div class="text-xs text-emerald-800/80 dark:text-emerald-200/80">
+            {{ uiText('Expires at') }}: {{ adminInviteResult.expires_at }}
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              @click="copyToClipboard(adminInviteResult.accept_token, 'Invitation token copied')"
+            >
+              {{ uiText('Copy token') }}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              @click="copyToClipboard(adminInvitationLink, 'Invitation link copied')"
+            >
+              {{ uiText('Copy invitation link') }}
+            </Button>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="adminInviteLoading"
+          @click="closeAdminInvite"
+        >
+          {{ uiText('Cancel') }}
+        </Button>
+        <Button
+          size="sm"
+          :disabled="adminInviteLoading"
+          @click="submitAdminInvite"
+        >
+          {{ adminInviteLoading ? uiText('Sending...') : uiText('Create Invitation') }}
+        </Button>
+      </div>
+    </div>
   </div>
 
   <div

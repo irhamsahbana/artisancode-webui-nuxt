@@ -12,6 +12,13 @@ const { locale } = useLocale()
 const { formatDateOnly, normalizeDateInput } = useDateTime()
 const uiText = (value: string) => localizeUiText(locale.value, value)
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+const appOrigin = computed(() => (import.meta.client ? window.location.origin : ''))
+
+type InvitationResponse = {
+  id: string
+  accept_token: string
+  expires_at: string
+}
 
 const formatJoinDateForTable = (value: unknown) => {
   if (value == null) {
@@ -65,6 +72,13 @@ const columns = [
     },
   },
   {
+    key: 'access_status',
+    label: 'Access',
+    format: (value: unknown) => {
+      return accessStatusMeta(value)
+    },
+  },
+  {
     key: 'join_date',
     label: 'Join Date',
     format: (value: unknown) => formatJoinDateForTable(value),
@@ -76,6 +90,10 @@ const modalOpen = ref(false)
 const modalMode = ref<'create' | 'edit'>('create')
 const modalLoading = ref(false)
 const submitLoading = ref(false)
+const inviteModalOpen = ref(false)
+const inviteLoading = ref(false)
+const inviteEmployee = ref<{ id: string; full_name: string; email: string } | null>(null)
+const inviteResult = ref<InvitationResponse | null>(null)
 
 const form = ref({
   id: '',
@@ -181,6 +199,62 @@ const closeModal = () => {
   resetForm()
 }
 
+const openInviteModal = (row: Record<string, unknown>) => {
+  inviteEmployee.value = {
+    id: String(row.id ?? ''),
+    full_name: String(row.full_name ?? ''),
+    email: String(row.email ?? ''),
+  }
+  inviteResult.value = null
+  inviteModalOpen.value = true
+}
+
+const closeInviteModal = () => {
+  inviteModalOpen.value = false
+  inviteLoading.value = false
+  inviteEmployee.value = null
+  inviteResult.value = null
+}
+
+const invitationLink = computed(() => {
+  if (!inviteResult.value?.accept_token || !appOrigin.value) {
+    return ''
+  }
+
+  return `${appOrigin.value}/auth/invitation?token=${encodeURIComponent(inviteResult.value.accept_token)}`
+})
+
+const copyToClipboard = async (value: string, successMessage: string) => {
+  if (!value || !import.meta.client || !navigator.clipboard) {
+    show(uiText('Clipboard is not available in this browser'), 'error')
+    return
+  }
+
+  await navigator.clipboard.writeText(value)
+  show(uiText(successMessage), 'success')
+}
+
+const accessStatusMeta = (value: unknown): { label: string; class: string } => {
+  const status = String(value ?? 'no_access')
+  if (status === 'active') {
+    return {
+      label: uiText('Active'),
+      class: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-200',
+    }
+  }
+  if (status === 'invited') {
+    return {
+      label: uiText('Invited'),
+      class: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-200',
+    }
+  }
+
+  return {
+    label: uiText('No Access'),
+    class: 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-200',
+  }
+}
+
 // --- Submit ---
 const buildPayload = () => {
   const payload: Record<string, unknown> = {
@@ -251,6 +325,33 @@ const handleSubmit = async () => {
 
   submitLoading.value = false
 }
+
+const handleInviteEmployee = async () => {
+  if (!inviteEmployee.value?.id || !inviteEmployee.value.email.trim()) {
+    show(uiText('Employee invitation requires a valid employee email'), 'error')
+    return
+  }
+
+  inviteLoading.value = true
+
+  const response = await apiFetch<InvitationResponse>('/user-invitations', {
+    method: 'POST',
+    body: {
+      employee_id: inviteEmployee.value.id,
+      email: inviteEmployee.value.email.trim(),
+      role_code: 'employee',
+    },
+  })
+
+  inviteLoading.value = false
+
+  if (!response.success || !response.data) {
+    return
+  }
+
+  inviteResult.value = response.data
+  show(uiText('Employee invitation created successfully'), 'success')
+}
 </script>
 
 <template>
@@ -273,6 +374,12 @@ const handleSubmit = async () => {
     </template>
 
     <template #row-actions="{ row, close }">
+      <button
+        class="w-full rounded px-3 py-2 text-left hover:bg-accent"
+        @click="close(); openInviteModal(row)"
+      >
+        {{ uiText('Invite Access') }}
+      </button>
       <button
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
@@ -443,6 +550,95 @@ const handleSubmit = async () => {
           </Button>
         </div>
       </form>
+    </FormDialogShell>
+  </div>
+
+  <div v-if="inviteModalOpen">
+    <FormDialogShell
+      max-width-class="max-w-lg"
+      :title="uiText('Invite Employee Access')"
+      :description="uiText('Create a login invitation for this employee without opening the generic users menu.')"
+      @close="closeInviteModal"
+    >
+      <div class="space-y-4">
+        <div class="rounded-2xl border border-border/70 bg-muted/30 px-4 py-4 text-sm">
+          <div class="font-medium text-foreground">
+            {{ inviteEmployee?.full_name || '-' }}
+          </div>
+          <div class="mt-1 text-muted-foreground">
+            {{ inviteEmployee?.email || '-' }}
+          </div>
+        </div>
+
+        <div
+          v-if="inviteResult"
+          class="space-y-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 p-4 text-sm dark:border-emerald-900/60 dark:bg-emerald-950/20"
+        >
+          <div class="font-medium text-emerald-900 dark:text-emerald-100">
+            {{ uiText('Invitation token is ready') }}
+          </div>
+          <div class="text-emerald-800 dark:text-emerald-200">
+            {{ uiText('Email delivery is not wired yet, so keep this token for the acceptance flow.') }}
+          </div>
+          <div class="space-y-1">
+            <Label for="employee-invitation-token">{{ uiText('Invitation token') }}</Label>
+            <Input
+              id="employee-invitation-token"
+              :model-value="inviteResult.accept_token"
+              readonly
+            />
+          </div>
+          <div class="space-y-1">
+            <Label for="employee-invitation-link">{{ uiText('Invitation link') }}</Label>
+            <Input
+              id="employee-invitation-link"
+              :model-value="invitationLink"
+              readonly
+            />
+          </div>
+          <div class="text-xs text-emerald-800/80 dark:text-emerald-200/80">
+            {{ uiText('Expires at') }}: {{ inviteResult.expires_at }}
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              class="rounded-xl"
+              @click="copyToClipboard(inviteResult.accept_token, 'Invitation token copied')"
+            >
+              {{ uiText('Copy token') }}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              class="rounded-xl"
+              @click="copyToClipboard(invitationLink, 'Invitation link copied')"
+            >
+              {{ uiText('Copy invitation link') }}
+            </Button>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            class="rounded-xl"
+            :disabled="inviteLoading"
+            @click="closeInviteModal"
+          >
+            {{ uiText('Close') }}
+          </Button>
+          <Button
+            size="sm"
+            class="rounded-xl"
+            :disabled="inviteLoading"
+            @click="handleInviteEmployee"
+          >
+            {{ inviteLoading ? uiText('Sending...') : uiText('Create Invitation') }}
+          </Button>
+        </div>
+      </div>
     </FormDialogShell>
   </div>
 </template>

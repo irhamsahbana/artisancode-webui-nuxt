@@ -35,8 +35,15 @@ if (typeof route.query.email === 'string' && route.query.email) {
   form.email = route.query.email
 }
 
+if (typeof route.query.tenant_code === 'string' && route.query.tenant_code) {
+  form.tenant_code = route.query.tenant_code
+}
+
 if (route.query.notice === 'verify-email') {
   infoMessage.value = t('auth.verificationRequiredNotice')
+}
+if (route.query.notice === 'invitation-accepted') {
+  infoMessage.value = t('auth.invitationAccepted')
 }
 
 // Ensure tenant code is always uppercase alphanumeric
@@ -52,6 +59,9 @@ watch(() => form.tenant_code, (newVal) => {
 const submit = async () => {
   errorMessage.value = ''
   infoMessage.value = route.query.notice === 'verify-email' ? t('auth.verificationRequiredNotice') : ''
+  if (route.query.notice === 'invitation-accepted') {
+    infoMessage.value = t('auth.invitationAccepted')
+  }
   isLoading.value = true
   try {
     const response = await login({ ...form })
@@ -61,6 +71,7 @@ const submit = async () => {
           path: '/auth/check-email',
           query: {
             email: form.email,
+            tenant_code: form.tenant_code,
           },
         })
         return
@@ -85,7 +96,10 @@ const resendVerification = async () => {
   errorMessage.value = ''
   isResending.value = true
   try {
-    const response = await resendVerificationEmail(form.email)
+    const response = await resendVerificationEmail({
+      email: form.email,
+      tenant_code: form.tenant_code,
+    })
     if (!response.success) {
       errorMessage.value = response.message
       return
@@ -210,7 +224,13 @@ const resendVerification = async () => {
         </Button>
         <p class="text-center text-sm text-muted-foreground">
           <NuxtLink
-            to="/auth/forgot-password"
+            :to="{
+              path: '/auth/forgot-password',
+              query: {
+                email: form.email || undefined,
+                tenant_code: form.tenant_code || undefined,
+              },
+            }"
             class="font-medium text-primary underline-offset-4 transition-colors hover:underline"
           >
             {{ t('auth.forgotPassword') }}

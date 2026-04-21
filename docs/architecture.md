@@ -52,6 +52,13 @@ Public auth routes yang aktif sekarang:
 - `/auth/forgot-password`
 - `/auth/reset-password`
 
+Kontrak payload auth publik yang tenant-aware:
+
+- `/login` mengirim `email`, `password`, `tenant_code`
+- `/register` mengirim `tenant_code` sebagai kode tenant baru
+- `/auth/check-email` menyimpan `email` dan `tenant_code` di query agar resend verification tetap punya konteks tenant
+- `/auth/forgot-password` dan resend verification mengirim `email` + `tenant_code`
+
 File route wrapper aktif:
 
 - `app/pages/login.vue`
@@ -165,7 +172,6 @@ Shell ini saat ini menangani:
 Sidebar yang aktif sekarang hanya mengekspos subset resource inti:
 
 - dashboard
-- users
 - companies
 - employees
 - attendance logs
@@ -173,6 +179,8 @@ Sidebar yang aktif sekarang hanya mengekspos subset resource inti:
 - work locations
 - work shifts
 - roles
+
+Route resource `users` masih ada untuk kebutuhan internal/admin flow, tetapi sengaja tidak ditampilkan di navigasi utama. Arah produk yang aktif adalah memakai istilah domain seperti employee, company, dan access/roles dibanding menu generik user.
 
 Jadi, tidak semua page/resource yang ada di repo otomatis muncul di navigasi utama.
 

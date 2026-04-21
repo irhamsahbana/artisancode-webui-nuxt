@@ -1,15 +1,36 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useAuth } from '~/composables/useAuth'
 
 defineOptions({ name: 'ForgotPasswordPage' })
 
+const route = useRoute()
 const { forgotPassword } = useAuth()
 const { t } = useLocale()
-const email = ref('')
+const form = reactive({
+  email: '',
+  tenant_code: '',
+})
 const isLoading = ref(false)
 const errorMessage = ref('')
 const infoMessage = ref('')
+
+if (typeof route.query.email === 'string' && route.query.email) {
+  form.email = route.query.email
+}
+
+if (typeof route.query.tenant_code === 'string' && route.query.tenant_code) {
+  form.tenant_code = route.query.tenant_code
+}
+
+watch(() => form.tenant_code, (newValue) => {
+  const cleaned = newValue
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+  if (cleaned !== newValue) {
+    form.tenant_code = cleaned
+  }
+})
 
 const submit = async () => {
   errorMessage.value = ''
@@ -17,7 +38,7 @@ const submit = async () => {
   isLoading.value = true
 
   try {
-    const response = await forgotPassword(email.value)
+    const response = await forgotPassword({ ...form })
     if (!response.success) {
       errorMessage.value = response.message
       return
@@ -48,11 +69,26 @@ const submit = async () => {
           </Label>
           <Input
             id="forgot-email"
-            v-model="email"
+            v-model="form.email"
             type="email"
             placeholder="you@company.com"
             @keyup.enter="submit"
           />
+        </div>
+        <div class="space-y-2">
+          <Label for="forgot-tenant-code">
+            {{ t('auth.tenantCode') }}
+          </Label>
+          <Input
+            id="forgot-tenant-code"
+            v-model="form.tenant_code"
+            placeholder="your tenant code"
+            maxlength="5"
+            @keyup.enter="submit"
+          />
+          <p class="text-xs text-muted-foreground">
+            {{ t('auth.tenantCodeHint') }}
+          </p>
         </div>
         <div
           v-if="infoMessage"
@@ -76,7 +112,13 @@ const submit = async () => {
           {{ isLoading ? t('auth.sendingResetLink') : t('auth.sendResetLink') }}
         </Button>
         <NuxtLink
-          to="/login"
+          :to="{
+            path: '/login',
+            query: {
+              email: form.email || undefined,
+              tenant_code: form.tenant_code || undefined,
+            },
+          }"
           class="text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
           {{ t('auth.backToLogin') }}

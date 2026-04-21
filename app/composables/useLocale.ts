@@ -111,6 +111,16 @@ type LocaleMessageKey =
   | 'auth.openEmailApp'
   | 'auth.spamFolderHint'
   | 'auth.resendInCountdown'
+  | 'auth.invitationTitle'
+  | 'auth.invitationDescription'
+  | 'auth.loadingInvitation'
+  | 'auth.acceptInvitation'
+  | 'auth.acceptingInvitation'
+  | 'auth.invitationAccepted'
+  | 'auth.invitationMissingToken'
+  | 'auth.invitationPreviewFailed'
+  | 'auth.invitationAcceptFailed'
+  | 'auth.fullNameRequired'
   | 'layout.close'
   | 'layout.dashboard'
   | 'layout.resources'
@@ -311,6 +321,16 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'auth.openEmailApp': 'Buka aplikasi email',
     'auth.spamFolderHint': 'Tip: periksa folder spam, update, atau promotion jika email belum terlihat dalam beberapa menit.',
     'auth.resendInCountdown': 'Kirim ulang dalam {seconds} detik',
+    'auth.invitationTitle': 'Aktifkan akses undangan',
+    'auth.invitationDescription': 'Lengkapi password Anda untuk menerima undangan akses ke ArtisanCode.',
+    'auth.loadingInvitation': 'Memuat detail undangan...',
+    'auth.acceptInvitation': 'Terima undangan',
+    'auth.acceptingInvitation': 'Menerima undangan...',
+    'auth.invitationAccepted': 'Undangan berhasil diterima. Silakan lanjut login.',
+    'auth.invitationMissingToken': 'Token undangan tidak ditemukan',
+    'auth.invitationPreviewFailed': 'Gagal memuat detail undangan',
+    'auth.invitationAcceptFailed': 'Gagal menerima undangan',
+    'auth.fullNameRequired': 'Nama lengkap wajib diisi',
     'layout.close': 'Tutup',
     'layout.dashboard': 'Dashboard',
     'layout.resources': 'Resource',
@@ -510,6 +530,16 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'auth.openEmailApp': 'Open email app',
     'auth.spamFolderHint': 'Tip: check spam, updates, or promotions if the message does not show up after a few minutes.',
     'auth.resendInCountdown': 'Resend in {seconds}s',
+    'auth.invitationTitle': 'Activate your invited access',
+    'auth.invitationDescription': 'Finish setting your password to accept this ArtisanCode invitation.',
+    'auth.loadingInvitation': 'Loading invitation details...',
+    'auth.acceptInvitation': 'Accept invitation',
+    'auth.acceptingInvitation': 'Accepting invitation...',
+    'auth.invitationAccepted': 'Invitation accepted successfully. Continue to login.',
+    'auth.invitationMissingToken': 'Invitation token is missing',
+    'auth.invitationPreviewFailed': 'Failed to load invitation details',
+    'auth.invitationAcceptFailed': 'Failed to accept invitation',
+    'auth.fullNameRequired': 'Full name is required',
     'layout.close': 'Close',
     'layout.dashboard': 'Dashboard',
     'layout.resources': 'Resources',

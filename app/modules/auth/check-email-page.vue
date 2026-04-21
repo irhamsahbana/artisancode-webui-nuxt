@@ -18,8 +18,16 @@ let resendCountdownTimer: ReturnType<typeof setInterval> | null = null
 const email = computed(() => (
   typeof route.query.email === 'string' ? route.query.email : ''
 ))
+const tenantCode = computed(() => (
+  typeof route.query.tenant_code === 'string' ? route.query.tenant_code : ''
+))
 
-const resendDisabled = computed(() => isResending.value || !email.value || resendCountdown.value > 0)
+const resendDisabled = computed(() => (
+  isResending.value
+  || !email.value
+  || !tenantCode.value
+  || resendCountdown.value > 0
+))
 const resendLabel = computed(() => {
   if (isResending.value) {
     return t('auth.resendingVerificationEmail')
@@ -70,7 +78,10 @@ const resend = async () => {
   isResending.value = true
 
   try {
-    const response = await resendVerificationEmail(email.value)
+    const response = await resendVerificationEmail({
+      email: email.value,
+      tenant_code: tenantCode.value,
+    })
     if (!response.success) {
       errorMessage.value = response.message
       if (response.meta?.retryAfterSeconds) {
@@ -89,7 +100,10 @@ const resend = async () => {
 const goToLogin = async () => {
   await navigateTo({
     path: '/login',
-    query: email.value ? { email: email.value } : undefined,
+    query: {
+      email: email.value || undefined,
+      tenant_code: tenantCode.value || undefined,
+    },
   })
 }
 

@@ -17,15 +17,158 @@ const registerDescription = computed(() =>
     : `Set up your organization on ${appName.value}`,
 )
 
+type RegisterFieldName =
+  | 'language'
+  | 'tenant_name'
+  | 'tenant_code'
+  | 'name'
+  | 'username'
+  | 'email'
+  | 'password'
+
 const form = reactive({
   name: '',
   username: '',
   email: '',
   password: '',
+  confirmPassword: '',
   tenant_code: '',
   tenant_name: '',
   language: locale.value,
 })
+
+const fieldErrors = reactive<Record<RegisterFieldName, string>>({
+  language: '',
+  tenant_name: '',
+  tenant_code: '',
+  name: '',
+  username: '',
+  email: '',
+  password: '',
+})
+
+const genericFailureMessage = computed(() =>
+  locale.value === 'id'
+    ? 'Permintaan Anda gagal diproses'
+    : 'Your request has failed to process',
+)
+
+const localizedFieldLabels = computed<Record<RegisterFieldName, string>>(() => ({
+  language: t('common.language'),
+  tenant_name: t('auth.tenantName'),
+  tenant_code: t('auth.tenantCode'),
+  name: t('auth.fullName'),
+  username: t('auth.username'),
+  email: t('auth.email'),
+  password: t('auth.password'),
+}))
+
+const fieldAliases: Record<string, RegisterFieldName> = {
+  code: 'tenant_code',
+  tenant_code: 'tenant_code',
+  tenant_name: 'tenant_name',
+  language: 'language',
+  name: 'name',
+  username: 'username',
+  email: 'email',
+  password: 'password',
+}
+
+const clearFieldError = (field: RegisterFieldName) => {
+  fieldErrors[field] = ''
+}
+
+const resetErrors = () => {
+  errorMessage.value = ''
+  clearFieldError('language')
+  clearFieldError('tenant_name')
+  clearFieldError('tenant_code')
+  clearFieldError('name')
+  clearFieldError('username')
+  clearFieldError('email')
+  clearFieldError('password')
+}
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+const localizeServerMessage = (message: string, field?: RegisterFieldName) => {
+  let formatted = message
+
+  const replacements = [
+    ['tenant code', localizedFieldLabels.value.tenant_code],
+    ['tenant name', localizedFieldLabels.value.tenant_name],
+    ['username', localizedFieldLabels.value.username],
+    ['password', localizedFieldLabels.value.password],
+    ['language', localizedFieldLabels.value.language],
+    ['email', localizedFieldLabels.value.email],
+    ['name', localizedFieldLabels.value.name],
+    ['code', localizedFieldLabels.value.tenant_code],
+  ] as const
+
+  const placeholders = new Map<string, string>()
+
+  replacements.forEach(([source], index) => {
+    const placeholder = `__FIELD_${index}__`
+    placeholders.set(placeholder, '')
+    formatted = formatted.replace(new RegExp(`\\b${escapeRegExp(source)}\\b`, 'gi'), placeholder)
+  })
+
+  for (const [source, target] of replacements) {
+    const placeholder = [...placeholders.keys()].shift()
+    if (!placeholder) {
+      continue
+    }
+    placeholders.delete(placeholder)
+    formatted = formatted.replace(new RegExp(escapeRegExp(placeholder), 'g'), target)
+  }
+
+  if (!field) {
+    return formatted
+  }
+
+  const label = localizedFieldLabels.value[field]
+  const fallbackPatterns: Partial<Record<RegisterFieldName, RegExp>> = {
+    tenant_code: /\bcode\b/gi,
+    tenant_name: /\bname\b/gi,
+  }
+
+  const fallbackPattern = fallbackPatterns[field]
+  if (fallbackPattern && !formatted.includes(label)) {
+    formatted = formatted.replace(fallbackPattern, label)
+  }
+
+  return formatted
+}
+
+const applyServerErrors = (errors: unknown) => {
+  if (!errors || typeof errors !== 'object' || Array.isArray(errors)) {
+    return false
+  }
+
+  let hasMappedFieldError = false
+
+  for (const [rawKey, rawValue] of Object.entries(errors as Record<string, unknown>)) {
+    const field = fieldAliases[rawKey]
+    if (!field) {
+      continue
+    }
+
+    const messages = Array.isArray(rawValue)
+      ? rawValue.filter((item): item is string => typeof item === 'string' && item.length > 0)
+      : typeof rawValue === 'string' && rawValue.length > 0
+        ? [rawValue]
+        : []
+
+    if (messages.length === 0) {
+      continue
+    }
+
+    fieldErrors[field] = localizeServerMessage(messages[0] || '', field)
+    hasMappedFieldError = true
+  }
+
+  return hasMappedFieldError
+}
 
 // Ensure tenant code is always uppercase alphanumeric
 watch(() => form.tenant_code, (newVal) => {
@@ -35,11 +178,20 @@ watch(() => form.tenant_code, (newVal) => {
   if (cleaned !== newVal) {
     form.tenant_code = cleaned
   }
+
+  clearFieldError('tenant_code')
 })
 
 watch(locale, (newLocale) => {
   form.language = newLocale
+  clearFieldError('language')
 })
+
+watch(() => form.tenant_name, () => clearFieldError('tenant_name'))
+watch(() => form.name, () => clearFieldError('name'))
+watch(() => form.username, () => clearFieldError('username'))
+watch(() => form.email, () => clearFieldError('email'))
+watch(() => form.password, () => clearFieldError('password'))
 
 // Client-side password strength feedback
 const passwordChecks = computed(() => ({
@@ -71,19 +223,37 @@ const passwordStrengthColor = computed(() => {
   return 'bg-green-500'
 })
 
+const passwordsMatch = computed(() =>
+  form.confirmPassword.length > 0 && form.password === form.confirmPassword,
+)
+
+const showPasswordMismatch = computed(() =>
+  form.confirmPassword.length > 0 && !passwordsMatch.value,
+)
+
 const submit = async () => {
-  errorMessage.value = ''
+  resetErrors()
+  if (showPasswordMismatch.value) {
+    errorMessage.value = t('auth.passwordMismatch')
+    return
+  }
+
   isLoading.value = true
   try {
-    const response = await register({ ...form })
+    const { confirmPassword: _confirmPassword, ...payload } = form
+    const response = await register(payload)
     if (!response.success) {
-      errorMessage.value = response.message
+      const hasFieldErrors = applyServerErrors(response.errors)
+      if (!hasFieldErrors || (response.message && response.message !== genericFailureMessage.value)) {
+        errorMessage.value = response.message ? localizeServerMessage(response.message) : ''
+      }
     }
     if (response.success) {
       await navigateTo({
         path: '/auth/check-email',
         query: {
           email: form.email,
+          tenant_code: form.tenant_code,
         },
       })
     }
@@ -130,6 +300,12 @@ const submit = async () => {
             :options="localeOptions"
             @update:model-value="setLocale(($event || 'id') as 'id' | 'en')"
           />
+          <p
+            v-if="fieldErrors.language"
+            class="text-xs font-medium text-destructive dark:text-red-300"
+          >
+            {{ fieldErrors.language }}
+          </p>
         </div>
         <!-- Tenant section -->
         <div class="space-y-3 rounded-lg border border-border/50 bg-muted/30 p-4">
@@ -146,6 +322,12 @@ const submit = async () => {
                 v-model="form.tenant_name"
                 placeholder="My Company"
               />
+              <p
+                v-if="fieldErrors.tenant_name"
+                class="text-xs font-medium text-destructive dark:text-red-300"
+              >
+                {{ fieldErrors.tenant_name }}
+              </p>
             </div>
             <div class="space-y-2">
               <Label for="register-tenant-code">
@@ -157,7 +339,13 @@ const submit = async () => {
                 placeholder="MYCOMP"
                 maxlength="5"
               />
-              <p class="text-xs text-muted-foreground">
+              <p
+                v-if="fieldErrors.tenant_code"
+                class="text-xs font-medium text-destructive dark:text-red-300"
+              >
+                {{ fieldErrors.tenant_code }}
+              </p>
+              <p class="text-xs text-muted-foreground dark:text-slate-300">
                 {{ t('auth.tenantCodeHint') }}
               </p>
             </div>
@@ -176,6 +364,12 @@ const submit = async () => {
                 v-model="form.name"
                 placeholder="John Doe"
               />
+              <p
+                v-if="fieldErrors.name"
+                class="text-xs font-medium text-destructive dark:text-red-300"
+              >
+                {{ fieldErrors.name }}
+              </p>
             </div>
             <div class="space-y-2">
               <Label for="register-username">
@@ -186,20 +380,29 @@ const submit = async () => {
                 v-model="form.username"
                 placeholder="johndoe"
               />
+              <p
+                v-if="fieldErrors.username"
+                class="text-xs font-medium text-destructive dark:text-red-300"
+              >
+                {{ fieldErrors.username }}
+              </p>
             </div>
           </div>
           <div class="space-y-2">
             <Label for="register-email">
-              {{ t('auth.businessEmail') }}
+              {{ t('auth.email') }}
             </Label>
             <Input
               id="register-email"
               v-model="form.email"
               type="email"
-              placeholder="you@company.com"
+              placeholder="you@example.com"
             />
-            <p class="text-xs text-muted-foreground">
-              {{ t('auth.businessEmailHint') }}
+            <p
+              v-if="fieldErrors.email"
+              class="text-xs font-medium text-destructive dark:text-red-300"
+            >
+              {{ fieldErrors.email }}
             </p>
           </div>
           <div class="space-y-2">
@@ -213,6 +416,12 @@ const submit = async () => {
               placeholder="••••••••"
               @keyup.enter="submit"
             />
+            <p
+              v-if="fieldErrors.password"
+              class="text-xs font-medium text-destructive dark:text-red-300"
+            >
+              {{ fieldErrors.password }}
+            </p>
             <!-- Password strength indicator -->
             <div
               v-if="form.password.length > 0"
@@ -255,11 +464,29 @@ const submit = async () => {
               </ul>
             </div>
           </div>
+          <div class="space-y-2">
+            <Label for="register-confirm-password">
+              {{ t('auth.confirmPassword') }}
+            </Label>
+            <Input
+              id="register-confirm-password"
+              v-model="form.confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              @keyup.enter="submit"
+            />
+            <p
+              v-if="showPasswordMismatch"
+              class="text-xs font-medium text-destructive dark:text-red-300"
+            >
+              {{ t('auth.passwordMismatch') }}
+            </p>
+          </div>
         </div>
 
         <div
           v-if="errorMessage"
-          class="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          class="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive dark:border-red-400/30 dark:bg-red-500/15 dark:text-red-200"
         >
           {{ errorMessage }}
         </div>
@@ -268,7 +495,7 @@ const submit = async () => {
         <Button
           id="register-submit"
           class="w-full"
-          :disabled="isLoading"
+          :disabled="isLoading || showPasswordMismatch"
           @click="submit"
         >
           <span

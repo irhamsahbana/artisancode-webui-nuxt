@@ -14,7 +14,10 @@ import { formatIsoDateValue, resolveDateLocale } from "~/utils/date-time";
 type Column = {
   key: string;
   label: string;
-  format?: (value: unknown, row: Record<string, unknown>) => string;
+  format?: (
+    value: unknown,
+    row: Record<string, unknown>
+  ) => string | { label: string; class?: string };
 };
 
 const props = withDefaults(
@@ -104,6 +107,42 @@ const formatCellValue = (value: unknown) => {
   }
 
   return String(value);
+};
+
+const renderFormattedCell = (
+  column: Column,
+  row: Record<string, unknown>
+) => {
+  const rawValue = row[column.key];
+  if (!column.format) {
+    return {
+      kind: "text" as const,
+      value: formatCellValue(rawValue),
+      class: "",
+    };
+  }
+
+  const formatted = column.format(rawValue, row);
+  if (
+    formatted &&
+    typeof formatted === "object" &&
+    "label" in formatted &&
+    typeof formatted.label === "string"
+  ) {
+    return {
+      kind: "badge" as const,
+      value: formatted.label,
+      class:
+        formatted.class ??
+        "border-border/70 bg-muted/40 text-foreground",
+    };
+  }
+
+  return {
+    kind: "text" as const,
+    value: typeof formatted === "string" ? formatted : formatCellValue(rawValue),
+    class: "",
+  };
 };
 
 const getRowKey = (row: Record<string, unknown>, index: number) => {
@@ -302,11 +341,19 @@ watch(
                 {{ primaryColumn.label }}
               </div>
               <div class="break-words text-base font-semibold text-foreground">
-                {{
-                  primaryColumn.format
-                    ? primaryColumn.format(row[primaryColumn.key], row)
-                    : formatCellValue(row[primaryColumn.key])
-                }}
+                <template
+                  v-if="renderFormattedCell(primaryColumn, row).kind === 'badge'"
+                >
+                  <span
+                    class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium"
+                    :class="renderFormattedCell(primaryColumn, row).class"
+                  >
+                    {{ renderFormattedCell(primaryColumn, row).value }}
+                  </span>
+                </template>
+                <template v-else>
+                  {{ renderFormattedCell(primaryColumn, row).value }}
+                </template>
               </div>
             </div>
             <dl class="mt-4 space-y-3">
@@ -319,12 +366,19 @@ watch(
                   {{ column.label }}
                 </dt>
                 <dd class="break-words text-sm text-foreground">
-                  <span v-if="column.format">
-                    {{ column.format(row[column.key], row) }}
-                  </span>
-                  <span v-else>
-                    {{ formatCellValue(row[column.key]) }}
-                  </span>
+                  <template
+                    v-if="renderFormattedCell(column, row).kind === 'badge'"
+                  >
+                    <span
+                      class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium"
+                      :class="renderFormattedCell(column, row).class"
+                    >
+                      {{ renderFormattedCell(column, row).value }}
+                    </span>
+                  </template>
+                  <template v-else>
+                    {{ renderFormattedCell(column, row).value }}
+                  </template>
                 </dd>
               </div>
             </dl>
@@ -418,12 +472,19 @@ watch(
               v-for="column in localizedColumns"
               :key="column.key"
             >
-              <span v-if="column.format">
-                {{ column.format(row[column.key], row) }}
-              </span>
-              <span v-else>
-                {{ formatCellValue(row[column.key]) }}
-              </span>
+              <template
+                v-if="renderFormattedCell(column, row).kind === 'badge'"
+              >
+                <span
+                  class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium"
+                  :class="renderFormattedCell(column, row).class"
+                >
+                  {{ renderFormattedCell(column, row).value }}
+                </span>
+              </template>
+              <template v-else>
+                {{ renderFormattedCell(column, row).value }}
+              </template>
             </TableCell>
             <TableCell
               v-if="hasActions"

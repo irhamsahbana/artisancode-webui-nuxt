@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Building2, ClipboardList, LayoutGrid, MapPin, Menu, MoonStar, ShieldCheck, SunMedium, UserRound, Users, BriefcaseBusiness, Clock3, X } from 'lucide-vue-next'
+import { Building2, ClipboardList, LayoutGrid, MapPin, Menu, MoonStar, ShieldCheck, SunMedium, Users, BriefcaseBusiness, Clock3, X } from 'lucide-vue-next'
 
 defineOptions({ name: "DefaultLayout" });
 
@@ -21,7 +21,6 @@ const navGroups = computed(() => [
   {
     title: t("layout.resources"),
     items: [
-      { label: t("layout.users"), to: "/resources/users", icon: UserRound },
       { label: t("layout.companies"), to: "/resources/companies", icon: Building2 },
       { label: t("layout.employees"), to: "/resources/employees", icon: Users },
       { label: t("layout.attendanceLogs"), to: "/resources/attendance-logs", icon: ClipboardList },
