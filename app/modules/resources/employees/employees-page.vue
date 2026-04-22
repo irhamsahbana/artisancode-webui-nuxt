@@ -18,6 +18,31 @@ type InvitationResponse = {
   id: string
   accept_token: string
   expires_at: string
+  email_sent: boolean
+}
+
+type InvitationListItem = {
+  id: string
+  employee_id?: string | null
+  email: string
+  role_code: string
+  status: string
+  expires_at: string
+  last_sent_at: string
+}
+
+type InvitationListResponse = {
+  items: InvitationListItem[]
+}
+
+type CreateEmployeeResponse = {
+  id: string
+}
+
+type InviteEmployeeTarget = {
+  id: string
+  full_name: string
+  email: string
 }
 
 const formatJoinDateForTable = (value: unknown) => {
@@ -92,8 +117,11 @@ const modalLoading = ref(false)
 const submitLoading = ref(false)
 const inviteModalOpen = ref(false)
 const inviteLoading = ref(false)
-const inviteEmployee = ref<{ id: string; full_name: string; email: string } | null>(null)
+const inviteMetaLoading = ref(false)
+const inviteEmployee = ref<InviteEmployeeTarget | null>(null)
 const inviteResult = ref<InvitationResponse | null>(null)
+const inviteSummary = ref<InvitationListItem | null>(null)
+const inviteSource = ref<'manual' | 'after-create' | 'manage'>('manual')
 
 const form = ref({
   id: '',
@@ -200,6 +228,7 @@ const closeModal = () => {
 }
 
 const openInviteModal = (row: Record<string, unknown>) => {
+  inviteSource.value = 'manual'
   inviteEmployee.value = {
     id: String(row.id ?? ''),
     full_name: String(row.full_name ?? ''),
@@ -212,8 +241,19 @@ const openInviteModal = (row: Record<string, unknown>) => {
 const closeInviteModal = () => {
   inviteModalOpen.value = false
   inviteLoading.value = false
+  inviteMetaLoading.value = false
   inviteEmployee.value = null
   inviteResult.value = null
+  inviteSummary.value = null
+  inviteSource.value = 'manual'
+}
+
+const openInviteModalForEmployee = (employee: InviteEmployeeTarget, source: 'manual' | 'after-create' | 'manage' = 'manual') => {
+  inviteSource.value = source
+  inviteEmployee.value = employee
+  inviteResult.value = null
+  inviteSummary.value = null
+  inviteModalOpen.value = true
 }
 
 const invitationLink = computed(() => {
@@ -222,6 +262,43 @@ const invitationLink = computed(() => {
   }
 
   return `${appOrigin.value}/auth/invitation?token=${encodeURIComponent(inviteResult.value.accept_token)}`
+})
+
+const inviteEmailSent = computed(() => inviteResult.value?.email_sent === true)
+const showManualInviteFallback = computed(() => Boolean(inviteResult.value) && !inviteEmailSent.value)
+
+const invitationMessage = computed(() => {
+  if (!inviteEmployee.value || !invitationLink.value) {
+    return ''
+  }
+
+  if (locale.value === 'id') {
+    return [
+      `Halo ${inviteEmployee.value.full_name},`,
+      '',
+      'Akses login Anda sudah siap.',
+      'Silakan buka link aktivasi berikut untuk membuat kata sandi dan mulai masuk ke aplikasi:',
+      invitationLink.value,
+    ].join('\n')
+  }
+
+  return [
+    `Hello ${inviteEmployee.value.full_name},`,
+    '',
+    'Your login access is ready.',
+    'Open the activation link below to create your password and sign in:',
+    invitationLink.value,
+  ].join('\n')
+})
+
+const canInviteEmployee = (row: Record<string, unknown>) => String(row.access_status ?? 'no_access') === 'no_access'
+const hasPendingInvitation = (row: Record<string, unknown>) => String(row.access_status ?? 'no_access') === 'invited'
+const invitePrimaryActionLabel = computed(() => {
+  if (inviteSource.value === 'manage') {
+    return uiText('Resend invitation email')
+  }
+
+  return uiText('Send invitation email')
 })
 
 const copyToClipboard = async (value: string, successMessage: string) => {
@@ -238,19 +315,19 @@ const accessStatusMeta = (value: unknown): { label: string; class: string } => {
   const status = String(value ?? 'no_access')
   if (status === 'active') {
     return {
-      label: uiText('Active'),
+      label: uiText('Access Active'),
       class: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-200',
     }
   }
   if (status === 'invited') {
     return {
-      label: uiText('Invited'),
+      label: uiText('Invitation Pending'),
       class: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-200',
     }
   }
 
   return {
-    label: uiText('No Access'),
+    label: uiText('Access Not Sent'),
     class: 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-200',
   }
 }
@@ -290,10 +367,6 @@ const handleSubmit = async () => {
     show(uiText('Work shift is required'), 'error')
     return
   }
-  if (modalMode.value === 'create' && form.value.password.trim() && form.value.password.trim().length < 8) {
-    show(uiText('Password must be at least 8 characters'), 'error')
-    return
-  }
   if (modalMode.value === 'edit' && form.value.password.trim() && form.value.password.trim().length < 8) {
     show(uiText('Password must be at least 8 characters'), 'error')
     return
@@ -302,13 +375,23 @@ const handleSubmit = async () => {
   submitLoading.value = true
 
   if (modalMode.value === 'create') {
-    const resp = await apiFetch('/employees', {
+    const createdEmployee = {
+      id: '',
+      full_name: form.value.full_name.trim(),
+      email: form.value.email.trim(),
+    }
+
+    const resp = await apiFetch<CreateEmployeeResponse>('/employees', {
       method: 'POST',
       body: buildPayload(),
     })
     if (resp.success) {
       show(uiText('Employee created successfully'), 'success')
+      createdEmployee.id = String(resp.data?.id ?? '')
       closeModal()
+      if (createdEmployee.id) {
+        openInviteModalForEmployee(createdEmployee, 'after-create')
+      }
       triggerRefresh()
     }
   } else {
@@ -350,7 +433,101 @@ const handleInviteEmployee = async () => {
   }
 
   inviteResult.value = response.data
-  show(uiText('Employee invitation created successfully'), 'success')
+  show(
+    uiText(response.data.email_sent ? 'Invitation email sent successfully' : 'Employee invitation created successfully'),
+    'success',
+  )
+  await loadPendingInvitationSummary()
+}
+
+const loadPendingInvitationSummary = async () => {
+  if (!inviteEmployee.value?.id) {
+    inviteSummary.value = null
+    return
+  }
+
+  inviteMetaLoading.value = true
+  const response = await apiFetch<InvitationListResponse>('/user-invitations', {
+    query: {
+      employee_ids: inviteEmployee.value.id,
+      role_code: 'employee',
+      status: 'pending',
+      page: 1,
+      paginate: 1,
+    },
+  })
+  inviteMetaLoading.value = false
+
+  if (!response.success || !response.data) {
+    inviteSummary.value = null
+    return
+  }
+
+  inviteSummary.value = response.data.items?.[0] ?? null
+}
+
+const openManageInviteModal = async (row: Record<string, unknown>) => {
+  openInviteModalForEmployee({
+    id: String(row.id ?? ''),
+    full_name: String(row.full_name ?? ''),
+    email: String(row.email ?? ''),
+  }, 'manage')
+  await loadPendingInvitationSummary()
+}
+
+const handlePrimaryInviteAction = async () => {
+  if (inviteSource.value === 'manage') {
+    await handleResendInvitation()
+    return
+  }
+
+  await handleInviteEmployee()
+}
+
+const handleResendInvitation = async () => {
+  if (!inviteSummary.value?.id) {
+    return
+  }
+
+  inviteLoading.value = true
+  const response = await apiFetch<InvitationResponse>(`/user-invitations/${inviteSummary.value.id}/resend`, {
+    method: 'POST',
+  })
+  inviteLoading.value = false
+
+  if (!response.success || !response.data) {
+    return
+  }
+
+  inviteResult.value = response.data
+  show(
+    uiText(response.data.email_sent ? 'Invitation email resent successfully' : 'Invitation resent successfully'),
+    'success',
+  )
+  await loadPendingInvitationSummary()
+  triggerRefresh()
+}
+
+const handleRevokeInvitation = async () => {
+  if (!inviteSummary.value?.id) {
+    return
+  }
+
+  inviteLoading.value = true
+  const response = await apiFetch(`/user-invitations/${inviteSummary.value.id}/revoke`, {
+    method: 'POST',
+  })
+  inviteLoading.value = false
+
+  if (!response.success) {
+    return
+  }
+
+  inviteResult.value = null
+  inviteSummary.value = null
+  show(uiText('Invitation revoked successfully'), 'success')
+  triggerRefresh()
+  closeInviteModal()
 }
 </script>
 
@@ -367,6 +544,7 @@ const handleInviteEmployee = async () => {
     <template #header-actions>
       <Button
         size="sm"
+        class="rounded-xl"
         @click="openCreateModal"
       >
         + {{ uiText('Add Employee') }}
@@ -375,10 +553,18 @@ const handleInviteEmployee = async () => {
 
     <template #row-actions="{ row, close }">
       <button
+        v-if="canInviteEmployee(row)"
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openInviteModal(row)"
       >
-        {{ uiText('Invite Access') }}
+        {{ uiText('Send Access') }}
+      </button>
+      <button
+        v-if="hasPendingInvitation(row)"
+        class="w-full rounded px-3 py-2 text-left hover:bg-accent"
+        @click="close(); openManageInviteModal(row)"
+      >
+        {{ uiText('Manage Access') }}
       </button>
       <button
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
@@ -396,7 +582,7 @@ const handleInviteEmployee = async () => {
     <FormDialogShell
       max-width-class="max-w-lg"
       :title="modalMode === 'create' ? uiText('Add Employee') : uiText('Edit Employee')"
-      :description="uiText('Keep employee identity, assignment, and attendance setup aligned.')"
+      :description="modalMode === 'create' ? '' : uiText('Keep employee identity, assignment, and attendance setup aligned.')"
       @close="closeModal"
     >
       <div
@@ -445,15 +631,15 @@ const handleInviteEmployee = async () => {
           />
         </div>
 
-        <div>
+        <div v-if="modalMode === 'edit'">
           <Label for="emp-password">
-            {{ modalMode === 'create' ? uiText('Password') : uiText('Reset Password') }}
+            {{ uiText('Reset Password') }}
           </Label>
           <Input
             id="emp-password"
             v-model="form.password"
             type="password"
-            :placeholder="modalMode === 'create' ? uiText('Optional, min. 8 characters') : uiText('Optional, leave blank to keep current password')"
+            :placeholder="uiText('Optional, leave blank to keep current password')"
             class="mt-1"
           />
         </div>
@@ -556,8 +742,8 @@ const handleInviteEmployee = async () => {
   <div v-if="inviteModalOpen">
     <FormDialogShell
       max-width-class="max-w-lg"
-      :title="uiText('Invite Employee Access')"
-      :description="uiText('Create a login invitation for this employee without opening the generic users menu.')"
+      :title="inviteSource === 'manage' ? uiText('Manage Access') : uiText('Send Access')"
+      :description="''"
       @close="closeInviteModal"
     >
       <div class="space-y-4">
@@ -571,36 +757,101 @@ const handleInviteEmployee = async () => {
         </div>
 
         <div
+          v-if="inviteSource === 'manage'"
+          class="rounded-2xl border border-border/70 bg-background/90 px-4 py-4 text-sm"
+        >
+          <div
+            v-if="inviteMetaLoading"
+            class="text-muted-foreground"
+          >
+            {{ uiText('Loading invitation status...') }}
+          </div>
+          <div
+            v-else-if="inviteSummary"
+            class="space-y-2"
+          >
+            <div class="font-medium text-foreground">
+              {{ uiText('Invitation email is pending') }}
+            </div>
+            <div class="text-muted-foreground">
+              {{ uiText('Resend the email to deliver a fresh access link, or revoke it if this employee should not receive access right now.') }}
+            </div>
+            <div class="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+              <div>{{ uiText('Last sent at') }}: {{ inviteSummary.last_sent_at || '-' }}</div>
+              <div>{{ uiText('Expires at') }}: {{ inviteSummary.expires_at || '-' }}</div>
+            </div>
+          </div>
+          <div
+            v-else
+            class="text-muted-foreground"
+          >
+            {{ uiText('No active invitation was found for this employee.') }}
+          </div>
+        </div>
+
+        <div
           v-if="inviteResult"
           class="space-y-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 p-4 text-sm dark:border-emerald-900/60 dark:bg-emerald-950/20"
         >
           <div class="font-medium text-emerald-900 dark:text-emerald-100">
-            {{ uiText('Invitation token is ready') }}
+            {{ uiText(inviteEmailSent ? 'Invitation email is on its way' : 'Activation link is ready') }}
           </div>
-          <div class="text-emerald-800 dark:text-emerald-200">
-            {{ uiText('Email delivery is not wired yet, so keep this token for the acceptance flow.') }}
+          <div
+            v-if="inviteEmailSent"
+            class="text-emerald-800 dark:text-emerald-200"
+          >
+            {{ uiText('We sent the activation email to this employee. They can set their password directly from their inbox.') }}
           </div>
-          <div class="space-y-1">
-            <Label for="employee-invitation-token">{{ uiText('Invitation token') }}</Label>
-            <Input
-              id="employee-invitation-token"
-              :model-value="inviteResult.accept_token"
-              readonly
-            />
-          </div>
-          <div class="space-y-1">
-            <Label for="employee-invitation-link">{{ uiText('Invitation link') }}</Label>
-            <Input
-              id="employee-invitation-link"
-              :model-value="invitationLink"
-              readonly
-            />
+          <div
+            v-else
+            class="text-emerald-800 dark:text-emerald-200"
+          >
+            {{ uiText('Email could not be sent automatically yet. Use the backup link below if you still need to share access manually.') }}
           </div>
           <div class="text-xs text-emerald-800/80 dark:text-emerald-200/80">
             {{ uiText('Expires at') }}: {{ inviteResult.expires_at }}
           </div>
+          <div
+            v-if="showManualInviteFallback"
+            class="space-y-3"
+          >
+            <div class="space-y-1">
+              <Label for="employee-invitation-token">{{ uiText('Invitation token') }}</Label>
+              <Input
+                id="employee-invitation-token"
+                :model-value="inviteResult.accept_token"
+                readonly
+              />
+            </div>
+            <div class="space-y-1">
+              <Label for="employee-invitation-link">{{ uiText('Invitation link') }}</Label>
+              <Input
+                id="employee-invitation-link"
+                :model-value="invitationLink"
+                readonly
+              />
+            </div>
+          </div>
           <div class="flex flex-wrap gap-2">
             <Button
+              v-if="showManualInviteFallback"
+              size="sm"
+              class="rounded-xl"
+              @click="copyToClipboard(invitationLink, 'Invitation link copied')"
+            >
+              {{ uiText('Copy activation link') }}
+            </Button>
+            <Button
+              v-if="showManualInviteFallback"
+              variant="outline"
+              size="sm"
+              class="rounded-xl"
+              @click="copyToClipboard(invitationMessage, 'Invitation message copied')"
+            >
+              {{ uiText('Copy invitation message') }}
+            </Button>
+            <Button
+              v-if="showManualInviteFallback"
               variant="outline"
               size="sm"
               class="rounded-xl"
@@ -608,18 +859,20 @@ const handleInviteEmployee = async () => {
             >
               {{ uiText('Copy token') }}
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              class="rounded-xl"
-              @click="copyToClipboard(invitationLink, 'Invitation link copied')"
-            >
-              {{ uiText('Copy invitation link') }}
-            </Button>
           </div>
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
+          <Button
+            v-if="inviteSource === 'manage' && inviteSummary"
+            variant="destructive"
+            size="sm"
+            class="mr-auto rounded-xl"
+            :disabled="inviteLoading || inviteMetaLoading"
+            @click="handleRevokeInvitation"
+          >
+            {{ uiText('Revoke Invitation') }}
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -632,10 +885,10 @@ const handleInviteEmployee = async () => {
           <Button
             size="sm"
             class="rounded-xl"
-            :disabled="inviteLoading"
-            @click="handleInviteEmployee"
+            :disabled="inviteLoading || (inviteSource === 'manage' && !inviteSummary)"
+            @click="handlePrimaryInviteAction"
           >
-            {{ inviteLoading ? uiText('Sending...') : uiText('Create Invitation') }}
+            {{ inviteLoading ? uiText('Sending...') : invitePrimaryActionLabel }}
           </Button>
         </div>
       </div>

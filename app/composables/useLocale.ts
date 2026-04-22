@@ -133,6 +133,10 @@ type LocaleMessageKey =
   | 'layout.workShifts'
   | 'layout.rolesPermissions'
   | 'layout.signedIn'
+  | 'layout.account'
+  | 'layout.preferences'
+  | 'layout.language'
+  | 'layout.logout'
   | 'layout.themeLight'
   | 'layout.themeDark'
   | 'api.requestFailed'
@@ -343,6 +347,10 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'layout.workShifts': 'Shift Kerja',
     'layout.rolesPermissions': 'Peran & Izin',
     'layout.signedIn': 'Masuk sebagai',
+    'layout.account': 'Akun',
+    'layout.preferences': 'Preferensi',
+    'layout.language': 'Bahasa',
+    'layout.logout': 'Keluar',
     'layout.themeLight': 'Terang',
     'layout.themeDark': 'Gelap',
     'api.requestFailed': 'Permintaan gagal',
@@ -552,6 +560,10 @@ const localeMessages: Record<AppLocale, Record<LocaleMessageKey, string>> = {
     'layout.workShifts': 'Work Shifts',
     'layout.rolesPermissions': 'Roles & Permissions',
     'layout.signedIn': 'Signed in',
+    'layout.account': 'Account',
+    'layout.preferences': 'Preferences',
+    'layout.language': 'Language',
+    'layout.logout': 'Log out',
     'layout.themeLight': 'Light',
     'layout.themeDark': 'Dark',
     'api.requestFailed': 'Request failed',

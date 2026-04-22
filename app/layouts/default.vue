@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Building2, ClipboardList, LayoutGrid, MapPin, Menu, MoonStar, ShieldCheck, SunMedium, Users, BriefcaseBusiness, Clock3, X } from 'lucide-vue-next'
+import { BriefcaseBusiness, Building2, ChevronRight, ClipboardList, Clock3, Languages, LayoutGrid, LogOut, MapPin, Menu, Palette, ShieldCheck, Users, X } from 'lucide-vue-next'
 
 defineOptions({ name: "DefaultLayout" });
 
@@ -9,8 +9,10 @@ const { user, token, logout } = useAuth();
 const isAuthPage = computed(
   () => route.path === "/login" || route.path === "/register"
 );
-const { locale, options: localeOptions, setLocale, t } = useLocale();
+const { locale, setLocale, t } = useLocale();
 const mobileNavOpen = ref(false);
+const desktopAccountMenuOpen = ref(false);
+const mobileAccountMenuOpen = ref(false);
 const appName = computed(() => runtimeConfig.public.appName || "ArtisanCode");
 
 const navGroups = computed(() => [
@@ -82,9 +84,14 @@ useHead(() => ({
 }))
 
 const localeBadge = (value: "id" | "en") =>
-  value === "id" ? "🇮🇩 ID" : "🇬🇧 EN";
+  value === "id" ? "Indonesia" : "English";
 
 const currentLocaleBadge = computed(() => localeBadge(locale.value));
+const userDisplayName = computed(() => user.value?.name || user.value?.username || appName.value);
+const userTenantName = computed(() => user.value?.tenant_name || t("layout.adminConsole"));
+const currentThemeLabel = computed(() =>
+  colorMode.preference === "dark" ? t("layout.themeDark") : t("layout.themeLight")
+);
 
 const switchLocale = (value: "id" | "en") => {
   if (locale.value !== value) {
@@ -92,10 +99,20 @@ const switchLocale = (value: "id" | "en") => {
   }
 };
 
+const toggleDesktopAccountMenu = () => {
+  desktopAccountMenuOpen.value = !desktopAccountMenuOpen.value;
+};
+
+const toggleMobileAccountMenu = () => {
+  mobileAccountMenuOpen.value = !mobileAccountMenuOpen.value;
+};
+
 watch(
   () => route.fullPath,
   () => {
     mobileNavOpen.value = false;
+    desktopAccountMenuOpen.value = false;
+    mobileAccountMenuOpen.value = false;
   }
 );
 </script>
@@ -196,12 +213,85 @@ watch(
               </nav>
             </section>
           </div>
+          <div
+            v-if="token"
+            class="border-t border-sidebar-border/70 bg-sidebar/92 px-4 pb-5 pt-4"
+          >
+            <div class="relative">
+              <Transition
+                enter-active-class="transition duration-250 ease-out"
+                enter-from-class="translate-y-3 scale-95 opacity-0"
+                enter-to-class="translate-y-0 scale-100 opacity-100"
+                leave-active-class="transition duration-180 ease-in"
+                leave-from-class="translate-y-0 scale-100 opacity-100"
+                leave-to-class="translate-y-2 scale-[0.98] opacity-0"
+              >
+                <div
+                  v-if="desktopAccountMenuOpen"
+                  class="absolute inset-x-0 bottom-full z-20 mb-2 origin-bottom rounded-[28px] border border-sidebar-border/60 bg-[linear-gradient(180deg,hsl(var(--sidebar-accent)/0.92),hsl(var(--sidebar)))] p-2 shadow-[0_28px_60px_-38px_rgba(2,6,23,0.98)] backdrop-blur-xl"
+                >
+                  <div class="space-y-1.5">
+                    <button
+                      type="button"
+                      class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
+                      @click="toggleTheme"
+                    >
+                      <span class="flex items-center gap-3">
+                        <Palette class="h-4 w-4 text-sidebar-foreground/55" />
+                        {{ t("layout.preferences") }}
+                      </span>
+                      <span class="text-xs text-sidebar-foreground/55">{{ currentThemeLabel }}</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
+                      @click="switchLocale(locale === 'id' ? 'en' : 'id')"
+                    >
+                      <span class="flex items-center gap-3">
+                        <Languages class="h-4 w-4 text-sidebar-foreground/55" />
+                        {{ t("layout.language") }}
+                      </span>
+                      <span class="text-xs text-sidebar-foreground/55">{{ currentLocaleBadge }}</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
+                      @click="logout"
+                    >
+                      <span class="flex items-center gap-3">
+                        <LogOut class="h-4 w-4 text-sidebar-foreground/55" />
+                        {{ t("layout.logout") }}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </Transition>
+              <div class="rounded-[28px] border border-sidebar-border/60 bg-sidebar-accent/72 p-2 shadow-[0_18px_40px_-34px_rgba(2,6,23,0.95)]">
+              <button
+                type="button"
+                class="flex w-full items-center gap-3 rounded-3xl bg-sidebar/92 px-3 py-3 text-left text-sidebar-foreground transition hover:bg-sidebar"
+                :aria-expanded="desktopAccountMenuOpen"
+                @click="toggleDesktopAccountMenu"
+              >
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-sidebar-primary/14 text-sm font-semibold text-sidebar-primary ring-1 ring-sidebar-border/50">
+                  {{ userDisplayName.slice(0, 1).toUpperCase() }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="truncate text-sm font-semibold">{{ userDisplayName }}</div>
+                  <div class="truncate text-xs text-sidebar-foreground/65">{{ userTenantName }}</div>
+                </div>
+                <ChevronRight
+                  class="h-4 w-4 shrink-0 text-sidebar-foreground/55 transition-transform duration-200"
+                  :class="{ '-rotate-90': desktopAccountMenuOpen }"
+                />
+              </button>
+              </div>
+            </div>
+          </div>
         </aside>
         <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
           <div class="sticky top-0 z-30 border-b border-border/70 bg-background/92 backdrop-blur-xl">
-            <div
-              class="flex min-h-[76px] items-center justify-between gap-4 px-4 py-4 md:px-6"
-            >
+            <div class="flex min-h-[76px] items-center gap-4 px-4 py-4 md:px-6">
               <div class="flex items-center gap-3">
                 <Button
                   class="md:hidden"
@@ -219,71 +309,6 @@ watch(
                   </div>
                   <div class="text-lg font-semibold tracking-tight">
                     {{ currentPageTitle }}
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-center justify-end gap-2">
-                <div class="hidden items-center gap-1 rounded-2xl border border-border/70 bg-card/80 p-1 shadow-sm sm:flex">
-                  <Button
-                    v-for="option in localeOptions"
-                    :key="option.value"
-                    variant="ghost"
-                    size="sm"
-                    class="h-8 rounded-xl px-3 text-xs font-semibold"
-                    :class="locale === option.value ? 'bg-accent text-accent-foreground shadow-sm' : 'text-muted-foreground'"
-                    @click="switchLocale(option.value)"
-                  >
-                    {{ localeBadge(option.value) }}
-                  </Button>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  class="hidden h-10 rounded-xl px-3 sm:inline-flex"
-                  @click="toggleTheme"
-                >
-                  <SunMedium
-                    v-if="colorMode.preference === 'dark'"
-                    class="mr-2 h-4 w-4"
-                  />
-                  <MoonStar
-                    v-else
-                    class="mr-2 h-4 w-4"
-                  />
-                  {{
-                    colorMode.preference === "dark"
-                      ? t("layout.themeLight")
-                      : t("layout.themeDark")
-                  }}
-                </Button>
-                <div
-                  v-if="token"
-                  class="hidden items-center gap-3 rounded-2xl border border-border/70 bg-card/80 px-3 py-2 shadow-sm lg:flex"
-                >
-                  <div class="grid text-right leading-tight">
-                    <span class="text-sm font-semibold">{{ user?.name || user?.username }}</span>
-                    <span class="text-xs text-muted-foreground">{{ user?.tenant_name }}</span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    class="h-9 rounded-xl px-3"
-                    @click="logout"
-                  >
-                    Logout
-                  </Button>
-                </div>
-                <div class="flex items-center gap-2 sm:hidden">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    class="h-10 rounded-xl px-3 text-xs font-semibold"
-                    @click="switchLocale(locale === 'id' ? 'en' : 'id')"
-                  >
-                    {{ currentLocaleBadge }}
-                  </Button>
-                  <div v-if="token">
-                    <AuthMenu />
                   </div>
                 </div>
               </div>
@@ -389,11 +414,78 @@ watch(
               </section>
             </div>
             <div class="border-t border-sidebar-border/70 bg-sidebar/96 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4">
-              <div class="rounded-3xl border border-sidebar-border/60 bg-sidebar-accent/70 p-4 shadow-[0_18px_40px_-34px_rgba(2,6,23,0.95)]">
-                <div class="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/45">
-                  {{ t("layout.signedIn") }}
+              <div
+                v-if="token"
+                class="relative"
+              >
+                <Transition
+                  enter-active-class="transition duration-250 ease-out"
+                  enter-from-class="translate-y-3 scale-95 opacity-0"
+                  enter-to-class="translate-y-0 scale-100 opacity-100"
+                  leave-active-class="transition duration-180 ease-in"
+                  leave-from-class="translate-y-0 scale-100 opacity-100"
+                  leave-to-class="translate-y-2 scale-[0.98] opacity-0"
+                >
+                  <div
+                    v-if="mobileAccountMenuOpen"
+                    class="absolute inset-x-0 bottom-full z-20 mb-2 origin-bottom rounded-3xl border border-sidebar-border/60 bg-[linear-gradient(180deg,hsl(var(--sidebar-accent)/0.94),hsl(var(--sidebar)))] p-2 shadow-[0_28px_60px_-38px_rgba(2,6,23,0.98)] backdrop-blur-xl"
+                  >
+                    <div class="space-y-1.5">
+                      <button
+                        type="button"
+                        class="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
+                        @click="toggleTheme"
+                      >
+                        <span class="flex items-center gap-3">
+                          <Palette class="h-4 w-4 text-sidebar-foreground/55" />
+                          {{ t("layout.preferences") }}
+                        </span>
+                        <span class="text-xs text-sidebar-foreground/55">{{ currentThemeLabel }}</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
+                        @click="switchLocale(locale === 'id' ? 'en' : 'id')"
+                      >
+                        <span class="flex items-center gap-3">
+                          <Languages class="h-4 w-4 text-sidebar-foreground/55" />
+                          {{ t("layout.language") }}
+                        </span>
+                        <span class="text-xs text-sidebar-foreground/55">{{ currentLocaleBadge }}</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
+                        @click="logout"
+                      >
+                        <span class="flex items-center gap-3">
+                          <LogOut class="h-4 w-4 text-sidebar-foreground/55" />
+                          {{ t("layout.logout") }}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </Transition>
+                <div class="rounded-3xl border border-sidebar-border/60 bg-sidebar-accent/70 p-2 shadow-[0_18px_40px_-34px_rgba(2,6,23,0.95)]">
+                  <button
+                    type="button"
+                    class="flex w-full items-center gap-3 rounded-3xl bg-sidebar/92 px-3 py-3 text-left text-sidebar-foreground transition hover:bg-sidebar"
+                    :aria-expanded="mobileAccountMenuOpen"
+                    @click="toggleMobileAccountMenu"
+                  >
+                    <div class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-sidebar-primary/14 text-sm font-semibold text-sidebar-primary ring-1 ring-sidebar-border/50">
+                      {{ userDisplayName.slice(0, 1).toUpperCase() }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="truncate text-sm font-semibold">{{ userDisplayName }}</div>
+                      <div class="truncate text-xs text-sidebar-foreground/65">{{ userTenantName }}</div>
+                    </div>
+                    <ChevronRight
+                      class="h-4 w-4 shrink-0 text-sidebar-foreground/55 transition-transform duration-200"
+                      :class="{ '-rotate-90': mobileAccountMenuOpen }"
+                    />
+                  </button>
                 </div>
-                <AuthMenu />
               </div>
             </div>
           </div>
