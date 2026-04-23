@@ -4,13 +4,13 @@ import { useAsyncData } from '#app'
 import type { ApiResponse, ListResponse, PaginationMeta } from '~/types/api'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'RolesPage' })
-const { locale } = useLocale()
-const uiText = (value: string) => localizeUiText(locale.value, value)
+const { locale, text: uiText } = useLocale()
 const { user } = useAuth()
+const { formatReadableDateTime } = useDateTime()
 const appOrigin = computed(() => (import.meta.client ? window.location.origin : ''))
+const PERMISSION_SEARCH_DEBOUNCE_MS = 600
 
 type PermissionItem = {
   id: string
@@ -289,7 +289,7 @@ watch(
     }
     permissionListQueryTimer = setTimeout(() => {
       permissionListQuery.value = value.trim()
-    }, 300)
+    }, PERMISSION_SEARCH_DEBOUNCE_MS)
   },
 )
 
@@ -301,7 +301,7 @@ watch(
     }
     createPermissionQueryTimer = setTimeout(() => {
       createPermissionQuery.value = value.trim()
-    }, 300)
+    }, PERMISSION_SEARCH_DEBOUNCE_MS)
   },
 )
 
@@ -313,7 +313,7 @@ watch(
     }
     editPermissionQueryTimer = setTimeout(() => {
       editPermissionQuery.value = value.trim()
-    }, 300)
+    }, PERMISSION_SEARCH_DEBOUNCE_MS)
   },
 )
 
@@ -538,6 +538,10 @@ const adminInvitationLink = computed(() => {
 
   return `${appOrigin.value}/auth/invitation?token=${encodeURIComponent(adminInviteResult.value.accept_token)}`
 })
+
+const formatInvitationDateTime = (value: string | null | undefined) => (
+  formatReadableDateTime(value, undefined, '-')
+)
 
 const copyToClipboard = async (value: string, successMessage: string) => {
   if (!value || !import.meta.client || !navigator.clipboard) {
@@ -872,7 +876,7 @@ const submitAdminInvite = async () => {
             />
           </div>
           <div class="text-xs text-emerald-800/80 dark:text-emerald-200/80">
-            {{ uiText('Expires at') }}: {{ adminInviteResult.expires_at }}
+            {{ uiText('Expires at') }}: {{ formatInvitationDateTime(adminInviteResult.expires_at) }}
           </div>
           <div class="flex flex-wrap gap-2">
             <Button

@@ -2,7 +2,6 @@
 import { computed, ref, watch } from 'vue'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { formatDateOnlyValue, parseIsoDateOnlyLocal, resolveDateLocale } from '~/utils/date-time'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'UiDateRangePicker' })
 
@@ -30,7 +29,7 @@ const emit = defineEmits<{
   'update:to': [value: string]
 }>()
 
-const { locale } = useLocale()
+const { locale, text } = useLocale()
 
 const open = ref(false)
 
@@ -84,7 +83,7 @@ const formatTriggerLabel = (from: string, to: string) => {
   return format(from || to)
 }
 
-const localizedPlaceholder = computed(() => localizeUiText(locale.value, props.placeholder))
+const localizedPlaceholder = computed(() => text(props.placeholder))
 const triggerLabel = computed(() => {
   if (!props.from && !props.to) {
     return localizedPlaceholder.value
@@ -177,7 +176,7 @@ const clearRange = () => {
       <button
         type="button"
         class="fixed inset-0 z-40 bg-transparent"
-        :aria-label="localizeUiText(locale, 'Close')"
+        :aria-label="text('Close')"
         @click="open = false"
       />
 
@@ -185,10 +184,10 @@ const clearRange = () => {
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
           <div>
             <div class="text-sm font-medium">
-              {{ localizeUiText(locale, 'Select date range') }}
+              {{ text('Select date range') }}
             </div>
             <div class="text-xs text-muted-foreground">
-              {{ localizeUiText(locale, 'Pick a start date, then an end date.') }}
+              {{ text('Pick a start date, then an end date.') }}
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -197,14 +196,14 @@ const clearRange = () => {
               size="sm"
               @click="clearRange"
             >
-              {{ localizeUiText(locale, 'Clear') }}
+              {{ text('Clear') }}
             </Button>
             <Button
               variant="ghost"
               size="sm"
               @click="open = false"
             >
-              {{ localizeUiText(locale, 'Close') }}
+              {{ text('Close') }}
             </Button>
           </div>
         </div>
@@ -305,10 +304,10 @@ const clearRange = () => {
 
         <div class="mt-4 flex flex-wrap items-center gap-2 border-t pt-3 text-xs text-muted-foreground">
           <span class="rounded-full border px-2 py-1">
-            {{ localizeUiText(locale, 'Start') }}: {{ props.from || '-' }}
+            {{ text('Start') }}: {{ props.from || '-' }}
           </span>
           <span class="rounded-full border px-2 py-1">
-            {{ localizeUiText(locale, 'End') }}: {{ props.to || '-' }}
+            {{ text('End') }}: {{ props.to || '-' }}
           </span>
         </div>
       </div>

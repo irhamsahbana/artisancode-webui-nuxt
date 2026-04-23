@@ -2,6 +2,7 @@
 import { useAuth } from '../composables/useAuth'
 
 const { token, user, logout } = useAuth()
+const localePath = useLocalePath()
 </script>
 
 <template>
@@ -31,7 +32,7 @@ const { token, user, logout } = useAuth()
     </Button>
     <NuxtLink
       v-else
-      to="/login"
+      :to="localePath('/login')"
       class="text-sm text-primary hover:underline"
     >
       Login

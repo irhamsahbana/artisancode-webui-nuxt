@@ -270,8 +270,11 @@ onBeforeUnmount(() => {
       <div class="flex gap-2">
         <input
           v-model="searchQuery"
+          name="map_location_search"
           type="text"
+          autocomplete="off"
           :placeholder="t('resource.searchLocation')"
+          :aria-label="t('resource.searchLocation')"
           class="h-9 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           @keydown.enter.prevent="searchLocation"
         >
@@ -282,7 +285,7 @@ onBeforeUnmount(() => {
           :disabled="searchLoading"
           @click="searchLocation"
         >
-          {{ searchLoading ? '...' : t('common.search') }}
+          {{ searchLoading ? '…' : t('common.search') }}
         </Button>
         <Button
           type="button"
@@ -291,7 +294,7 @@ onBeforeUnmount(() => {
           :disabled="geoLoading"
           @click="findMyLocation"
         >
-          {{ geoLoading ? '...' : `📍 ${t('common.myLocation')}` }}
+          {{ geoLoading ? '…' : `📍 ${t('common.myLocation')}` }}
         </Button>
       </div>
 

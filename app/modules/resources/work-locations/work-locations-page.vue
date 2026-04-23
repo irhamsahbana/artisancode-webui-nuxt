@@ -2,14 +2,12 @@
 import { ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'WorkLocationsPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { t, format, locale } = useLocale()
-const uiText = (value: string) => localizeUiText(locale.value, value)
+const { t, format, locale, text: uiText } = useLocale()
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {

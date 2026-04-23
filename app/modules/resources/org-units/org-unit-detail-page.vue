@@ -3,7 +3,6 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'OrgUnitDetailPage' })
 
@@ -11,8 +10,8 @@ const route = useRoute()
 const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale } = useLocale()
-const uiText = (value: string) => localizeUiText(locale.value, value)
+const { locale, text: uiText } = useLocale()
+const localePath = useLocalePath()
 
 const orgUnitId = computed(() => String(route.params.id))
 
@@ -66,7 +65,7 @@ const fetchOrgUnit = async () => {
 }
 
 const goBack = async () => {
-  await router.push('/resources/org-units')
+  await router.push(localePath('/resources/org-units'))
 }
 
 const saveChanges = async () => {

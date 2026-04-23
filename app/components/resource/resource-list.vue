@@ -6,7 +6,6 @@ import type { ApiResponse, ListResponse } from "~/types/api";
 import { useApi } from "~/composables/useApi";
 import { useBanner } from "~/composables/useBanner";
 import { formatIsoDateValue, resolveDateLocale } from "~/utils/date-time";
-import { localizeUiText } from "~/utils/ui-localization";
 
 type Column = {
   key: string;
@@ -16,6 +15,8 @@ type Column = {
     row: Record<string, unknown>
   ) => string | { label: string; class?: string };
 };
+
+const DEFAULT_SEARCH_DEBOUNCE_MS = 600;
 
 const props = withDefaults(
   defineProps<{
@@ -37,7 +38,7 @@ const props = withDefaults(
     extraQuery: undefined,
     searchKey: "q",
     searchPlaceholder: null,
-    searchDebounceMs: 0,
+    searchDebounceMs: DEFAULT_SEARCH_DEBOUNCE_MS,
     loadingVariant: "text",
     emptyText: undefined,
     canViewDetail: true,
@@ -57,7 +58,8 @@ const { apiFetch } = useApi();
 const { show } = useBanner();
 const route = useRoute();
 const router = useRouter();
-const { locale, t, format } = useLocale();
+const localePath = useLocalePath();
+const { locale, t, format, text } = useLocale();
 const intlLocale = computed(() => resolveDateLocale(locale.value));
 const detailOpen = ref(false);
 const detailRow = ref<Record<string, unknown> | null>(null);
@@ -90,6 +92,30 @@ const buildQuery = () => {
   return base;
 };
 
+const getStringQueryValue = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return typeof value[0] === "string" ? value[0] : "";
+  }
+
+  return typeof value === "string" ? value : "";
+};
+
+const getPositiveNumberQueryValue = (value: unknown, fallback: number) => {
+  const rawValue = getStringQueryValue(value);
+  const parsed = Number(rawValue);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const applyRouteQueryToListQuery = () => {
+  if (props.searchKey) {
+    query.q = getStringQueryValue(route.query.q);
+  }
+  query.page = getPositiveNumberQueryValue(route.query.page, 1);
+  query.limit = getPositiveNumberQueryValue(route.query.limit, 15);
+};
+
+applyRouteQueryToListQuery();
+
 const asyncKey = `resource-list:${props.endpoint}`;
 
 const { data, pending, refresh, error } = useAsyncData(
@@ -108,6 +134,47 @@ const { data, pending, refresh, error } = useAsyncData(
 watch(
   () => [query.page, query.limit],
   () => refresh()
+);
+
+watch(
+  () => [query.q, query.page, query.limit],
+  async () => {
+    const nextQuery = { ...route.query };
+
+    if (props.searchKey && query.q) {
+      nextQuery.q = query.q;
+    } else {
+      delete nextQuery.q;
+    }
+
+    if (query.page > 1) {
+      nextQuery.page = String(query.page);
+    } else {
+      delete nextQuery.page;
+    }
+
+    if (query.limit !== 15) {
+      nextQuery.limit = String(query.limit);
+    } else {
+      delete nextQuery.limit;
+    }
+
+    const queryChanged =
+      getStringQueryValue(route.query.q) !== (props.searchKey ? query.q : "") ||
+      getStringQueryValue(route.query.page) !== (query.page > 1 ? String(query.page) : "") ||
+      getStringQueryValue(route.query.limit) !== (query.limit !== 15 ? String(query.limit) : "");
+
+    if (queryChanged) {
+      await router.replace({ query: nextQuery });
+    }
+  }
+);
+
+watch(
+  () => route.query,
+  () => {
+    applyRouteQueryToListQuery();
+  }
 );
 
 watch(
@@ -186,17 +253,17 @@ const hasHeaderActions = computed(() => Boolean(slots["header-actions"]));
 const hasRowActions = computed(() => Boolean(slots["row-actions"]));
 const resolvedSearchPlaceholder = computed(() => {
   if (props.searchPlaceholder) {
-    return localizeUiText(locale.value, props.searchPlaceholder);
+    return text(props.searchPlaceholder);
   }
 
-  return `${t("common.search")}...`;
+  return `${t("common.search")}…`;
 });
 const localizedTitle = computed(() =>
-  localizeUiText(locale.value, props.title)
+  text(props.title)
 );
 const localizedEmptyText = computed(() => {
   if (props.emptyText) {
-    return localizeUiText(locale.value, props.emptyText);
+    return text(props.emptyText);
   }
 
   return t("common.noData");
@@ -269,11 +336,12 @@ const getRouteId = () => {
 };
 
 const getBasePath = () => {
+  const normalizedPath = route.path.replace(/^\/en(?=\/|$)/, "") || "/";
   const idParam = getRouteId();
-  if (idParam && route.path.endsWith(`/${idParam}`)) {
-    return route.path.slice(0, -`/${idParam}`.length);
+  if (idParam && normalizedPath.endsWith(`/${idParam}`)) {
+    return normalizedPath.slice(0, -`/${idParam}`.length);
   }
-  return route.path;
+  return normalizedPath;
 };
 
 const openDetailById = async (id: string) => {
@@ -311,14 +379,14 @@ const openDetail = async (row: Record<string, unknown>) => {
   // When no detail slot is provided, always navigate to a separate page
   // (page-based navigation). Never open a modal.
   if (!hasDetailSlot.value) {
-    await router.push(`${basePath}/${idString}`);
+    await router.push(localePath(`${basePath}/${idString}`));
     return;
   }
 
   // When a detail slot is provided, use the modal pattern:
   // push route if not already there, then load data into the modal.
   if (getRouteId() !== idString) {
-    await router.push(`${basePath}/${idString}`);
+    await router.push(localePath(`${basePath}/${idString}`));
     return;
   }
   await openDetailById(idString);
@@ -327,8 +395,9 @@ const openDetail = async (row: Record<string, unknown>) => {
 const closeDetailWithRoute = async () => {
   closeDetail();
   const basePath = getBasePath();
-  if (route.path !== basePath) {
-    await router.push(basePath);
+  const normalizedPath = route.path.replace(/^\/en(?=\/|$)/, "") || "/";
+  if (normalizedPath !== basePath) {
+    await router.push(localePath(basePath));
   }
 };
 
@@ -447,6 +516,9 @@ watch(
           <Input
             v-if="props.searchKey"
             v-model="query.q"
+            name="resource-search"
+            autocomplete="off"
+            :aria-label="resolvedSearchPlaceholder"
             :placeholder="resolvedSearchPlaceholder"
             class="h-11 w-full min-w-0 rounded-2xl border-border/80 bg-background/90 shadow-sm sm:max-w-sm"
           />
@@ -490,9 +562,10 @@ watch(
             <Button
               variant="outline"
               size="sm"
+              type="button"
               @click="refresh"
             >
-              Retry
+              {{ t("common.retry") }}
             </Button>
           </div>
         </div>
@@ -623,9 +696,15 @@ watch(
   <div
     v-else-if="detailOpen"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6 py-8"
+    role="presentation"
     @click.self="closeDetailWithRoute"
   >
-    <div class="w-full max-w-4xl rounded-lg border bg-card p-6 shadow-lg">
+    <div
+      class="w-full max-w-4xl rounded-lg border bg-card p-6 shadow-lg"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('common.detail')"
+    >
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
           {{ t("common.detail") }}
@@ -673,8 +752,14 @@ watch(
   <div
     v-if="deleteOpen"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+    role="presentation"
   >
-    <div class="w-full max-w-md rounded-lg border bg-card p-6 shadow-lg">
+    <div
+      class="w-full max-w-md rounded-lg border bg-card p-6 shadow-lg"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('resource.confirmDelete')"
+    >
       <div class="text-lg font-semibold">
         {{ t("resource.confirmDelete") }}
       </div>

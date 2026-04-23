@@ -2,11 +2,10 @@
 import { computed, useSlots } from 'vue'
 
 import { cn } from '~/utils/utils'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'UiLabel' })
 
-const { locale } = useLocale()
+const { text } = useLocale()
 const slots = useSlots()
 
 const localizedText = computed(() => {
@@ -19,7 +18,7 @@ const localizedText = computed(() => {
     return null
   }
 
-  return localizeUiText(locale.value, textChildren.join('').trim())
+  return text(textChildren.join('').trim())
 })
 </script>
 

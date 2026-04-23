@@ -8,6 +8,7 @@ defineOptions({ name: 'CheckEmailPage' })
 const route = useRoute()
 const { resendVerificationEmail } = useAuth()
 const { t, format } = useLocale()
+const localePath = useLocalePath()
 
 const isResending = ref(false)
 const infoMessage = ref('')
@@ -98,13 +99,13 @@ const resend = async () => {
 }
 
 const goToLogin = async () => {
-  await navigateTo({
+  await navigateTo(localePath({
     path: '/login',
     query: {
       email: email.value || undefined,
       tenant_code: tenantCode.value || undefined,
     },
-  })
+  }))
 }
 
 onBeforeUnmount(() => {

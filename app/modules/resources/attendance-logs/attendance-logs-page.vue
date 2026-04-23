@@ -4,7 +4,6 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import type { ApiResponse, ListResponse } from '~/types/api'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'AttendanceLogsPage' })
 
@@ -23,9 +22,8 @@ const route = useRoute()
 const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale } = useLocale()
+const { locale, text: uiText } = useLocale()
 const { formatDateOnly: formatDateOnlyLabel, formatDateTime } = useDateTime()
-const uiText = (value: string) => localizeUiText(locale.value, value)
 
 type ExportJobStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'expired'
 type ExportJobFormat = 'xlsx'

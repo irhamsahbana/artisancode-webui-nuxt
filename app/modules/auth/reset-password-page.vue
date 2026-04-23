@@ -8,6 +8,7 @@ defineOptions({ name: 'ResetPasswordPage' })
 const route = useRoute()
 const { resetPassword } = useAuth()
 const { t } = useLocale()
+const localePath = useLocalePath()
 const password = ref('')
 const confirmPassword = ref('')
 const isLoading = ref(false)
@@ -41,7 +42,7 @@ const submit = async () => {
     }
 
     infoMessage.value = response.message
-    setTimeout(() => navigateTo('/login'), 1200)
+    setTimeout(() => navigateTo(localePath('/login')), 1200)
   } finally {
     isLoading.value = false
   }
@@ -67,7 +68,9 @@ const submit = async () => {
           <Input
             id="reset-password"
             v-model="password"
+            name="password"
             type="password"
+            autocomplete="new-password"
             @keyup.enter="submit"
           />
         </div>
@@ -78,7 +81,9 @@ const submit = async () => {
           <Input
             id="reset-password-confirm"
             v-model="confirmPassword"
+            name="confirm_password"
             type="password"
+            autocomplete="new-password"
             @keyup.enter="submit"
           />
         </div>
@@ -104,7 +109,7 @@ const submit = async () => {
           {{ isLoading ? t('auth.resettingPassword') : t('auth.resetPasswordAction') }}
         </Button>
         <NuxtLink
-          to="/login"
+          :to="localePath('/login')"
           class="text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
           {{ t('auth.backToLogin') }}

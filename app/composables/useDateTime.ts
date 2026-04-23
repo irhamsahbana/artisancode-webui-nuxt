@@ -2,6 +2,7 @@ import {
   formatDateOnlyValue,
   formatDateTimeValue,
   formatIsoDateValue,
+  formatReadableDateTimeValue,
   normalizeIsoDateInput,
   resolveDateLocale,
 } from '~/utils/date-time'
@@ -35,6 +36,18 @@ export const useDateTime = () => {
     return formatDateTimeValue(value, getIntlLocale(), options) ?? value
   }
 
+  const formatReadableDateTime = (
+    value: string | null | undefined,
+    options?: Intl.DateTimeFormatOptions,
+    fallback = '-',
+  ) => {
+    if (!value) {
+      return fallback
+    }
+
+    return formatReadableDateTimeValue(value, getIntlLocale(), options) ?? value
+  }
+
   const formatIsoDate = (
     value: string | null | undefined,
     options?: {
@@ -61,6 +74,7 @@ export const useDateTime = () => {
   return {
     formatDateOnly,
     formatDateTime,
+    formatReadableDateTime,
     formatIsoDate,
     normalizeDateInput,
   }

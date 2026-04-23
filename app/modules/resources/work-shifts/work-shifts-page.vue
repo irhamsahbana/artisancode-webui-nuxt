@@ -3,14 +3,12 @@ import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import { getTimezoneLabel, getTimezoneOptions } from '~/utils/timezone-options'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'WorkShiftsPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale } = useLocale()
-const uiText = (value: string) => localizeUiText(locale.value, value)
+const { locale, text: uiText } = useLocale()
 
 const timezoneOptions = computed(() => getTimezoneOptions(locale.value))
 

@@ -8,6 +8,7 @@ defineOptions({ name: 'RegisterPage' })
 const runtimeConfig = useRuntimeConfig()
 const { register } = useAuth()
 const { locale, options: localeOptions, setLocale, t } = useLocale()
+const localePath = useLocalePath()
 const isLoading = ref(false)
 const errorMessage = ref('')
 const appName = computed(() => runtimeConfig.public.appName || 'ArtisanCode')
@@ -249,13 +250,13 @@ const submit = async () => {
       }
     }
     if (response.success) {
-      await navigateTo({
+      await navigateTo(localePath({
         path: '/auth/check-email',
         query: {
           email: form.email,
           tenant_code: form.tenant_code,
         },
-      })
+      }))
     }
   } catch {
     errorMessage.value = t('auth.registrationFailed')
@@ -320,6 +321,8 @@ const submit = async () => {
               <Input
                 id="register-tenant-name"
                 v-model="form.tenant_name"
+                name="organization"
+                autocomplete="organization"
                 placeholder="My Company"
               />
               <p
@@ -336,6 +339,9 @@ const submit = async () => {
               <Input
                 id="register-tenant-code"
                 v-model="form.tenant_code"
+                name="tenant_code"
+                autocomplete="off"
+                spellcheck="false"
                 placeholder="MYCOMP"
                 maxlength="5"
               />
@@ -362,6 +368,8 @@ const submit = async () => {
               <Input
                 id="register-name"
                 v-model="form.name"
+                name="name"
+                autocomplete="name"
                 placeholder="John Doe"
               />
               <p
@@ -378,6 +386,9 @@ const submit = async () => {
               <Input
                 id="register-username"
                 v-model="form.username"
+                name="username"
+                autocomplete="username"
+                spellcheck="false"
                 placeholder="johndoe"
               />
               <p
@@ -395,7 +406,11 @@ const submit = async () => {
             <Input
               id="register-email"
               v-model="form.email"
+              name="email"
               type="email"
+              autocomplete="email"
+              spellcheck="false"
+              inputmode="email"
               placeholder="you@example.com"
             />
             <p
@@ -412,7 +427,9 @@ const submit = async () => {
             <Input
               id="register-password"
               v-model="form.password"
+              name="password"
               type="password"
+              autocomplete="new-password"
               placeholder="••••••••"
               @keyup.enter="submit"
             />
@@ -471,7 +488,9 @@ const submit = async () => {
             <Input
               id="register-confirm-password"
               v-model="form.confirmPassword"
+              name="confirm_password"
               type="password"
+              autocomplete="new-password"
               placeholder="••••••••"
               @keyup.enter="submit"
             />
@@ -507,7 +526,7 @@ const submit = async () => {
         <p class="text-center text-sm text-muted-foreground">
           {{ t('auth.alreadyHaveAccount') }}
           <NuxtLink
-            to="/login"
+            :to="localePath('/login')"
             class="font-medium text-primary underline-offset-4 transition-colors hover:underline"
           >
             {{ t('auth.signIn') }}

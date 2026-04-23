@@ -3,11 +3,9 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'EnrollmentsPage' })
-const { locale } = useLocale()
-const uiText = (value: string) => localizeUiText(locale.value, value)
+const { locale, text: uiText } = useLocale()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const student = row.student as { first_name?: string; last_name?: string } | undefined

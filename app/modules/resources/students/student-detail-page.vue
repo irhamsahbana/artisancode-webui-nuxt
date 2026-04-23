@@ -7,11 +7,9 @@ import { z } from 'zod'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'StudentDetailPage' })
-const { locale } = useLocale()
-const uiText = (value: string) => localizeUiText(locale.value, value)
+const { locale, text: uiText } = useLocale()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const firstName = row.first_name

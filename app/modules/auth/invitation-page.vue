@@ -2,7 +2,6 @@
 import { computed, ref, watch } from 'vue'
 import { navigateTo } from '#app'
 import { useApi } from '~/composables/useApi'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'InvitationPage' })
 
@@ -24,8 +23,8 @@ type AcceptInvitationResponse = {
 
 const route = useRoute()
 const { apiFetch } = useApi()
-const { t, locale } = useLocale()
-const uiText = (value: string) => localizeUiText(locale.value, value)
+const { t, locale, text: uiText } = useLocale()
+const localePath = useLocalePath()
 
 const token = computed(() => (
   typeof route.query.token === 'string' ? route.query.token : ''
@@ -110,14 +109,14 @@ const submit = async () => {
   }
 
   infoMessage.value = t('auth.invitationAccepted')
-  setTimeout(() => navigateTo({
+  setTimeout(() => navigateTo(localePath({
     path: '/login',
     query: {
       email: preview.value?.email || '',
       tenant_code: preview.value?.tenant_code || '',
       notice: 'invitation-accepted',
     },
-  }), 1200)
+  })), 1200)
 }
 
 watch(
@@ -199,6 +198,8 @@ watch(
             <Input
               id="invitation-full-name"
               v-model="fullName"
+              name="name"
+              autocomplete="name"
               :placeholder="t('auth.fullName')"
             />
           </div>
@@ -208,7 +209,9 @@ watch(
             <Input
               id="invitation-password"
               v-model="password"
+              name="password"
               type="password"
+              autocomplete="new-password"
               @keyup.enter="submit"
             />
           </div>
@@ -218,7 +221,9 @@ watch(
             <Input
               id="invitation-password-confirm"
               v-model="confirmPassword"
+              name="confirm_password"
               type="password"
+              autocomplete="new-password"
               @keyup.enter="submit"
             />
           </div>
@@ -246,7 +251,7 @@ watch(
           {{ acceptLoading ? t('auth.acceptingInvitation') : t('auth.acceptInvitation') }}
         </Button>
         <NuxtLink
-          to="/login"
+          :to="localePath('/login')"
           class="text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
           {{ t('auth.backToLogin') }}

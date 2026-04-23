@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { cn } from '~/utils/utils'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'UiSearchableSelect' })
 
@@ -21,7 +20,7 @@ const props = withDefaults(
   {
     modelValue: null,
     placeholder: 'Select option',
-    searchPlaceholder: 'Search...',
+    searchPlaceholder: 'Search…',
     disabled: false,
   },
 )
@@ -30,12 +29,13 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: string | number | null): void
 }>()
 
-const { locale } = useLocale()
+const { text } = useLocale()
 
 const rootRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
 const query = ref('')
 const debouncedQuery = ref('')
+const listboxId = useId()
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
 const selectedLabel = computed(() => {
@@ -52,9 +52,9 @@ const filteredOptions = computed(() => {
   return props.options.filter((option) => option.label.toLowerCase().includes(term))
 })
 
-const resolvedPlaceholder = computed(() => localizeUiText(locale.value, props.placeholder))
-const selectedBadgeLabel = computed(() => localizeUiText(locale.value, 'Selected'))
-const emptyLabel = computed(() => localizeUiText(locale.value, 'No options'))
+const resolvedPlaceholder = computed(() => text(props.placeholder))
+const selectedBadgeLabel = computed(() => text('Selected'))
+const emptyLabel = computed(() => text('No options'))
 
 const openList = () => {
   if (props.disabled) {
@@ -67,6 +67,12 @@ const closeList = () => {
   isOpen.value = false
   query.value = selectedLabel.value
   debouncedQuery.value = selectedLabel.value
+}
+
+const handleInputKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    closeList()
+  }
 }
 
 const selectOption = (option: SelectOption) => {
@@ -141,13 +147,21 @@ onBeforeUnmount(() => {
       :value="query"
       :disabled="disabled"
       :placeholder="selectedLabel ? '' : resolvedPlaceholder"
+      :aria-expanded="isOpen"
+      :aria-controls="listboxId"
+      aria-autocomplete="list"
+      autocomplete="off"
+      role="combobox"
       :class="cn('h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50', $attrs.class as string)"
       @focus="openList"
       @input="onInput"
+      @keydown="handleInputKeydown"
     >
     <div
       v-if="isOpen"
+      :id="listboxId"
       class="absolute z-20 mt-1 w-full rounded-md border bg-popover p-1 text-sm shadow-md"
+      role="listbox"
     >
       <div class="max-h-56 overflow-auto">
         <button
@@ -155,6 +169,8 @@ onBeforeUnmount(() => {
           :key="String(option.value)"
           type="button"
           class="flex w-full items-center justify-between rounded px-3 py-2 text-left hover:bg-accent"
+          role="option"
+          :aria-selected="option.value === props.modelValue"
           @click="selectOption(option)"
         >
           <span>{{ option.label }}</span>

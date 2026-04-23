@@ -40,6 +40,7 @@ export const useAuth = () => {
   const token = useCookie<string | null>('sb_token')
   const refreshToken = useCookie<string | null>('sb_refresh_token')
   const { apiFetch } = useApi()
+  const localePath = useLocalePath()
 
   // Extract user from JWT token
   const user = computed(() => {
@@ -114,7 +115,7 @@ export const useAuth = () => {
   const logout = async () => {
     token.value = null
     refreshToken.value = null
-    await navigateTo('/login')
+    await navigateTo(localePath('/login'))
   }
 
   return {

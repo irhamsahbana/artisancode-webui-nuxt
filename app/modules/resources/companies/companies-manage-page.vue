@@ -14,6 +14,7 @@ const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
 const { t, format, locale } = useLocale()
+const localePath = useLocalePath()
 
 const companyId = computed(() => route.params.id as string)
 
@@ -318,7 +319,7 @@ const submitEdit = async () => {
 }
 
 const goBack = () => {
-  router.push('/resources/companies')
+  router.push(localePath('/resources/companies'))
 }
 
 onMounted(async () => {

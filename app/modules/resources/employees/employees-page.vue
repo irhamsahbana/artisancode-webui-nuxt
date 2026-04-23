@@ -2,15 +2,13 @@
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'EmployeesPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale } = useLocale()
-const { formatDateOnly, normalizeDateInput } = useDateTime()
-const uiText = (value: string) => localizeUiText(locale.value, value)
+const { locale, text: uiText } = useLocale()
+const { formatDateOnly, formatReadableDateTime, normalizeDateInput } = useDateTime()
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 const appOrigin = computed(() => (import.meta.client ? window.location.origin : ''))
 
@@ -74,6 +72,10 @@ const normalizeJoinDateForInput = (value: unknown) => {
 
   return normalizeDateInput(raw)
 }
+
+const formatInvitationDateTime = (value: string | null | undefined) => (
+  formatReadableDateTime(value, undefined, '-')
+)
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -777,8 +779,8 @@ const handleRevokeInvitation = async () => {
               {{ uiText('Resend the email to deliver a fresh access link, or revoke it if this employee should not receive access right now.') }}
             </div>
             <div class="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-              <div>{{ uiText('Last sent at') }}: {{ inviteSummary.last_sent_at || '-' }}</div>
-              <div>{{ uiText('Expires at') }}: {{ inviteSummary.expires_at || '-' }}</div>
+              <div>{{ uiText('Last sent at') }}: {{ formatInvitationDateTime(inviteSummary.last_sent_at) }}</div>
+              <div>{{ uiText('Expires at') }}: {{ formatInvitationDateTime(inviteSummary.expires_at) }}</div>
             </div>
           </div>
           <div
@@ -809,7 +811,7 @@ const handleRevokeInvitation = async () => {
             {{ uiText('Email could not be sent automatically yet. Use the backup link below if you still need to share access manually.') }}
           </div>
           <div class="text-xs text-emerald-800/80 dark:text-emerald-200/80">
-            {{ uiText('Expires at') }}: {{ inviteResult.expires_at }}
+            {{ uiText('Expires at') }}: {{ formatInvitationDateTime(inviteResult.expires_at) }}
           </div>
           <div
             v-if="showManualInviteFallback"

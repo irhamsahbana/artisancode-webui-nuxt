@@ -6,8 +6,19 @@ defineOptions({ name: "DefaultLayout" });
 const route = useRoute();
 const runtimeConfig = useRuntimeConfig();
 const { user, token, logout } = useAuth();
+const localePath = useLocalePath();
+const stripLocalePrefix = (path: string) => path.replace(/^\/en(?=\/|$)/, "") || "/";
+const authShellPaths = [
+  "/login",
+  "/register",
+  "/auth/check-email",
+  "/auth/email-verification",
+  "/auth/forgot-password",
+  "/auth/invitation",
+  "/auth/reset-password",
+];
 const isAuthPage = computed(
-  () => route.path === "/login" || route.path === "/register"
+  () => authShellPaths.includes(stripLocalePrefix(route.path))
 );
 const { locale, setLocale, t } = useLocale();
 const mobileNavOpen = ref(false);
@@ -35,8 +46,10 @@ const navGroups = computed(() => [
 ]);
 
 // Check if a sidebar link is active (exact match or sub-page)
-const isActive = (path: string) =>
-  route.path === path || route.path.startsWith(path + "/");
+const isActive = (path: string) => {
+  const currentPath = stripLocalePrefix(route.path);
+  return currentPath === path || currentPath.startsWith(path + "/");
+};
 
 const { visible, message, variant, hide } = useBanner();
 const colorMode = useColorMode();
@@ -198,7 +211,7 @@ watch(
                       isActive(item.to) &&
                       (item.to !== '/' || route.path === '/'),
                   }"
-                  :to="item.to"
+                  :to="localePath(item.to)"
                 >
                   <component
                     :is="item.icon"
@@ -267,24 +280,28 @@ watch(
                 </div>
               </Transition>
               <div class="rounded-[28px] border border-sidebar-border/60 bg-sidebar-accent/72 p-2 shadow-[0_18px_40px_-34px_rgba(2,6,23,0.95)]">
-              <button
-                type="button"
-                class="flex w-full items-center gap-3 rounded-3xl bg-sidebar/92 px-3 py-3 text-left text-sidebar-foreground transition hover:bg-sidebar"
-                :aria-expanded="desktopAccountMenuOpen"
-                @click="toggleDesktopAccountMenu"
-              >
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-sidebar-primary/14 text-sm font-semibold text-sidebar-primary ring-1 ring-sidebar-border/50">
-                  {{ userDisplayName.slice(0, 1).toUpperCase() }}
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="truncate text-sm font-semibold">{{ userDisplayName }}</div>
-                  <div class="truncate text-xs text-sidebar-foreground/65">{{ userTenantName }}</div>
-                </div>
-                <ChevronRight
-                  class="h-4 w-4 shrink-0 text-sidebar-foreground/55 transition-transform duration-200"
-                  :class="{ '-rotate-90': desktopAccountMenuOpen }"
-                />
-              </button>
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-3 rounded-3xl bg-sidebar/92 px-3 py-3 text-left text-sidebar-foreground transition hover:bg-sidebar"
+                  :aria-expanded="desktopAccountMenuOpen"
+                  @click="toggleDesktopAccountMenu"
+                >
+                  <div class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-sidebar-primary/14 text-sm font-semibold text-sidebar-primary ring-1 ring-sidebar-border/50">
+                    {{ userDisplayName.slice(0, 1).toUpperCase() }}
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="truncate text-sm font-semibold">
+                      {{ userDisplayName }}
+                    </div>
+                    <div class="truncate text-xs text-sidebar-foreground/65">
+                      {{ userTenantName }}
+                    </div>
+                  </div>
+                  <ChevronRight
+                    class="h-4 w-4 shrink-0 text-sidebar-foreground/55 transition-transform duration-200"
+                    :class="{ '-rotate-90': desktopAccountMenuOpen }"
+                  />
+                </button>
               </div>
             </div>
           </div>
@@ -398,7 +415,7 @@ watch(
                         isActive(item.to) &&
                         (item.to !== '/' || route.path === '/'),
                     }"
-                    :to="item.to"
+                    :to="localePath(item.to)"
                   >
                     <component
                       :is="item.icon"
@@ -477,8 +494,12 @@ watch(
                       {{ userDisplayName.slice(0, 1).toUpperCase() }}
                     </div>
                     <div class="min-w-0 flex-1">
-                      <div class="truncate text-sm font-semibold">{{ userDisplayName }}</div>
-                      <div class="truncate text-xs text-sidebar-foreground/65">{{ userTenantName }}</div>
+                      <div class="truncate text-sm font-semibold">
+                        {{ userDisplayName }}
+                      </div>
+                      <div class="truncate text-xs text-sidebar-foreground/65">
+                        {{ userTenantName }}
+                      </div>
                     </div>
                     <ChevronRight
                       class="h-4 w-4 shrink-0 text-sidebar-foreground/55 transition-transform duration-200"

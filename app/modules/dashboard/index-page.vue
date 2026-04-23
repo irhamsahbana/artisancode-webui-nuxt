@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from 'vue'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'IndexPage' })
 
@@ -51,10 +50,10 @@ const cards = [
 const trendOptions = [7, 14, 30] as const
 const { user } = useAuth()
 const { apiFetch } = useApi()
-const { locale } = useLocale()
+const { locale, text: uiText } = useLocale()
+const localePath = useLocalePath()
 const { formatDateOnly, formatDateTime } = useDateTime()
 const browserTimezone = ref(process.client ? Intl.DateTimeFormat().resolvedOptions().timeZone || '' : '')
-const uiText = (value: string) => localizeUiText(locale.value, value)
 const dashboardRequestController = ref<AbortController | null>(null)
 
 const today = (() => {
@@ -201,10 +200,11 @@ const exceptionToneMap: Record<DashboardException['exception_type'], string> = {
   missing_check_out: 'bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-100',
 }
 
-const buildLogLink = (params: Record<string, string>) => ({
-  path: '/resources/attendance-logs',
-  query: params,
-})
+const buildLogLink = (params: Record<string, string>) =>
+  localePath({
+    path: '/resources/attendance-logs',
+    query: params,
+  })
 </script>
 
 <template>
@@ -514,7 +514,7 @@ const buildLogLink = (params: Record<string, string>) => ({
             </div>
           </NuxtLink>
           <NuxtLink
-            to="/resources/employees"
+            :to="localePath('/resources/employees')"
             class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
@@ -525,7 +525,7 @@ const buildLogLink = (params: Record<string, string>) => ({
             </div>
           </NuxtLink>
           <NuxtLink
-            to="/resources/work-shifts"
+            :to="localePath('/resources/work-shifts')"
             class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
@@ -555,7 +555,7 @@ const buildLogLink = (params: Record<string, string>) => ({
             <div class="text-sm font-medium">
               {{ uiText(card.label) }}
             </div>
-            <NuxtLink :to="card.href">
+            <NuxtLink :to="localePath(card.href)">
               <Button
                 variant="ghost"
                 size="sm"

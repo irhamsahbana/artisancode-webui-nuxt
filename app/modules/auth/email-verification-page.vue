@@ -7,6 +7,7 @@ defineOptions({ name: 'EmailVerificationPage' })
 const route = useRoute()
 const { verifyEmail } = useAuth()
 const { t } = useLocale()
+const localePath = useLocalePath()
 const isLoading = ref(true)
 const successMessage = ref('')
 const errorMessage = ref('')
@@ -59,7 +60,7 @@ onMounted(async () => {
       </CardContent>
       <CardFooter class="flex-col gap-4">
         <NuxtLink
-          to="/login"
+          :to="localePath('/login')"
           class="text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
           {{ t('auth.backToLogin') }}

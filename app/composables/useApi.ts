@@ -13,6 +13,7 @@ export const useApi = () => {
   const token = useCookie<string | null>('sb_token')
   const { show } = useBanner()
   const { locale, t } = useLocale()
+  const localePath = useLocalePath()
 
   const isAbortedRequestError = (error: unknown) => {
     if (!(error instanceof Error)) {
@@ -66,7 +67,7 @@ export const useApi = () => {
         const user = useState<unknown | null>('auth_user', () => null)
         user.value = null
         show(t('api.sessionExpired'), 'error')
-        await navigateTo('/login')
+        await navigateTo(localePath('/login'))
       }
 
       if (status >= 400 || (hasSuccessFlag && data?.success === false)) {

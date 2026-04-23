@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 
 export interface OrgUnitNode {
@@ -109,6 +109,12 @@ const close = () => {
   open.value = false
 }
 
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    close()
+  }
+}
+
 const toggleExpand = (id: string, e: MouseEvent) => {
   e.stopPropagation()
   if (expanded.value.has(id)) {
@@ -137,8 +143,14 @@ const handleClickOutside = (e: MouseEvent) => {
 
 onMounted(() => {
   document.addEventListener('mousedown', handleClickOutside)
+  document.addEventListener('keydown', handleKeydown)
   // Preload data so selected path can be displayed
   fetchOrgUnits()
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
+  document.removeEventListener('keydown', handleKeydown)
 })
 
 // Expose fetchOrgUnits so parent can preload
@@ -154,6 +166,8 @@ defineExpose({ fetchOrgUnits })
     <button
       type="button"
       class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      :aria-expanded="open"
+      aria-haspopup="tree"
       @click="toggle"
     >
       <span
@@ -169,14 +183,19 @@ defineExpose({ fetchOrgUnits })
         {{ placeholder ?? t('company.selectOrganizationUnit') }}
       </span>
       <span class="flex items-center gap-1 ml-2 shrink-0">
-        <span
+        <button
           v-if="modelValue"
+          type="button"
           class="text-muted-foreground hover:text-foreground text-xs"
+          :aria-label="t('common.clear')"
           @click="clear"
         >
           ✕
-        </span>
-        <span class="text-muted-foreground">▾</span>
+        </button>
+        <span
+          class="text-muted-foreground"
+          aria-hidden="true"
+        >▾</span>
       </span>
     </button>
 
@@ -184,6 +203,7 @@ defineExpose({ fetchOrgUnits })
     <div
       v-if="open"
       class="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md"
+      role="tree"
     >
       <div
         v-if="loading"

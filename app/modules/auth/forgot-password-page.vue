@@ -7,6 +7,7 @@ defineOptions({ name: 'ForgotPasswordPage' })
 const route = useRoute()
 const { forgotPassword } = useAuth()
 const { t } = useLocale()
+const localePath = useLocalePath()
 const form = reactive({
   email: '',
   tenant_code: '',
@@ -70,7 +71,11 @@ const submit = async () => {
           <Input
             id="forgot-email"
             v-model="form.email"
+            name="email"
             type="email"
+            autocomplete="email"
+            spellcheck="false"
+            inputmode="email"
             placeholder="you@company.com"
             @keyup.enter="submit"
           />
@@ -82,6 +87,9 @@ const submit = async () => {
           <Input
             id="forgot-tenant-code"
             v-model="form.tenant_code"
+            name="tenant_code"
+            autocomplete="organization"
+            spellcheck="false"
             placeholder="your tenant code"
             maxlength="5"
             @keyup.enter="submit"
@@ -112,13 +120,13 @@ const submit = async () => {
           {{ isLoading ? t('auth.sendingResetLink') : t('auth.sendResetLink') }}
         </Button>
         <NuxtLink
-          :to="{
+          :to="localePath({
             path: '/login',
             query: {
               email: form.email || undefined,
               tenant_code: form.tenant_code || undefined,
             },
-          }"
+          })"
           class="text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
           {{ t('auth.backToLogin') }}

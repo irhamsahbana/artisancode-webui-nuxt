@@ -8,7 +8,6 @@ import {
   watch,
   type ComponentPublicInstance,
 } from "vue";
-import { localizeUiText } from "~/utils/ui-localization";
 import { formatIsoDateValue, resolveDateLocale } from "~/utils/date-time";
 
 type Column = {
@@ -37,7 +36,7 @@ const props = withDefaults(
   }
 );
 
-const { locale, t } = useLocale();
+const { locale, t, text } = useLocale();
 const intlLocale = computed(() => resolveDateLocale(locale.value));
 
 const emit = defineEmits<{
@@ -63,7 +62,7 @@ const rowKeys = computed(() =>
 const localizedColumns = computed(() =>
   props.columns.map((column) => ({
     ...column,
-    label: localizeUiText(locale.value, column.label),
+    label: text(column.label),
   }))
 );
 const allSelected = computed(
@@ -72,6 +71,13 @@ const allSelected = computed(
     rowKeys.value.every((key) => selectedKeys.value.has(key))
 );
 const primaryColumn = computed(() => localizedColumns.value[0] ?? null);
+const getSelectionLabel = (row: Record<string, unknown>, index: number) => {
+  if (!primaryColumn.value) {
+    return `${t("common.select")} ${index + 1}`;
+  }
+
+  return `${t("common.select")} ${renderFormattedCell(primaryColumn.value, row).value}`;
+};
 
 const formatCellValue = (value: unknown) => {
   if (value === null || value === undefined) {
@@ -280,17 +286,25 @@ const handleScroll = () => {
   }
 };
 
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === "Escape") {
+    closeMenu();
+  }
+};
+
 const closeInlineActions = () => {
   closeMenu();
 };
 
 onMounted(() => {
   document.addEventListener("mousedown", handleClickOutside);
+  document.addEventListener("keydown", handleKeydown);
   window.addEventListener("scroll", handleScroll, true);
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener("mousedown", handleClickOutside);
+  document.removeEventListener("keydown", handleKeydown);
   window.removeEventListener("scroll", handleScroll, true);
 });
 
@@ -313,6 +327,7 @@ watch(
         <input
           type="checkbox"
           role="checkbox"
+          :aria-label="t('common.selectAll')"
           class="h-5 w-5 rounded border-input bg-background text-primary"
           :checked="allSelected"
           @change="toggleAll"
@@ -328,6 +343,7 @@ watch(
             v-if="props.selectable"
             type="checkbox"
             role="checkbox"
+            :aria-label="getSelectionLabel(row, index)"
             class="mt-1 h-5 w-5 shrink-0 rounded border-input bg-background text-primary"
             :checked="selectedKeys.has(getRowKey(row, index))"
             @change="toggleRow(getRowKey(row, index))"
@@ -431,6 +447,7 @@ watch(
               <input
                 type="checkbox"
                 role="checkbox"
+                :aria-label="t('common.selectAll')"
                 class="h-5 w-5 rounded border-input bg-background text-primary"
                 :checked="allSelected"
                 @change="toggleAll"
@@ -463,6 +480,7 @@ watch(
               <input
                 type="checkbox"
                 role="checkbox"
+                :aria-label="`${t('common.select')} ${index + 1}`"
                 class="mt-1 h-5 w-5 rounded border-input bg-background text-primary"
                 :checked="selectedKeys.has(getRowKey(row, index))"
                 @change="toggleRow(getRowKey(row, index))"
@@ -505,6 +523,7 @@ watch(
                   v-if="openMenuKey === getRowKey(row, index) && menuPosition"
                   :ref="(el) => setMenuRef(getRowKey(row, index), el)"
                   class="fixed z-50 w-40 rounded-2xl border bg-popover p-1.5 text-sm shadow-xl"
+                  role="menu"
                   :style="{
                     top: `${menuPosition.top}px`,
                     left: `${menuPosition.left}px`,
@@ -513,6 +532,7 @@ watch(
                   <button
                     v-if="props.canViewDetail"
                     class="w-full rounded px-3 py-2 text-left hover:bg-accent"
+                    role="menuitem"
                     @click="viewDetail(row)"
                   >
                     {{ t("common.detail") }}
@@ -525,6 +545,7 @@ watch(
                   <button
                     v-if="props.canDelete"
                     class="w-full rounded px-3 py-2 text-left text-destructive hover:bg-accent"
+                    role="menuitem"
                     @click="confirmDelete(row)"
                   >
                     {{ t("common.delete") }}

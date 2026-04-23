@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { X } from 'lucide-vue-next'
+import { onBeforeUnmount, onMounted } from 'vue'
 
 defineOptions({ name: 'UiFormDialogShell' })
 
@@ -22,11 +23,26 @@ const emit = defineEmits<{
 const handleClose = () => {
   emit('close')
 }
+
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    handleClose()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <template>
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 px-4 py-6 backdrop-blur-sm sm:px-6 sm:py-8"
+    role="presentation"
     @click.self="handleClose"
   >
     <div
@@ -34,6 +50,9 @@ const handleClose = () => {
         'w-full overflow-hidden rounded-[30px] border border-border/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.98))] shadow-[0_28px_90px_-54px_rgba(15,23,42,0.95)] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,0.98))]',
         props.maxWidthClass,
       ]"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="props.title"
     >
       <div class="flex items-start justify-between gap-4 border-b border-border/70 bg-muted/15 px-5 py-4 sm:px-6">
         <div class="min-w-0">

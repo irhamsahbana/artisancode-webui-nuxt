@@ -9,6 +9,7 @@ const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 const { login, resendVerificationEmail } = useAuth()
 const { locale, options: localeOptions, setLocale, t } = useLocale()
+const localePath = useLocalePath()
 const isLoading = ref(false)
 const isResending = ref(false)
 const errorMessage = ref('')
@@ -67,19 +68,19 @@ const submit = async () => {
     const response = await login({ ...form })
     if (!response.success) {
       if (response.message.toLowerCase().includes('verif') && form.email) {
-        await navigateTo({
+        await navigateTo(localePath({
           path: '/auth/check-email',
           query: {
             email: form.email,
             tenant_code: form.tenant_code,
           },
-        })
+        }))
         return
       }
       errorMessage.value = response.message
     }
     if (response.success) {
-      await navigateTo('/')
+      await navigateTo(localePath('/'))
     }
   } catch {
     errorMessage.value = t('auth.loginFailed')
@@ -155,7 +156,11 @@ const resendVerification = async () => {
           <Input
             id="login-email"
             v-model="form.email"
+            name="email"
             type="email"
+            autocomplete="email"
+            spellcheck="false"
+            inputmode="email"
             placeholder="you@company.com"
             @keyup.enter="submit"
           />
@@ -167,7 +172,9 @@ const resendVerification = async () => {
           <Input
             id="login-password"
             v-model="form.password"
+            name="password"
             type="password"
+            autocomplete="current-password"
             placeholder="••••••••"
             @keyup.enter="submit"
           />
@@ -179,6 +186,9 @@ const resendVerification = async () => {
           <Input
             id="login-tenant-code"
             v-model="form.tenant_code"
+            name="tenant_code"
+            autocomplete="organization"
+            spellcheck="false"
             placeholder="your tenant code"
             maxlength="5"
             @keyup.enter="submit"
@@ -224,13 +234,13 @@ const resendVerification = async () => {
         </Button>
         <p class="text-center text-sm text-muted-foreground">
           <NuxtLink
-            :to="{
+            :to="localePath({
               path: '/auth/forgot-password',
               query: {
                 email: form.email || undefined,
                 tenant_code: form.tenant_code || undefined,
               },
-            }"
+            })"
             class="font-medium text-primary underline-offset-4 transition-colors hover:underline"
           >
             {{ t('auth.forgotPassword') }}
@@ -239,7 +249,7 @@ const resendVerification = async () => {
         <p class="text-center text-sm text-muted-foreground">
           {{ t('auth.noAccount') }}
           <NuxtLink
-            to="/register"
+            :to="localePath('/register')"
             class="font-medium text-primary underline-offset-4 transition-colors hover:underline"
           >
             {{ t('auth.createOne') }}

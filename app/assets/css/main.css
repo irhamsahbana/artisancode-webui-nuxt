@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  color-scheme: light;
   --background: 0 0% 100%;
   --foreground: 224 71.4% 4.1%;
   --card: 0 0% 100%;
@@ -26,6 +27,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: 224 71.4% 4.1%;
   --foreground: 210 20% 98%;
   --card: 224 71.4% 4.1%;
@@ -46,16 +48,6 @@
   --input: 215 27.9% 16.9%;
   --ring: 216 12.2% 83.9%;
 }
-
-* {
-  @apply border-border;
-}
-
-body {
-  @apply bg-background text-foreground;
-}
-
-
 
 @layer base {
   :root {
@@ -88,5 +80,7 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 }

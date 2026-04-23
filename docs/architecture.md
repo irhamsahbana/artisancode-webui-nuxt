@@ -1,49 +1,49 @@
 # Architecture
 
-Web UI berjalan di atas **Nuxt 4**, **Vue 3**, **TypeScript**, dan **Tailwind CSS**.
+The Web UI runs on **Nuxt 4**, **Vue 3**, **TypeScript**, and **Tailwind CSS**.
 Project root: `webui/`
 
 ## Active Directory Structure
 
-Direktori yang benar-benar aktif saat ini:
+Currently active directories:
 
 1. `app/`
-   - entry Nuxt app dan UI shell utama
+   - Nuxt app entry and main UI shell
 2. `app/pages/`
-   - file-based routes yang umumnya tipis
+   - thin file-based route wrappers
 3. `app/modules/`
-   - implementasi page/resource yang lebih besar
+   - larger page and resource implementations
 4. `app/components/`
-   - shared UI primitives dan reusable shells
+   - shared UI primitives and reusable shells
 5. `app/composables/`
-   - shared app logic seperti API, auth, banner, locale
+   - shared app logic such as API, auth, banner, and locale helpers
 6. `app/layouts/`
-   - app shell utama, termasuk sidebar dan top bar
+   - main app shell, including sidebar and top bar
 7. `app/middleware/`
-   - auth guard global
+   - global auth guard
 8. `app/types/`
-   - tipe shared untuk API dan page modules
+   - shared types for API and page modules
 9. `app/utils/`
-   - helper presentasional dan UI localization
+   - presentational helpers, UI localization helpers, and date/time formatters
 10. `server/`
    - Nitro proxy layer
 
-Saat ini `server/` secara efektif hanya dipakai untuk proxy backend:
+`server/` is currently used mainly for the backend proxy:
 
 - `server/api/proxy/[...path].ts`
 
 ## Runtime Highlights
 
-- Nuxt config memakai `components: [{ path: '~/components', pathPrefix: false }]`
-- alias `~` mengarah ke root `app/`
-- global CSS masuk lewat `~/assets/css/main.css`
-- color mode dikelola oleh `@nuxtjs/color-mode`
-- runtime config public saat ini memuat `appName`
-- backend access dari app code selalu lewat proxy `/api/proxy/...`
+- Nuxt config uses `components: [{ path: '~/components', pathPrefix: false }]`.
+- Alias `~` points to the `app/` root.
+- Global CSS is loaded through `~/assets/css/main.css`.
+- Color mode is handled by `@nuxtjs/color-mode`.
+- Public runtime config currently includes `appName`.
+- Backend access from app code goes through the `/api/proxy/...` proxy.
 
 ## Auth Route Map
 
-Public auth routes yang aktif sekarang:
+Current public auth routes:
 
 - `/login`
 - `/register`
@@ -52,14 +52,14 @@ Public auth routes yang aktif sekarang:
 - `/auth/forgot-password`
 - `/auth/reset-password`
 
-Kontrak payload auth publik yang tenant-aware:
+Tenant-aware public auth payload contracts:
 
-- `/login` mengirim `email`, `password`, `tenant_code`
-- `/register` mengirim `tenant_code` sebagai kode tenant baru
-- `/auth/check-email` menyimpan `email` dan `tenant_code` di query agar resend verification tetap punya konteks tenant
-- `/auth/forgot-password` dan resend verification mengirim `email` + `tenant_code`
+- `/login` sends `email`, `password`, and `tenant_code`.
+- `/register` sends `tenant_code` as the new tenant code.
+- `/auth/check-email` keeps `email` and `tenant_code` in the query so resend verification keeps tenant context.
+- `/auth/forgot-password` and resend verification send `email` plus `tenant_code`.
 
-File route wrapper aktif:
+Active route wrapper files:
 
 - `app/pages/login.vue`
 - `app/pages/register.vue`
@@ -68,7 +68,7 @@ File route wrapper aktif:
 - `app/pages/auth/forgot-password.vue`
 - `app/pages/auth/reset-password.vue`
 
-Module auth aktif:
+Active auth modules:
 
 - `app/modules/auth/login-page.vue`
 - `app/modules/auth/register-page.vue`
@@ -77,34 +77,34 @@ Module auth aktif:
 - `app/modules/auth/forgot-password-page.vue`
 - `app/modules/auth/reset-password-page.vue`
 
-Auth middleware saat ini menjaga allowlist public route di `app/middleware/auth.global.ts`. Bila menambah auth page public baru, file ini wajib ikut diupdate.
+The auth middleware keeps the public route allowlist in `app/middleware/auth.global.ts`. Update this file when adding a new public auth page.
 
 ## Dashboard Pattern
 
-Dashboard home route saat ini memakai:
+The dashboard home route currently uses:
 
 - route wrapper: `app/pages/index.vue`
 - module page: `app/modules/dashboard/index-page.vue`
 
-Dokumen lama yang masih menyebut `dashboard-page.vue` sudah tidak akurat.
+Older references to `dashboard-page.vue` are no longer accurate.
 
 ## Resource Route Patterns
 
-Frontend sekarang memakai beberapa pola resource yang hidup berdampingan.
+The frontend currently uses several resource route patterns side by side. For implementation details and list defaults, use `docs/resource_patterns.md` as the source of truth.
 
-### 1. Thin wrapper ke module page
+### 1. Thin wrapper to module page
 
-Contoh:
+Examples:
 
 - `app/pages/resources/attendance-logs.vue` -> `app/modules/resources/attendance-logs/attendance-logs-page.vue`
 - `app/pages/resources/employees.vue` -> `app/modules/resources/employees/employees-page.vue`
 - `app/pages/resources/work-shifts.vue` -> `app/modules/resources/work-shifts/work-shifts-page.vue`
 
-### 2. Thin wrapper dengan optional route param di file yang sama
+### 2. Thin wrapper with an optional route param in the same file
 
-Dipakai saat satu module menangani list/manage flow sendiri melalui route seperti `:id?`.
+Use this when one module owns its list/manage flow through a route such as `:id?`.
 
-Contoh:
+Examples:
 
 - `app/pages/resources/users.vue` -> path `/resources/users/:id?`
 - `app/pages/resources/roles.vue` -> path `/resources/roles/:id?`
@@ -115,15 +115,15 @@ Contoh:
 - `app/pages/resources/invoices.vue` -> path `/resources/invoices/:id?`
 - `app/pages/resources/permissions.vue` -> path `/resources/permissions/:id?`
 
-Catatan:
+Notes:
 
-- route `permissions` saat ini hanya redirect ke `/resources/roles`
+- The `permissions` route currently redirects to `/resources/roles`.
 
 ### 3. Dedicated detail/manage page
 
-Dipakai saat detail page memang berdiri sendiri.
+Use this when the detail page is intentionally separate.
 
-Contoh:
+Examples:
 
 - `app/pages/resources/companies/[id].vue` -> `app/modules/resources/companies/companies-manage-page.vue`
 - `app/pages/resources/org-units/[id].vue` -> `app/modules/resources/org-units/org-unit-detail-page.vue`
@@ -131,7 +131,7 @@ Contoh:
 
 ## Current Resource Modules
 
-Module resource yang aktif di repo saat ini:
+Resource modules currently active in the repository:
 
 - attendance logs
 - branches
@@ -151,25 +151,25 @@ Module resource yang aktif di repo saat ini:
 - work locations
 - work shifts
 
-Catatan penting:
+Important notes:
 
-- `branches` module ada di `app/modules/resources/branches/branches-page.vue`
-- sampai saat ini belum ada file route `app/pages/resources/branches.vue`, jadi module itu belum terekspos sebagai route normal
+- The `branches` module exists at `app/modules/resources/branches/branches-page.vue`.
+- There is no `app/pages/resources/branches.vue` route file yet, so the module is not exposed as a normal route.
 
 ## App Shell Notes
 
-Default app shell ada di `app/layouts/default.vue`.
+The default app shell is in `app/layouts/default.vue`.
 
-Shell ini saat ini menangani:
+The shell currently handles:
 
-- page title dan document title
+- page title and document title
 - sidebar navigation desktop
 - mobile navigation drawer
 - theme toggle
 - locale switcher
 - global banner rendering
 
-Sidebar yang aktif sekarang hanya mengekspos subset resource inti:
+The active sidebar intentionally exposes only a subset of core resources:
 
 - dashboard
 - companies
@@ -180,13 +180,13 @@ Sidebar yang aktif sekarang hanya mengekspos subset resource inti:
 - work shifts
 - roles
 
-Route resource `users` masih ada untuk kebutuhan internal/admin flow, tetapi sengaja tidak ditampilkan di navigasi utama. Arah produk yang aktif adalah memakai istilah domain seperti employee, company, dan access/roles dibanding menu generik user.
+The `users` resource route still exists for internal/admin flows, but it is intentionally hidden from the main navigation. Current product language favors domain terms such as employee, company, and access/roles over a generic user menu.
 
-Jadi, tidak semua page/resource yang ada di repo otomatis muncul di navigasi utama.
+Not every page or resource in the repository should automatically appear in the main navigation.
 
 ## Reusable Components
 
-Shared components yang jadi fondasi UI sekarang:
+Foundational shared UI components:
 
 - `ResourceList`
 - `ResourceTable`
@@ -194,18 +194,27 @@ Shared components yang jadi fondasi UI sekarang:
 - `SearchableSelect`
 - `SearchableTreeSelect`
 - `LocationMapPicker`
-- primitive `ui/*` seperti `Button`, `Input`, `Card`, `Badge`, `Table`
+- `ui/*` primitives such as `Button`, `Input`, `Card`, `Badge`, and `Table`
 
-`ResourceList` dan `ResourceTable` saat ini adalah shared shell paling penting untuk banyak CRUD-style resource.
+`ResourceList` and `ResourceTable` are the main shared shells for many CRUD-style resources. Use `docs/resource_patterns.md` for when and how to apply them.
 
 ## Data Flow
 
-Alur data frontend saat ini:
+Current frontend data flow:
 
-1. page/module memanggil `useApi().apiFetch(...)`
-2. `useApi` menambahkan auth header dan `Accept-Language`
-3. request dikirim ke `/api/proxy/...`
-4. Nitro proxy meneruskan request ke backend `runtimeConfig.apiBase`
-5. response backend dipakai langsung oleh page/module
+1. The page/module calls `useApi().apiFetch(...)`.
+2. `useApi` adds auth headers and `Accept-Language`.
+3. The request goes to `/api/proxy/...`.
+4. The Nitro proxy forwards the request to backend `runtimeConfig.apiBase`.
+5. The page/module consumes the backend response.
 
-Untuk resource pages, pola fetch yang dominan saat ini adalah client-side fetch non-blocking, sering dikombinasikan dengan penyimpanan last successful result agar konten lama tetap tampil saat refresh.
+For resource pages, the dominant fetch pattern is non-blocking client-side fetch, often paired with storing the last successful result so existing content can remain visible during refresh.
+
+## Date And Time Formatting
+
+API dates and times generally stay as ISO `string` values in the data layer. Format them before displaying them to users through:
+
+- `app/composables/useDateTime.ts` in Vue components
+- `app/utils/date-time.ts` for pure helpers or shared formatters
+
+Use `docs/ui_system.md` as the source of truth for user-facing date/time readability rules.

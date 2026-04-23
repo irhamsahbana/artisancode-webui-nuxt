@@ -3,7 +3,9 @@ import { navigateTo } from '#app'
 
 defineOptions({ name: 'PermissionsPage' })
 
-await navigateTo('/resources/roles')
+const localePath = useLocalePath()
+
+await navigateTo(localePath('/resources/roles'))
 </script>
 
 <template>

@@ -2,7 +2,6 @@
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
-import { localizeUiText } from '~/utils/ui-localization'
 
 defineOptions({ name: 'UsersPage' })
 
@@ -26,8 +25,7 @@ type UserDetail = {
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale } = useLocale()
-const uiText = (value: string) => localizeUiText(locale.value, value)
+const { locale, text: uiText } = useLocale()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const name = row.name

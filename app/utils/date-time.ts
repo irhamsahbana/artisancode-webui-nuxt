@@ -91,6 +91,19 @@ export const formatDateTimeValue = (
   return date.toLocaleString(locale, options)
 }
 
+export const formatReadableDateTimeValue = (
+  value: string,
+  locale: AppDateLocale,
+  options?: Intl.DateTimeFormatOptions,
+) => formatDateTimeValue(value, locale, {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  ...(options ?? {}),
+})
+
 export const formatIsoDateValue = (
   value: string,
   locale: AppDateLocale,

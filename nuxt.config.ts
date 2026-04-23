@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@nuxtjs/i18n'],
   colorMode: {
     classSuffix: '',
     storageKey: 'ui_theme',
@@ -13,6 +13,21 @@ export default defineNuxtConfig({
     { path: '~/components', pathPrefix: false },
   ],
   css: ['~/assets/css/main.css'],
+  i18n: {
+    strategy: 'prefix_except_default',
+    defaultLocale: 'id',
+    langDir: 'locales',
+    locales: [
+      { code: 'id', name: 'Indonesia', language: 'id-ID', file: 'id.ts' },
+      { code: 'en', name: 'English', language: 'en-US', file: 'en.ts' },
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'ac_locale',
+      redirectOn: 'root',
+      fallbackLocale: 'id',
+    },
+  },
   runtimeConfig: {
     apiBase: '',
     public: {

@@ -27,32 +27,38 @@ const formattedLabel = computed(() => {
 <template>
   <div>
     <div
-      class="flex items-center gap-1 rounded px-2 py-1.5 text-sm cursor-pointer hover:bg-accent"
+      class="flex items-center gap-1 rounded px-2 py-1.5 text-sm hover:bg-accent"
       :class="{ 'bg-accent': isSelected() }"
       :style="{ paddingLeft: `${level * 20 + 8}px` }"
-      @click="emit('select', node)"
+      role="treeitem"
+      :aria-selected="isSelected()"
+      :aria-expanded="hasChildren() ? isExpanded() : undefined"
     >
       <!-- Expand toggle -->
-      <span
+      <button
+        v-if="hasChildren()"
+        type="button"
         class="w-4 h-4 flex items-center justify-center shrink-0 text-muted-foreground"
+        :aria-label="isExpanded() ? 'Collapse organization unit' : 'Expand organization unit'"
         @click="emit('toggle-expand', node.id, $event)"
       >
-        <span v-if="hasChildren()">
-          {{ isExpanded() ? '▾' : '▸' }}
-        </span>
-        <span
-          v-else
-          class="text-xs"
-        >●</span>
-      </span>
+        {{ isExpanded() ? '▾' : '▸' }}
+      </button>
+      <span
+        v-else
+        class="w-4 h-4 flex items-center justify-center shrink-0 text-xs text-muted-foreground"
+        aria-hidden="true"
+      >●</span>
 
       <!-- Name -->
-      <span
-        class="truncate"
+      <button
+        type="button"
+        class="min-w-0 flex-1 truncate text-left"
         :class="{ 'font-medium': isSelected() }"
+        @click="emit('select', node)"
       >
         {{ formattedLabel }}
-      </span>
+      </button>
     </div>
 
     <!-- Children -->
