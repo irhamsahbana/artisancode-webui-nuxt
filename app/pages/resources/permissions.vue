@@ -4,7 +4,7 @@ import PermissionsPage from '~/modules/resources/permissions/permissions-page.vu
 defineOptions({ name: 'PermissionsRoutePage' })
 
 definePageMeta({
-  path: '/resources/permissions/:id?',
+  path: '/app/resources/permissions/:id?',
 })
 </script>
 

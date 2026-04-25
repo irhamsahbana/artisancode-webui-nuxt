@@ -2,6 +2,10 @@
 import WorkLocationsPage from '~/modules/resources/work-locations/work-locations-page.vue'
 
 defineOptions({ name: 'WorkLocationsRoutePage' })
+
+definePageMeta({
+  path: '/app/resources/work-locations',
+})
 </script>
 
 <template>

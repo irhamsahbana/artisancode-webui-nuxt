@@ -4,7 +4,7 @@ import CategoriesPage from '~/modules/resources/categories/categories-page.vue'
 defineOptions({ name: 'CategoriesRoutePage' })
 
 definePageMeta({
-  path: '/resources/categories/:id?',
+  path: '/app/resources/categories/:id?',
 })
 </script>
 

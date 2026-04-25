@@ -4,7 +4,7 @@ import InternalProductsPage from '~/modules/resources/internal-products/internal
 defineOptions({ name: 'InternalProductsRoutePage' })
 
 definePageMeta({
-  path: '/internal/products/:id?',
+  path: '/app/internal/products/:id?',
 })
 </script>
 

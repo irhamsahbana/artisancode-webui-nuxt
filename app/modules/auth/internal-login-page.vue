@@ -33,7 +33,7 @@ const submit = async () => {
       return
     }
 
-    await navigateTo(localePath('/internal/users'))
+    await navigateTo(localePath('/app/internal/users'))
   } catch {
     errorMessage.value = uiText('Internal login failed')
   } finally {

@@ -4,7 +4,7 @@ import RolesPage from '~/modules/resources/roles/roles-page.vue'
 defineOptions({ name: 'RolesRoutePage' })
 
 definePageMeta({
-  path: '/resources/roles/:id?',
+  path: '/app/resources/roles/:id?',
 })
 </script>
 

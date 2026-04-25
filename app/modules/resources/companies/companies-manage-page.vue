@@ -319,7 +319,7 @@ const submitEdit = async () => {
 }
 
 const goBack = () => {
-  router.push(localePath('/resources/companies'))
+  router.push(localePath('/app/resources/companies'))
 }
 
 onMounted(async () => {

@@ -23,6 +23,7 @@ This file is the short entry point for work in `webui/`.
 - Run the smallest meaningful verification first, normally `pnpm typecheck` then `pnpm lint`.
 - When helper behavior changes, add or update focused unit tests and run `pnpm test:unit`.
 - When `agents.md` or related workflow/docs files change, rerun `pnpm test:unit` in addition to the usual verification so documentation-backed expectations stay enforced.
+- When local frontend testing needs login credentials, use the backend seed CSV data in `/Users/codebeast/Documents/src/artisancode/artisancode-backend-go/db/seeds/data/`, especially `users.csv`.
 - Never commit to git unless the user explicitly asks.
 
 ## Quick Context

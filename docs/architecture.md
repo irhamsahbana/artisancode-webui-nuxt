@@ -51,7 +51,7 @@ Current public auth routes:
 - `/auth/email-verification`
 - `/auth/forgot-password`
 - `/auth/reset-password`
-- `/internal/login`
+- `/app/internal/login`
 
 Tenant-aware public auth payload contracts:
 
@@ -84,7 +84,7 @@ The auth middleware keeps the public route allowlist in `app/middleware/auth.glo
 
 ## Dashboard Pattern
 
-The dashboard home route currently uses:
+The authenticated app dashboard route currently uses `/app` so `/` can be reserved for marketing pages:
 
 - route wrapper: `app/pages/index.vue`
 - module page: `app/modules/dashboard/index-page.vue`
@@ -109,18 +109,18 @@ Use this when one module owns its list/manage flow through a route such as `:id?
 
 Examples:
 
-- `app/pages/resources/users.vue` -> path `/resources/users/:id?`
-- `app/pages/resources/roles.vue` -> path `/resources/roles/:id?`
-- `app/pages/resources/categories.vue` -> path `/resources/categories/:id?`
-- `app/pages/resources/teachers.vue` -> path `/resources/teachers/:id?`
-- `app/pages/resources/programs.vue` -> path `/resources/programs/:id?`
-- `app/pages/resources/enrollments.vue` -> path `/resources/enrollments/:id?`
-- `app/pages/resources/invoices.vue` -> path `/resources/invoices/:id?`
-- `app/pages/resources/permissions.vue` -> path `/resources/permissions/:id?`
+- `app/pages/resources/users.vue` -> path `/app/resources/users/:id?`
+- `app/pages/resources/roles.vue` -> path `/app/resources/roles/:id?`
+- `app/pages/resources/categories.vue` -> path `/app/resources/categories/:id?`
+- `app/pages/resources/teachers.vue` -> path `/app/resources/teachers/:id?`
+- `app/pages/resources/programs.vue` -> path `/app/resources/programs/:id?`
+- `app/pages/resources/enrollments.vue` -> path `/app/resources/enrollments/:id?`
+- `app/pages/resources/invoices.vue` -> path `/app/resources/invoices/:id?`
+- `app/pages/resources/permissions.vue` -> path `/app/resources/permissions/:id?`
 
 Notes:
 
-- The `permissions` route currently redirects to `/resources/roles`.
+- The `permissions` route currently redirects to `/app/resources/roles`.
 
 ### 3. Dedicated detail/manage page
 
@@ -157,9 +157,8 @@ Resource modules currently active in the repository:
 
 Important notes:
 
-- The `branches` module exists at `app/modules/resources/branches/branches-page.vue`.
-- There is no `app/pages/resources/branches.vue` route file yet, so the module is not exposed as a normal route.
-- Internal admin routes live under `/internal/*`, including `/internal/login`, `/internal/users`, and `/internal/products`. These flows use a separate internal auth token flow.
+- Client admin routes live under `/app/resources/*`.
+- Internal admin routes live under `/app/internal/*`, including `/app/internal/login`, `/app/internal/users`, `/app/internal/clients`, and `/app/internal/products`. These flows use a separate internal auth token flow.
 
 ## App Shell Notes
 

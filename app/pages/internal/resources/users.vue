@@ -4,7 +4,7 @@ import InternalUsersPage from '~/modules/resources/internal-users/internal-users
 defineOptions({ name: 'InternalUsersRoutePage' })
 
 definePageMeta({
-  path: '/internal/users/:id?',
+  path: '/app/internal/users/:id?',
 })
 </script>
 

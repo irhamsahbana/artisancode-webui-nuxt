@@ -38,13 +38,13 @@ type DashboardPayload = {
 }
 
 const cards = [
-  { label: 'Companies', href: '/resources/companies' },
-  { label: 'Employees', href: '/resources/employees' },
-  { label: 'Attendance Logs', href: '/resources/attendance-logs' },
-  { label: 'Work Locations', href: '/resources/work-locations' },
-  { label: 'Work Shifts', href: '/resources/work-shifts' },
-  { label: 'Job Positions', href: '/resources/job-positions' },
-  { label: 'Roles & Permissions', href: '/resources/roles' },
+  { label: 'Companies', href: '/app/resources/companies' },
+  { label: 'Employees', href: '/app/resources/employees' },
+  { label: 'Attendance Logs', href: '/app/resources/attendance-logs' },
+  { label: 'Work Locations', href: '/app/resources/work-locations' },
+  { label: 'Work Shifts', href: '/app/resources/work-shifts' },
+  { label: 'Job Positions', href: '/app/resources/job-positions' },
+  { label: 'Roles & Permissions', href: '/app/resources/roles' },
 ]
 
 const trendOptions = [7, 14, 30] as const
@@ -202,7 +202,7 @@ const exceptionToneMap: Record<DashboardException['exception_type'], string> = {
 
 const buildLogLink = (params: Record<string, string>) =>
   localePath({
-    path: '/resources/attendance-logs',
+    path: '/app/resources/attendance-logs',
     query: params,
   })
 </script>
@@ -514,7 +514,7 @@ const buildLogLink = (params: Record<string, string>) =>
             </div>
           </NuxtLink>
           <NuxtLink
-            :to="localePath('/resources/employees')"
+            :to="localePath('/app/resources/employees')"
             class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
@@ -525,7 +525,7 @@ const buildLogLink = (params: Record<string, string>) =>
             </div>
           </NuxtLink>
           <NuxtLink
-            :to="localePath('/resources/work-shifts')"
+            :to="localePath('/app/resources/work-shifts')"
             class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">

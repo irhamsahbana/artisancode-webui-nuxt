@@ -4,7 +4,7 @@ import BranchesPage from '~/modules/resources/branches/branches-page.vue'
 defineOptions({ name: 'BranchesRoutePage' })
 
 definePageMeta({
-  path: '/resources/branches/:id?',
+  path: '/app/resources/branches/:id?',
 })
 </script>
 

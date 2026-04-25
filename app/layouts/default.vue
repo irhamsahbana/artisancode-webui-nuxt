@@ -12,7 +12,7 @@ const localePath = useLocalePath();
 const stripLocalePrefix = (path: string) => path.replace(/^\/en(?=\/|$)/, "") || "/";
 const normalizedPath = computed(() => stripLocalePrefix(route.path));
 const isInternalRoute = computed(() =>
-  normalizedPath.value.startsWith("/internal")
+  normalizedPath.value.startsWith("/app/internal")
 );
 const authShellPaths = [
   "/login",
@@ -22,7 +22,7 @@ const authShellPaths = [
   "/auth/forgot-password",
   "/auth/invitation",
   "/auth/reset-password",
-  "/internal/login",
+  "/app/internal/login",
 ];
 const isAuthPage = computed(
   () => authShellPaths.includes(stripLocalePrefix(route.path))
@@ -38,9 +38,9 @@ const navGroups = computed(() => {
       {
         title: uiText("Internal"),
         items: [
-          { label: uiText("Clients"), to: "/internal/clients", icon: Building2 },
-          { label: uiText("Users"), to: "/internal/users", icon: ShieldCheck },
-          { label: uiText("Products"), to: "/internal/products", icon: Building2 },
+          { label: uiText("Clients"), to: "/app/internal/clients", icon: Building2 },
+          { label: uiText("Users"), to: "/app/internal/users", icon: ShieldCheck },
+          { label: uiText("Products"), to: "/app/internal/products", icon: Building2 },
         ],
       },
     ];
@@ -49,18 +49,18 @@ const navGroups = computed(() => {
   return [
     {
       title: t("layout.main"),
-      items: [{ label: t("layout.dashboard"), to: "/", icon: LayoutGrid }],
+      items: [{ label: t("layout.dashboard"), to: "/app", icon: LayoutGrid }],
     },
     {
       title: t("layout.resources"),
       items: [
-        { label: t("layout.companies"), to: "/resources/companies", icon: Building2 },
-        { label: t("layout.employees"), to: "/resources/employees", icon: Users },
-        { label: t("layout.attendanceLogs"), to: "/resources/attendance-logs", icon: ClipboardList },
-        { label: t("layout.jobPositions"), to: "/resources/job-positions", icon: BriefcaseBusiness },
-        { label: t("layout.workLocations"), to: "/resources/work-locations", icon: MapPin },
-        { label: t("layout.workShifts"), to: "/resources/work-shifts", icon: Clock3 },
-        { label: t("layout.rolesPermissions"), to: "/resources/roles", icon: ShieldCheck },
+        { label: t("layout.companies"), to: "/app/resources/companies", icon: Building2 },
+        { label: t("layout.employees"), to: "/app/resources/employees", icon: Users },
+        { label: t("layout.attendanceLogs"), to: "/app/resources/attendance-logs", icon: ClipboardList },
+        { label: t("layout.jobPositions"), to: "/app/resources/job-positions", icon: BriefcaseBusiness },
+        { label: t("layout.workLocations"), to: "/app/resources/work-locations", icon: MapPin },
+        { label: t("layout.workShifts"), to: "/app/resources/work-shifts", icon: Clock3 },
+        { label: t("layout.rolesPermissions"), to: "/app/resources/roles", icon: ShieldCheck },
       ],
     },
   ];
@@ -71,6 +71,9 @@ const isActive = (path: string) => {
   const currentPath = stripLocalePrefix(route.path);
   return currentPath === path || currentPath.startsWith(path + "/");
 };
+
+const isNavItemActive = (path: string) =>
+  isActive(path) && (path !== "/app" || normalizedPath.value === "/app");
 
 const { visible, message, variant, hide } = useBanner();
 const colorMode = useColorMode();
@@ -83,7 +86,7 @@ const isDarkTheme = computed(() => colorMode.preference === "dark");
 
 const currentPageTitle = computed(() => {
   for (const group of navGroups.value) {
-    const activeItem = group.items.find(item => isActive(item.to) && (item.to !== "/" || route.path === "/"))
+    const activeItem = group.items.find(item => isNavItemActive(item.to))
     if (activeItem) {
       return activeItem.label
     }
@@ -94,7 +97,7 @@ const currentPageTitle = computed(() => {
 
 const currentPageGroup = computed(() => {
   for (const group of navGroups.value) {
-    const activeItem = group.items.find(item => isActive(item.to) && (item.to !== "/" || route.path === "/"))
+    const activeItem = group.items.find(item => isNavItemActive(item.to))
     if (activeItem) {
       return group.title
     }
@@ -261,8 +264,7 @@ watch(
                   class="group flex items-center gap-3 rounded-2xl border border-transparent px-3 py-3 text-sidebar-foreground/78 transition hover:border-sidebar-border/60 hover:bg-sidebar-accent/75 hover:text-sidebar-accent-foreground"
                   :class="{
                     'border-sidebar-border/70 bg-sidebar-accent text-sidebar-accent-foreground shadow-[0_18px_36px_-30px_rgba(15,23,42,0.85)] font-medium':
-                      isActive(item.to) &&
-                      (item.to !== '/' || route.path === '/'),
+                      isNavItemActive(item.to),
                   }"
                   :to="localePath(item.to)"
                 >
@@ -270,8 +272,8 @@ watch(
                     :is="item.icon"
                     class="h-4 w-4 shrink-0"
                     :class="{
-                      'text-sidebar-primary': isActive(item.to) && (item.to !== '/' || route.path === '/'),
-                      'text-sidebar-foreground/55 group-hover:text-sidebar-foreground/80': !isActive(item.to) || (item.to === '/' && route.path !== '/'),
+                      'text-sidebar-primary': isNavItemActive(item.to),
+                      'text-sidebar-foreground/55 group-hover:text-sidebar-foreground/80': !isNavItemActive(item.to),
                     }"
                   />
                   {{ item.label }}
@@ -468,8 +470,7 @@ watch(
                     class="group flex items-center gap-3 rounded-2xl border border-transparent px-3 py-3.5 text-sidebar-foreground/86 transition hover:border-sidebar-border/70 hover:bg-sidebar-accent/88 hover:text-sidebar-accent-foreground"
                     :class="{
                       'border-sidebar-border/80 bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-[0_18px_34px_-28px_rgba(2,6,23,0.95)]':
-                        isActive(item.to) &&
-                        (item.to !== '/' || route.path === '/'),
+                        isNavItemActive(item.to),
                     }"
                     :to="localePath(item.to)"
                   >
@@ -477,8 +478,8 @@ watch(
                       :is="item.icon"
                       class="h-4 w-4 shrink-0"
                       :class="{
-                        'text-sidebar-primary': isActive(item.to) && (item.to !== '/' || route.path === '/'),
-                        'text-sidebar-foreground/55 group-hover:text-sidebar-foreground/80': !isActive(item.to) || (item.to === '/' && route.path !== '/'),
+                        'text-sidebar-primary': isNavItemActive(item.to),
+                        'text-sidebar-foreground/55 group-hover:text-sidebar-foreground/80': !isNavItemActive(item.to),
                       }"
                     />
                     {{ item.label }}

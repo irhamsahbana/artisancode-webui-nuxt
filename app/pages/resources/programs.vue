@@ -4,7 +4,7 @@ import ProgramsPage from '~/modules/resources/programs/programs-page.vue'
 defineOptions({ name: 'ProgramsRoutePage' })
 
 definePageMeta({
-  path: '/resources/programs/:id?',
+  path: '/app/resources/programs/:id?',
 })
 </script>
 

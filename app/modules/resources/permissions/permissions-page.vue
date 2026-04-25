@@ -5,7 +5,7 @@ defineOptions({ name: 'PermissionsPage' })
 
 const localePath = useLocalePath()
 
-await navigateTo(localePath('/resources/roles'))
+await navigateTo(localePath('/app/resources/roles'))
 </script>
 
 <template>

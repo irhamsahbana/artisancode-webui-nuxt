@@ -4,6 +4,7 @@
 
 - Module file: `app/modules/resources/{resource-name}/{resource-name}-page.vue`
 - Route wrapper: `app/pages/resources/{resource-name}.vue`
+- Client admin routes should be exposed under `/app/resources/*` with `definePageMeta({ path: ... })`.
 - Keep route wrappers thin and place feature logic in the module page.
 
 ## Detail And Optional-ID Routes
@@ -16,13 +17,13 @@ Dedicated detail/manage pages currently include:
 
 Optional-id wrappers currently include:
 
-- `app/pages/resources/users.vue` -> `/resources/users/:id?`
-- `app/pages/resources/roles.vue` -> `/resources/roles/:id?`
-- `app/pages/resources/categories.vue` -> `/resources/categories/:id?`
-- `app/pages/resources/teachers.vue` -> `/resources/teachers/:id?`
-- `app/pages/resources/programs.vue` -> `/resources/programs/:id?`
-- `app/pages/resources/enrollments.vue` -> `/resources/enrollments/:id?`
-- `app/pages/resources/invoices.vue` -> `/resources/invoices/:id?`
+- `app/pages/resources/users.vue` -> `/app/resources/users/:id?`
+- `app/pages/resources/roles.vue` -> `/app/resources/roles/:id?`
+- `app/pages/resources/categories.vue` -> `/app/resources/categories/:id?`
+- `app/pages/resources/teachers.vue` -> `/app/resources/teachers/:id?`
+- `app/pages/resources/programs.vue` -> `/app/resources/programs/:id?`
+- `app/pages/resources/enrollments.vue` -> `/app/resources/enrollments/:id?`
+- `app/pages/resources/invoices.vue` -> `/app/resources/invoices/:id?`
 
 Prefer matching the feature's existing route pattern rather than forcing every resource into one template.
 

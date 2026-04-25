@@ -4,7 +4,7 @@ import TeachersPage from '~/modules/resources/teachers/teachers-page.vue'
 defineOptions({ name: 'TeachersRoutePage' })
 
 definePageMeta({
-  path: '/resources/teachers/:id?',
+  path: '/app/resources/teachers/:id?',
 })
 </script>
 

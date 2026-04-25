@@ -65,7 +65,7 @@ const fetchOrgUnit = async () => {
 }
 
 const goBack = async () => {
-  await router.push(localePath('/resources/org-units'))
+  await router.push(localePath('/app/resources/org-units'))
 }
 
 const saveChanges = async () => {

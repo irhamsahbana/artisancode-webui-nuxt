@@ -77,7 +77,7 @@ export const useApi = () => {
           const internalRefreshToken = useCookie<string | null>('sb_internal_refresh_token')
           internalRefreshToken.value = null
           show(t('api.sessionExpired'), 'error')
-          await navigateTo(localePath('/internal/login'))
+          await navigateTo(localePath('/app/internal/login'))
         } else if (authMode === 'user') {
           token.value = null
           const user = useState<unknown | null>('auth_user', () => null)

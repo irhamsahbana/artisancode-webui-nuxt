@@ -4,7 +4,7 @@ import EnrollmentsPage from '~/modules/resources/enrollments/enrollments-page.vu
 defineOptions({ name: 'EnrollmentsRoutePage' })
 
 definePageMeta({
-  path: '/resources/enrollments/:id?',
+  path: '/app/resources/enrollments/:id?',
 })
 </script>
 

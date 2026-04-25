@@ -2,7 +2,7 @@
 import AttendanceLogsPage from '~/modules/resources/attendance-logs/attendance-logs-page.vue'
 
 definePageMeta({
-  path: '/resources/attendance-logs/:id?',
+  path: '/app/resources/attendance-logs/:id?',
 })
 </script>
 

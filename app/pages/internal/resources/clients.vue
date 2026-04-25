@@ -4,7 +4,7 @@ import InternalClientsPage from '~/modules/resources/internal-clients/internal-c
 defineOptions({ name: 'InternalClientsRoutePage' })
 
 definePageMeta({
-  path: '/internal/clients/:id?',
+  path: '/app/internal/clients/:id?',
 })
 </script>
 

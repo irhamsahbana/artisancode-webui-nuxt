@@ -80,7 +80,7 @@ const submit = async () => {
       errorMessage.value = response.message
     }
     if (response.success) {
-      await navigateTo(localePath('/'))
+      await navigateTo(localePath('/app'))
     }
   } catch {
     errorMessage.value = t('auth.loginFailed')

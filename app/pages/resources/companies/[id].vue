@@ -4,7 +4,7 @@ import CompaniesManagePage from '~/modules/resources/companies/companies-manage-
 defineOptions({ name: 'CompaniesManageRoutePage' })
 
 definePageMeta({
-  path: '/resources/companies/:id',
+  path: '/app/resources/companies/:id',
 })
 </script>
 

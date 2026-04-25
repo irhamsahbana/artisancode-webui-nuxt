@@ -56,7 +56,7 @@ export const useInternalAuth = () => {
   const logout = async () => {
     token.value = null
     refreshToken.value = null
-    await navigateTo(localePath('/internal/login'))
+    await navigateTo(localePath('/app/internal/login'))
   }
 
   return {
