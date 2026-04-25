@@ -30,6 +30,7 @@ const isAuthPage = computed(
 const mobileNavOpen = ref(false);
 const desktopAccountMenuOpen = ref(false);
 const mobileAccountMenuOpen = ref(false);
+const isSwitchingLocale = ref(false);
 const appName = computed(() => runtimeConfig.public.appName || "ArtisanCode");
 
 const navGroups = computed(() => {
@@ -79,10 +80,10 @@ const { visible, message, variant, hide } = useBanner();
 const colorMode = useColorMode();
 
 const toggleTheme = () => {
-  colorMode.preference = colorMode.preference === "dark" ? "light" : "dark";
+  colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
 };
 
-const isDarkTheme = computed(() => colorMode.preference === "dark");
+const isDarkTheme = computed(() => colorMode.value === "dark");
 
 const currentPageTitle = computed(() => {
   for (const group of navGroups.value) {
@@ -125,6 +126,7 @@ useHead(() => ({
 const localeBadge = (value: "id" | "en") =>
   value === "id" ? "Indonesia" : "English";
 
+const nextLocale = computed<"id" | "en">(() => locale.value === "id" ? "en" : "id");
 const currentLocaleBadge = computed(() => localeBadge(locale.value));
 const activeSessionToken = computed(() => isInternalRoute.value ? internalToken.value : token.value);
 const activeUser = computed(() => isInternalRoute.value ? internalUser.value : user.value);
@@ -135,7 +137,7 @@ const userTenantName = computed(() => (
     : user.value?.tenant_name || t("layout.adminConsole")
 ));
 const currentThemeLabel = computed(() =>
-  colorMode.preference === "dark" ? t("layout.themeDark") : t("layout.themeLight")
+  colorMode.value === "dark" ? t("layout.themeDark") : t("layout.themeLight")
 );
 const handleLogout = async () => {
   if (isInternalRoute.value) {
@@ -146,9 +148,16 @@ const handleLogout = async () => {
   await logout();
 };
 
-const switchLocale = (value: "id" | "en") => {
-  if (locale.value !== value) {
-    setLocale(value);
+const switchLocale = async (value: "id" | "en" = nextLocale.value) => {
+  if (isSwitchingLocale.value || locale.value === value) {
+    return;
+  }
+
+  isSwitchingLocale.value = true;
+  try {
+    await setLocale(value);
+  } finally {
+    isSwitchingLocale.value = false;
   }
 };
 
@@ -201,10 +210,22 @@ watch(
       v-if="isAuthPage"
       class="relative min-h-screen"
     >
-      <div class="fixed right-4 top-4 z-40 sm:right-6 sm:top-6">
+      <div class="fixed right-4 top-4 z-40 flex items-center gap-2 sm:right-6 sm:top-6">
         <Button
           variant="outline"
-          class="rounded-2xl border-border/70 bg-background/88 px-3 shadow-lg backdrop-blur-xl"
+          class="shrink-0 rounded-2xl border-slate-200 bg-white/85 px-3 text-slate-900 shadow-lg backdrop-blur-xl hover:bg-slate-100 hover:text-slate-950 dark:border-white/20 dark:bg-slate-950/60 dark:text-white dark:hover:bg-slate-900 dark:hover:text-white"
+          :aria-label="t('layout.language')"
+          :disabled="isSwitchingLocale"
+          @click="switchLocale()"
+        >
+          <Languages class="h-4 w-4" />
+          <span class="hidden sm:inline">
+            {{ currentLocaleBadge }}
+          </span>
+        </Button>
+        <Button
+          variant="outline"
+          class="shrink-0 rounded-2xl border-slate-200 bg-white/85 px-3 text-slate-900 shadow-lg backdrop-blur-xl hover:bg-slate-100 hover:text-slate-950 dark:border-white/20 dark:bg-slate-950/60 dark:text-white dark:hover:bg-slate-900 dark:hover:text-white"
           :aria-label="t('layout.preferences')"
           @click="toggleTheme"
         >
@@ -302,7 +323,8 @@ watch(
                     <button
                       type="button"
                       class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
-                      @click="switchLocale(locale === 'id' ? 'en' : 'id')"
+                      :disabled="isSwitchingLocale"
+                      @click="switchLocale()"
                     >
                       <span class="flex items-center gap-3">
                         <Languages class="h-4 w-4 text-sidebar-foreground/55" />
@@ -508,7 +530,8 @@ watch(
                       <button
                         type="button"
                         class="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
-                        @click="switchLocale(locale === 'id' ? 'en' : 'id')"
+                        :disabled="isSwitchingLocale"
+                        @click="switchLocale()"
                       >
                         <span class="flex items-center gap-3">
                           <Languages class="h-4 w-4 text-sidebar-foreground/55" />
