@@ -478,7 +478,7 @@ export const exactIdUiMessages: Record<string, string> = {
   "Role created.": "Peran berhasil dibuat.",
   "Role updated.": "Peran berhasil diperbarui.",
   "Role id is missing.": "ID peran tidak ditemukan.",
-  "Permissions are managed by the backend and are read-only here.": "Izin dikelola oleh backend dan hanya bisa dilihat di sini.",
+  "Permissions are set by the system and can only be viewed here.": "Izin sudah diatur oleh sistem. Di halaman ini Anda hanya bisa melihatnya.",
   "Select timezone": "Pilih zona waktu",
   "Search timezone": "Cari zona waktu",
   "Use friendly timezone labels such as WIB, WITA, or WIT.": "Gunakan label zona waktu yang lebih familiar seperti WIB, WITA, atau WIT.",

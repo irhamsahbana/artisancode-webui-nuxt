@@ -728,7 +728,7 @@ const submitAdminInvite = async () => {
           <CardTitle>{{ uiText('Permissions') }}</CardTitle>
         </div>
         <p class="text-sm text-muted-foreground">
-          {{ uiText('Permissions are managed by the backend and are read-only here.') }}
+          {{ uiText('Permissions are set by the system and can only be viewed here.') }}
         </p>
       </CardHeader>
       <CardContent class="pt-5">

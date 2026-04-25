@@ -47,11 +47,11 @@ export default defineEventHandler(async (event) => {
     const status = isConnectionError ? 502 : 500
     const message = isConnectionError
       ? (locale === 'en'
-          ? 'Backend service is unavailable. Please try again later.'
-          : 'Layanan backend tidak tersedia. Silakan coba lagi nanti.')
+          ? 'Data could not be loaded. Please try again later.'
+          : 'Data belum bisa dimuat. Silakan coba lagi nanti.')
       : (locale === 'en'
-          ? 'An unexpected error occurred while contacting the backend service.'
-          : 'Terjadi kesalahan saat menghubungi layanan backend.')
+          ? 'Something went wrong while loading data. Please try again.'
+          : 'Terjadi gangguan saat memuat data. Silakan coba lagi.')
 
     // Use console.warn so Nitro doesn't show it as a loud ERROR
     console.warn(

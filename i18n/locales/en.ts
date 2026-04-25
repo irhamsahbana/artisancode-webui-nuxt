@@ -276,14 +276,14 @@ export default {
     "requestFailed": "Request failed",
     "networkError": "Network error",
     "sessionExpired": "Session expired. Please sign in again.",
-    "backendUnavailable": "Backend service is unavailable. Please try again later.",
-    "backendUnexpected": "An unexpected error occurred while contacting the backend service."
+    "backendUnavailable": "Data could not be loaded. Please try again later.",
+    "backendUnexpected": "Something went wrong while loading data. Please try again."
   },
   "company": {
     "languageSection": "Language",
     "preferredLanguage": "Default Language",
     "supportedLanguages": "Supported Languages",
-    "languageHint": "The tenant default language is stored in backend config and can be used by web and mobile clients.",
+    "languageHint": "The company default language is used in the web admin and employee mobile app.",
     "deleteOrgUnitConfirm": "Delete \"{name}\"? This cannot be undone.",
     "orgUnitDeleted": "Organization unit deleted.",
     "orgUnitCreated": "Organization unit created.",

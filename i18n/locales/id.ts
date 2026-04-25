@@ -276,14 +276,14 @@ export default {
     "requestFailed": "Permintaan gagal",
     "networkError": "Terjadi gangguan jaringan",
     "sessionExpired": "Sesi berakhir. Silakan masuk kembali.",
-    "backendUnavailable": "Layanan backend tidak tersedia. Silakan coba lagi nanti.",
-    "backendUnexpected": "Terjadi kesalahan saat menghubungi layanan backend."
+    "backendUnavailable": "Data belum bisa dimuat. Silakan coba lagi nanti.",
+    "backendUnexpected": "Terjadi gangguan saat memuat data. Silakan coba lagi."
   },
   "company": {
     "languageSection": "Bahasa",
     "preferredLanguage": "Bahasa Default",
     "supportedLanguages": "Bahasa yang Didukung",
-    "languageHint": "Bahasa default tenant disimpan di backend config dan bisa dipakai web maupun mobile.",
+    "languageHint": "Bahasa default perusahaan dipakai di web admin dan aplikasi mobile karyawan.",
     "deleteOrgUnitConfirm": "Hapus \"{name}\"? Tindakan ini tidak bisa dibatalkan.",
     "orgUnitDeleted": "Unit organisasi berhasil dihapus.",
     "orgUnitCreated": "Unit organisasi berhasil dibuat.",
