@@ -317,7 +317,7 @@ const buildLogLink = (params: Record<string, string>) =>
               </Button>
             </NuxtLink>
           </CardHeader>
-          <CardContent>
+          <CardContent class="pt-5">
             <div
               v-if="showInitialSkeleton"
               class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
@@ -424,7 +424,7 @@ const buildLogLink = (params: Record<string, string>) =>
               </Button>
             </NuxtLink>
           </CardHeader>
-          <CardContent class="space-y-4">
+          <CardContent class="space-y-4 pt-5">
             <div
               v-if="showInitialSkeleton"
               class="space-y-3"
@@ -490,7 +490,7 @@ const buildLogLink = (params: Record<string, string>) =>
             </p>
           </div>
         </CardHeader>
-        <CardContent class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <CardContent class="grid gap-4 pt-5 sm:grid-cols-2 xl:grid-cols-4">
           <NuxtLink
             :to="buildLogLink({ attendance_date: selectedDate })"
             class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
