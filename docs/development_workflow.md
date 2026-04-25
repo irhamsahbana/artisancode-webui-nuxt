@@ -42,6 +42,8 @@ After meaningful changes, run:
 3. `pnpm test:unit` when helper logic, shared utilities, or workflow/agent docs changed
 4. route-level browser smoke test
 
+Use `docs/playwright_testing.md` for the browser smoke-test workflow, including local dev server startup, route checks, desktop/mobile screenshots, Browser/Playwright MCP fallback behavior, and dev-server cleanup.
+
 If shared infrastructure changed, also verify:
 - a list page using `ResourceList`
 - an action-menu flow

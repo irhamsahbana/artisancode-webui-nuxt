@@ -142,6 +142,136 @@ export default {
     "invitationAcceptFailed": "Failed to accept invitation",
     "fullNameRequired": "Full name is required"
   },
+  "marketing": {
+    "presense": {
+      "seo": {
+        "title": "Presense - Web and mobile employee attendance",
+        "description": "Presense helps HR monitor attendance, shifts, location, selfie proof, and attendance history from one web and mobile system."
+      },
+      "logoAlt": "Presense logo",
+      "languageSwitch": "Switch language",
+      "nav": {
+        "label": "Main navigation",
+        "features": "Features",
+        "flow": "Flow",
+        "platform": "Platform"
+      },
+      "cta": {
+        "demo": "Request Demo",
+        "flow": "See attendance flow",
+        "adminLogin": "Admin login"
+      },
+      "hero": {
+        "badge": "Web admin and mobile attendance system",
+        "title": "Clear employee attendance for teams that move every day.",
+        "description": "Presense helps HR monitor attendance, shifts, location, selfie proof, and attendance history from one web and mobile system.",
+        "proof1": "Mobile check-in and check-out with selfie proof",
+        "proof2": "Daily dashboard for Owners and HR",
+        "proof3": "Logs and exports for attendance audits"
+      },
+      "mock": {
+        "aria": "Mock view of the Presense web dashboard and mobile app",
+        "dashboardLabel": "Owner Attendance Dashboard",
+        "dashboardTitle": "Attendance overview",
+        "today": "Today",
+        "exceptions": "Attendance exceptions",
+        "needsReview": "Needs review",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "late": "Late",
+        "recorded": "Recorded",
+        "photoAvailable": "Photo proof available",
+        "mobileTitle": "Employee mobile app",
+        "shift": "Morning shift - 08:00 to 17:00",
+        "todayStatus": "Today status",
+        "readyCheckIn": "Ready to check in",
+        "permissionHint": "Camera and location are used during check-in or check-out.",
+        "metric": {
+          "activeEmployees": "Active employees",
+          "checkedIn": "Checked in",
+          "checkedOut": "Checked out",
+          "pendingIn": "Pending check-in",
+          "pendingOut": "Pending check-out",
+          "lateCheckIn": "Late check-in"
+        }
+      },
+      "pain": {
+        "eyebrow": "Common attendance problems",
+        "title": "HR needs to see attendance issues before reporting turns into manual work.",
+        "point1": "It is unclear who has not checked in today.",
+        "point2": "Late arrivals and missing check-outs only appear during recap.",
+        "point3": "Photo and location proof are hard to audit when scattered.",
+        "point4": "Attendance reports still require too much manual work."
+      },
+      "capability": {
+        "eyebrow": "Core capabilities",
+        "title": "From mobile check-in to audit logs in web admin.",
+        "description": "Presense connects the employee experience and HR operations in one clear attendance flow.",
+        "mobile": {
+          "title": "Mobile attendance for employees",
+          "description": "Employees check in and check out from mobile with selfie proof, location, notes, and device context."
+        },
+        "dashboard": {
+          "title": "Daily dashboard for Owner/HR",
+          "description": "Owners and HR see today's attendance summary, exceptions, and short trends for follow-up."
+        },
+        "policy": {
+          "title": "Policy, shifts, and work locations",
+          "description": "Admins manage employees, work shifts, work locations, radius, timezone, and check-in/check-out windows."
+        },
+        "audit": {
+          "title": "Auditable logs and reports",
+          "description": "Attendance logs can be filtered by employee, source, status, location, date, and exception, then exported."
+        }
+      },
+      "workflow": {
+        "eyebrow": "How it works",
+        "title": "One flow from HR setup to attendance reporting.",
+        "step1": {
+          "title": "Set up operations data",
+          "description": "HR prepares companies, employees, job positions, work locations, work shifts, and access roles."
+        },
+        "step2": {
+          "title": "Define attendance policy",
+          "description": "The system reads timezone, radius, and check-in/check-out windows that apply to the team."
+        },
+        "step3": {
+          "title": "Employees record attendance",
+          "description": "Employees check in or check out from mobile with selfie proof and location."
+        },
+        "step4": {
+          "title": "HR reviews and exports",
+          "description": "Owner/HR opens the dashboard, filters exceptions, reviews logs, and downloads reports."
+        }
+      },
+      "platform": {
+        "eyebrow": "Two sides of the product",
+        "title": "Web admin for HR, mobile app for employees.",
+        "admin": {
+          "title": "Web Admin for Owner/HR",
+          "description": "Operational control, audits, master data, filters, and report exports live in one admin console.",
+          "feature1": "Owner attendance dashboard",
+          "feature2": "Attendance logs with complete filters",
+          "feature3": "Employee, shift, and work location data",
+          "feature4": "Attendance report export",
+          "feature5": "Access roles for admin needs"
+        },
+        "mobile": {
+          "title": "Mobile App for Employees",
+          "description": "Employees see today's status, shifts, policy, check-in/check-out, selfie proof, and personal history.",
+          "feature1": "Today attendance status",
+          "feature2": "Current shift and policy",
+          "feature3": "Check-in/check-out with selfie proof",
+          "feature4": "Location, notes, and device context",
+          "feature5": "Employee attendance history"
+        }
+      },
+      "final": {
+        "title": "Make attendance easier to audit.",
+        "description": "See how Presense helps HR monitor attendance from web admin and the employee mobile app."
+      }
+    }
+  },
   "api": {
     "requestFailed": "Request failed",
     "networkError": "Network error",

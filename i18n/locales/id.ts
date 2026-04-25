@@ -142,6 +142,136 @@ export default {
     "invitationAcceptFailed": "Gagal menerima undangan",
     "fullNameRequired": "Nama lengkap wajib diisi"
   },
+  "marketing": {
+    "presense": {
+      "seo": {
+        "title": "Presense - Absensi karyawan web dan mobile",
+        "description": "Presense membantu HR memantau kehadiran, shift, lokasi, bukti selfie, dan riwayat absensi dari satu sistem web dan mobile."
+      },
+      "logoAlt": "Logo Presense",
+      "languageSwitch": "Ganti bahasa",
+      "nav": {
+        "label": "Navigasi utama",
+        "features": "Fitur",
+        "flow": "Alur",
+        "platform": "Produk"
+      },
+      "cta": {
+        "demo": "Minta Demo",
+        "flow": "Lihat alur absensi",
+        "adminLogin": "Masuk admin"
+      },
+      "hero": {
+        "badge": "Sistem absensi web dan aplikasi mobile",
+        "title": "Absensi karyawan yang jelas untuk tim yang bergerak setiap hari.",
+        "description": "Presense membantu HR memantau kehadiran, shift, lokasi, bukti selfie, dan riwayat absensi dari satu sistem web dan mobile.",
+        "proof1": "Check-in dan check-out mobile dengan bukti selfie",
+        "proof2": "Dashboard harian untuk pemilik dan HR",
+        "proof3": "Log dan ekspor untuk audit kehadiran"
+      },
+      "mock": {
+        "aria": "Mock tampilan dashboard web dan aplikasi mobile Presense",
+        "dashboardLabel": "Dashboard Kehadiran Pemilik",
+        "dashboardTitle": "Ringkasan kehadiran",
+        "today": "Hari ini",
+        "exceptions": "Perlu ditinjau",
+        "needsReview": "Butuh review",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "late": "Terlambat",
+        "recorded": "Tercatat",
+        "photoAvailable": "Bukti foto tersedia",
+        "mobileTitle": "Aplikasi mobile karyawan",
+        "shift": "Shift pagi - 08:00 sampai 17:00",
+        "todayStatus": "Status hari ini",
+        "readyCheckIn": "Siap untuk check-in",
+        "permissionHint": "Kamera dan lokasi dipakai saat check-in atau check-out.",
+        "metric": {
+          "activeEmployees": "Karyawan aktif",
+          "checkedIn": "Sudah check-in",
+          "checkedOut": "Sudah check-out",
+          "pendingIn": "Belum check-in",
+          "pendingOut": "Belum check-out",
+          "lateCheckIn": "Terlambat masuk"
+        }
+      },
+      "pain": {
+        "eyebrow": "Masalah yang sering muncul",
+        "title": "HR butuh melihat masalah absensi sebelum rekap menjadi pekerjaan panjang.",
+        "point1": "Belum tahu siapa yang belum check-in hari ini.",
+        "point2": "Keterlambatan dan belum check-out baru terlihat saat rekap.",
+        "point3": "Bukti foto dan lokasi tidak rapi untuk kebutuhan audit.",
+        "point4": "Laporan kehadiran masih butuh banyak pekerjaan manual."
+      },
+      "capability": {
+        "eyebrow": "Kemampuan utama",
+        "title": "Dari check-in mobile sampai log audit di web admin.",
+        "description": "Presense menyatukan pengalaman karyawan dan kebutuhan HR dalam satu alur absensi yang jelas.",
+        "mobile": {
+          "title": "Absensi mobile untuk karyawan",
+          "description": "Karyawan check-in dan check-out dari mobile dengan bukti selfie, lokasi, catatan, dan konteks perangkat."
+        },
+        "dashboard": {
+          "title": "Dashboard harian untuk Pemilik/HR",
+          "description": "Pemilik dan HR melihat ringkasan kehadiran hari ini, pengecualian, dan tren singkat untuk tindak lanjut."
+        },
+        "policy": {
+          "title": "Kebijakan, shift, dan lokasi kerja",
+          "description": "Admin mengelola karyawan, shift kerja, lokasi kerja, radius, zona waktu, dan window check-in/check-out."
+        },
+        "audit": {
+          "title": "Log dan laporan yang bisa diaudit",
+          "description": "Log kehadiran dapat difilter berdasarkan karyawan, sumber, status, lokasi, tanggal, dan exception lalu diekspor."
+        }
+      },
+      "workflow": {
+        "eyebrow": "Cara kerja",
+        "title": "Satu alur dari pengaturan HR sampai laporan kehadiran.",
+        "step1": {
+          "title": "Atur data operasional",
+          "description": "HR menyiapkan perusahaan, karyawan, jabatan, lokasi kerja, shift kerja, dan peran akses."
+        },
+        "step2": {
+          "title": "Tetapkan kebijakan absensi",
+          "description": "Sistem membaca zona waktu, radius, dan window check-in/check-out yang berlaku untuk tim."
+        },
+        "step3": {
+          "title": "Karyawan mencatat kehadiran",
+          "description": "Karyawan check-in atau check-out dari mobile dengan bukti selfie dan lokasi."
+        },
+        "step4": {
+          "title": "HR meninjau dan mengekspor",
+          "description": "Pemilik/HR membuka dashboard, memfilter pengecualian, meninjau log, dan mengunduh laporan."
+        }
+      },
+      "platform": {
+        "eyebrow": "Dua sisi produk",
+        "title": "Konsol web untuk HR, aplikasi mobile untuk karyawan.",
+        "admin": {
+          "title": "Konsol Web untuk Pemilik/HR",
+          "description": "Kontrol operasional, audit, data master, filter, dan ekspor laporan berada di satu konsol admin.",
+          "feature1": "Dashboard kehadiran untuk pemilik",
+          "feature2": "Log kehadiran dengan filter lengkap",
+          "feature3": "Data karyawan, shift, dan lokasi kerja",
+          "feature4": "Ekspor laporan kehadiran",
+          "feature5": "Peran akses untuk kebutuhan admin"
+        },
+        "mobile": {
+          "title": "Aplikasi Mobile untuk Karyawan",
+          "description": "Karyawan melihat status hari ini, shift, kebijakan, check-in/check-out, bukti selfie, dan riwayat pribadi.",
+          "feature1": "Status kehadiran hari ini",
+          "feature2": "Shift dan kebijakan yang berlaku",
+          "feature3": "Check-in/check-out dengan bukti selfie",
+          "feature4": "Lokasi, catatan, dan konteks perangkat",
+          "feature5": "Riwayat kehadiran karyawan"
+        }
+      },
+      "final": {
+        "title": "Siapkan absensi yang lebih mudah diaudit.",
+        "description": "Lihat bagaimana Presense membantu HR memantau kehadiran dari web admin dan aplikasi mobile karyawan."
+      }
+    }
+  },
   "api": {
     "requestFailed": "Permintaan gagal",
     "networkError": "Terjadi gangguan jaringan",

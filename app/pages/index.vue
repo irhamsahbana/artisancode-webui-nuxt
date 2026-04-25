@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import IndexPage from '~/modules/dashboard/index-page.vue'
+import PresenseLandingPage from '~/modules/marketing/presense-landing-page.vue'
 
 defineOptions({ name: 'IndexRoutePage' })
 
 definePageMeta({
-  path: '/app',
+  layout: false,
 })
-
-const { locale } = useLocale()
 </script>
 
 <template>
-  <IndexPage :key="locale" />
+  <PresenseLandingPage />
 </template>

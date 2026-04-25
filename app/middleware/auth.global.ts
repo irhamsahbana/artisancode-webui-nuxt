@@ -8,7 +8,8 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized) => {
   const localePrefix = to.path.startsWith('/en') ? '/en' : ''
   const isInternalRoute = normalizedPath.startsWith('/app/internal')
   const activeToken = isInternalRoute ? internalToken : token
-  const isPublicPage = normalizedPath === '/login'
+  const isPublicPage = normalizedPath === '/'
+    || normalizedPath === '/login'
     || normalizedPath === '/register'
     || normalizedPath === '/auth/check-email'
     || normalizedPath === '/auth/forgot-password'
