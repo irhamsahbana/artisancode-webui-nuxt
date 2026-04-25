@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import { BriefcaseBusiness, Building2, ChevronRight, ClipboardList, Clock3, Languages, LayoutGrid, LogOut, MapPin, Menu, Palette, ShieldCheck, Users, X } from 'lucide-vue-next'
+import { BriefcaseBusiness, Building2, ChevronRight, ClipboardList, Clock3, Languages, LayoutGrid, LogOut, MapPin, Menu, MoonStar, ShieldCheck, SunMedium, Users, X } from 'lucide-vue-next'
 
 defineOptions({ name: "DefaultLayout" });
 
 const route = useRoute();
 const runtimeConfig = useRuntimeConfig();
 const { user, token, logout } = useAuth();
+const { user: internalUser, token: internalToken, logout: internalLogout } = useInternalAuth();
+const { locale, setLocale, t, text: uiText } = useLocale();
 const localePath = useLocalePath();
 const stripLocalePrefix = (path: string) => path.replace(/^\/en(?=\/|$)/, "") || "/";
+const normalizedPath = computed(() => stripLocalePrefix(route.path));
+const isInternalRoute = computed(() =>
+  normalizedPath.value.startsWith("/internal")
+);
 const authShellPaths = [
   "/login",
   "/register",
@@ -16,34 +22,49 @@ const authShellPaths = [
   "/auth/forgot-password",
   "/auth/invitation",
   "/auth/reset-password",
+  "/internal/login",
 ];
 const isAuthPage = computed(
   () => authShellPaths.includes(stripLocalePrefix(route.path))
 );
-const { locale, setLocale, t } = useLocale();
 const mobileNavOpen = ref(false);
 const desktopAccountMenuOpen = ref(false);
 const mobileAccountMenuOpen = ref(false);
 const appName = computed(() => runtimeConfig.public.appName || "ArtisanCode");
 
-const navGroups = computed(() => [
-  {
-    title: t("layout.main"),
-    items: [{ label: t("layout.dashboard"), to: "/", icon: LayoutGrid }],
-  },
-  {
-    title: t("layout.resources"),
-    items: [
-      { label: t("layout.companies"), to: "/resources/companies", icon: Building2 },
-      { label: t("layout.employees"), to: "/resources/employees", icon: Users },
-      { label: t("layout.attendanceLogs"), to: "/resources/attendance-logs", icon: ClipboardList },
-      { label: t("layout.jobPositions"), to: "/resources/job-positions", icon: BriefcaseBusiness },
-      { label: t("layout.workLocations"), to: "/resources/work-locations", icon: MapPin },
-      { label: t("layout.workShifts"), to: "/resources/work-shifts", icon: Clock3 },
-      { label: t("layout.rolesPermissions"), to: "/resources/roles", icon: ShieldCheck },
-    ],
-  },
-]);
+const navGroups = computed(() => {
+  if (isInternalRoute.value) {
+    return [
+      {
+        title: uiText("Internal"),
+        items: [
+          { label: uiText("Clients"), to: "/internal/clients", icon: Building2 },
+          { label: uiText("Users"), to: "/internal/users", icon: ShieldCheck },
+          { label: uiText("Products"), to: "/internal/products", icon: Building2 },
+        ],
+      },
+    ];
+  }
+
+  return [
+    {
+      title: t("layout.main"),
+      items: [{ label: t("layout.dashboard"), to: "/", icon: LayoutGrid }],
+    },
+    {
+      title: t("layout.resources"),
+      items: [
+        { label: t("layout.companies"), to: "/resources/companies", icon: Building2 },
+        { label: t("layout.employees"), to: "/resources/employees", icon: Users },
+        { label: t("layout.attendanceLogs"), to: "/resources/attendance-logs", icon: ClipboardList },
+        { label: t("layout.jobPositions"), to: "/resources/job-positions", icon: BriefcaseBusiness },
+        { label: t("layout.workLocations"), to: "/resources/work-locations", icon: MapPin },
+        { label: t("layout.workShifts"), to: "/resources/work-shifts", icon: Clock3 },
+        { label: t("layout.rolesPermissions"), to: "/resources/roles", icon: ShieldCheck },
+      ],
+    },
+  ];
+});
 
 // Check if a sidebar link is active (exact match or sub-page)
 const isActive = (path: string) => {
@@ -57,6 +78,8 @@ const colorMode = useColorMode();
 const toggleTheme = () => {
   colorMode.preference = colorMode.preference === "dark" ? "light" : "dark";
 };
+
+const isDarkTheme = computed(() => colorMode.preference === "dark");
 
 const currentPageTitle = computed(() => {
   for (const group of navGroups.value) {
@@ -100,11 +123,25 @@ const localeBadge = (value: "id" | "en") =>
   value === "id" ? "Indonesia" : "English";
 
 const currentLocaleBadge = computed(() => localeBadge(locale.value));
-const userDisplayName = computed(() => user.value?.name || user.value?.username || appName.value);
-const userTenantName = computed(() => user.value?.tenant_name || t("layout.adminConsole"));
+const activeSessionToken = computed(() => isInternalRoute.value ? internalToken.value : token.value);
+const activeUser = computed(() => isInternalRoute.value ? internalUser.value : user.value);
+const userDisplayName = computed(() => activeUser.value?.name || activeUser.value?.username || appName.value);
+const userTenantName = computed(() => (
+  isInternalRoute.value
+    ? uiText("Internal")
+    : user.value?.tenant_name || t("layout.adminConsole")
+));
 const currentThemeLabel = computed(() =>
   colorMode.preference === "dark" ? t("layout.themeDark") : t("layout.themeLight")
 );
+const handleLogout = async () => {
+  if (isInternalRoute.value) {
+    await internalLogout();
+    return;
+  }
+
+  await logout();
+};
 
 const switchLocale = (value: "id" | "en") => {
   if (locale.value !== value) {
@@ -159,8 +196,24 @@ watch(
     </div>
     <div
       v-if="isAuthPage"
-      class="min-h-screen"
+      class="relative min-h-screen"
     >
+      <div class="fixed right-4 top-4 z-40 sm:right-6 sm:top-6">
+        <Button
+          variant="outline"
+          class="rounded-2xl border-border/70 bg-background/88 px-3 shadow-lg backdrop-blur-xl"
+          :aria-label="t('layout.preferences')"
+          @click="toggleTheme"
+        >
+          <component
+            :is="isDarkTheme ? MoonStar : SunMedium"
+            class="h-4 w-4"
+          />
+          <span class="hidden sm:inline">
+            {{ currentThemeLabel }}
+          </span>
+        </Button>
+      </div>
       <slot />
     </div>
     <div
@@ -227,7 +280,7 @@ watch(
             </section>
           </div>
           <div
-            v-if="token"
+            v-if="activeSessionToken"
             class="border-t border-sidebar-border/70 bg-sidebar/92 px-4 pb-5 pt-4"
           >
             <div class="relative">
@@ -247,17 +300,6 @@ watch(
                     <button
                       type="button"
                       class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
-                      @click="toggleTheme"
-                    >
-                      <span class="flex items-center gap-3">
-                        <Palette class="h-4 w-4 text-sidebar-foreground/55" />
-                        {{ t("layout.preferences") }}
-                      </span>
-                      <span class="text-xs text-sidebar-foreground/55">{{ currentThemeLabel }}</span>
-                    </button>
-                    <button
-                      type="button"
-                      class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
                       @click="switchLocale(locale === 'id' ? 'en' : 'id')"
                     >
                       <span class="flex items-center gap-3">
@@ -269,7 +311,7 @@ watch(
                     <button
                       type="button"
                       class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
-                      @click="logout"
+                      @click="handleLogout"
                     >
                       <span class="flex items-center gap-3">
                         <LogOut class="h-4 w-4 text-sidebar-foreground/55" />
@@ -308,7 +350,7 @@ watch(
         </aside>
         <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
           <div class="sticky top-0 z-30 border-b border-border/70 bg-background/92 backdrop-blur-xl">
-            <div class="flex min-h-[76px] items-center gap-4 px-4 py-4 md:px-6">
+            <div class="flex min-h-[76px] items-center justify-between gap-4 px-4 py-4 md:px-6">
               <div class="flex items-center gap-3">
                 <Button
                   class="md:hidden"
@@ -329,6 +371,20 @@ watch(
                   </div>
                 </div>
               </div>
+              <Button
+                variant="outline"
+                class="shrink-0 rounded-2xl border-border/70 bg-background/88 px-3 shadow-sm backdrop-blur-xl"
+                :aria-label="t('layout.preferences')"
+                @click="toggleTheme"
+              >
+                <component
+                  :is="isDarkTheme ? MoonStar : SunMedium"
+                  class="h-4 w-4"
+                />
+                <span class="hidden sm:inline">
+                  {{ currentThemeLabel }}
+                </span>
+              </Button>
             </div>
           </div>
           <main class="flex-1 overflow-x-hidden overflow-y-auto px-4 py-5 md:px-6 md:py-6">
@@ -432,7 +488,7 @@ watch(
             </div>
             <div class="border-t border-sidebar-border/70 bg-sidebar/96 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4">
               <div
-                v-if="token"
+                v-if="activeSessionToken"
                 class="relative"
               >
                 <Transition
@@ -451,17 +507,6 @@ watch(
                       <button
                         type="button"
                         class="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
-                        @click="toggleTheme"
-                      >
-                        <span class="flex items-center gap-3">
-                          <Palette class="h-4 w-4 text-sidebar-foreground/55" />
-                          {{ t("layout.preferences") }}
-                        </span>
-                        <span class="text-xs text-sidebar-foreground/55">{{ currentThemeLabel }}</span>
-                      </button>
-                      <button
-                        type="button"
-                        class="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
                         @click="switchLocale(locale === 'id' ? 'en' : 'id')"
                       >
                         <span class="flex items-center gap-3">
@@ -473,7 +518,7 @@ watch(
                       <button
                         type="button"
                         class="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
-                        @click="logout"
+                        @click="handleLogout"
                       >
                         <span class="flex items-center gap-3">
                           <LogOut class="h-4 w-4 text-sidebar-foreground/55" />

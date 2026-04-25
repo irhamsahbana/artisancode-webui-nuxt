@@ -1,7 +1,7 @@
 export type AppDateLocale = 'id-ID' | 'en-US'
 
 const ISO_DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
-const ISO_DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/
+const ISO_DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}(?::?\d{2})?)?$/
 
 export const resolveDateLocale = (locale: string): AppDateLocale => (
   locale === 'en' ? 'en-US' : 'id-ID'
@@ -54,11 +54,17 @@ export const normalizeIsoDateInput = (value: string) => {
 }
 
 export const parseIsoDateTime = (value: string) => {
-  if (!isIsoDateTime(value)) {
+  const trimmed = value.trim()
+  if (!isIsoDateTime(trimmed)) {
     return null
   }
 
-  const date = new Date(value)
+  const normalized = trimmed
+    .replace(' ', 'T')
+    .replace(/([+-]\d{2})$/, '$1:00')
+    .replace(/([+-]\d{2})(\d{2})$/, '$1:$2')
+
+  const date = new Date(normalized)
   return Number.isNaN(date.getTime()) ? null : date
 }
 

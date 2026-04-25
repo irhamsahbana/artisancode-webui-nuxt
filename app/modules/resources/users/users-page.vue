@@ -244,7 +244,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        + {{ uiText('Add User') }}
+        {{ uiText('Add New') }}
       </Button>
     </template>
 

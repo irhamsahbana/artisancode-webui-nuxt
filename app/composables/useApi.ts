@@ -7,10 +7,12 @@ type ApiFetchOptions = {
   query?: Record<string, unknown>
   body?: BodyInit | Record<string, unknown> | null
   signal?: AbortSignal | null
+  authMode?: 'user' | 'internal' | 'none'
 }
 
 export const useApi = () => {
   const token = useCookie<string | null>('sb_token')
+  const internalToken = useCookie<string | null>('sb_internal_token')
   const { show } = useBanner()
   const { locale, t } = useLocale()
   const localePath = useLocalePath()
@@ -39,8 +41,15 @@ export const useApi = () => {
 
   const apiFetch = async <T>(path: string, options: ApiFetchOptions = {}) => {
     const headers: Record<string, string> = {}
-    if (token.value) {
-      headers.Authorization = `Bearer ${token.value}`
+    const authMode = options.authMode ?? 'user'
+    const activeToken = authMode === 'internal'
+      ? internalToken.value
+      : authMode === 'user'
+        ? token.value
+        : null
+
+    if (activeToken) {
+      headers.Authorization = `Bearer ${activeToken}`
     }
     headers['Accept-Language'] = locale.value
     const normalizedPath = path.startsWith('/') ? path : `/${path}`
@@ -62,12 +71,20 @@ export const useApi = () => {
       const hasSuccessFlag = typeof data?.success === 'boolean'
       const message = hasSuccessFlag ? data?.message : `${t('api.requestFailed')} (${status})`
 
-      if ((status === 401 || status === 403) && token.value) {
-        token.value = null
-        const user = useState<unknown | null>('auth_user', () => null)
-        user.value = null
-        show(t('api.sessionExpired'), 'error')
-        await navigateTo(localePath('/login'))
+      if ((status === 401 || status === 403) && activeToken) {
+        if (authMode === 'internal') {
+          internalToken.value = null
+          const internalRefreshToken = useCookie<string | null>('sb_internal_refresh_token')
+          internalRefreshToken.value = null
+          show(t('api.sessionExpired'), 'error')
+          await navigateTo(localePath('/internal/login'))
+        } else if (authMode === 'user') {
+          token.value = null
+          const user = useState<unknown | null>('auth_user', () => null)
+          user.value = null
+          show(t('api.sessionExpired'), 'error')
+          await navigateTo(localePath('/login'))
+        }
       }
 
       if (status >= 400 || (hasSuccessFlag && data?.success === false)) {

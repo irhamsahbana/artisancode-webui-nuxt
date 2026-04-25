@@ -166,7 +166,7 @@ const submitEdit = async (refreshList: () => Promise<void>) => {
         size="sm"
         @click="openCreate"
       >
-        {{ uiText('Create program') }}
+        {{ uiText('Add New') }}
       </Button>
     </template>
     <template #detail="{ row, loading, close, refresh: refreshList }">

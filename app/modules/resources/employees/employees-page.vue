@@ -549,7 +549,7 @@ const handleRevokeInvitation = async () => {
         class="rounded-xl"
         @click="openCreateModal"
       >
-        + {{ uiText('Add Employee') }}
+        {{ uiText('Add New') }}
       </Button>
     </template>
 

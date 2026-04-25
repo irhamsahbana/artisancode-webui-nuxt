@@ -111,7 +111,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
         size="sm"
         @click="openCreate"
       >
-        {{ uiText('Create new') }}
+        {{ uiText('Add New') }}
       </Button>
     </template>
   </ResourceList>

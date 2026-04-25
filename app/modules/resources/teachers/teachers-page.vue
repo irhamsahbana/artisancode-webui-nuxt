@@ -295,7 +295,7 @@ onMounted(() => {
         size="sm"
         @click="openCreate"
       >
-        {{ uiText('Create teacher') }}
+        {{ uiText('Add New') }}
       </Button>
     </template>
     <template #detail="{ row, loading, close, refresh: refreshList }">

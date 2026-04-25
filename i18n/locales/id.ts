@@ -9,6 +9,7 @@ export default {
     "back": "Kembali",
     "close": "Tutup",
     "cancel": "Batal",
+    "addNew": "Tambah Baru",
     "create": "Buat",
     "delete": "Hapus",
     "deleting": "Menghapus…",
@@ -222,5 +223,25 @@ export default {
     "geolocationTimeout": "Permintaan lokasi melebihi batas waktu. Silakan coba lagi.",
     "geolocationUnknown": "Terjadi kesalahan yang tidak diketahui saat mengambil lokasi.",
     "noOrganizationUnits": "Unit organisasi belum tersedia."
+  },
+  "internalProducts": {
+    "prices": {
+      "currencyPlaceholder": "Pilih mata uang",
+      "currencySearchPlaceholder": "Cari mata uang…",
+      "currencyHint": "Gunakan pilihan mata uang yang tersedia agar tidak terjadi salah input.",
+      "currencyOptions": {
+        "IDR": "IDR - Rupiah Indonesia",
+        "USD": "USD - Dolar Amerika Serikat",
+        "SGD": "SGD - Dolar Singapura",
+        "EUR": "EUR - Euro"
+      },
+      "amountLabel": "Nominal",
+      "amountPlaceholder": "Contoh: 199.000",
+      "amountHint": "Nominal akan diformat otomatis saat Anda mengetik.",
+      "effectiveStartLabel": "Mulai Berlaku",
+      "effectiveEndLabel": "Berakhir Pada",
+      "effectiveStartHint": "Pilih tanggal dan jam saat harga mulai berlaku.",
+      "effectiveEndHint": "Kosongkan jika harga berlaku tanpa batas waktu."
+    }
   }
 }

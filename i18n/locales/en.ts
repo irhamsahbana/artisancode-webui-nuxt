@@ -9,6 +9,7 @@ export default {
     "back": "Back",
     "close": "Close",
     "cancel": "Cancel",
+    "addNew": "Add New",
     "create": "Create",
     "delete": "Delete",
     "deleting": "Deleting…",
@@ -222,5 +223,25 @@ export default {
     "geolocationTimeout": "Location request timed out. Please try again.",
     "geolocationUnknown": "An unknown error occurred while getting location.",
     "noOrganizationUnits": "No organization units found."
+  },
+  "internalProducts": {
+    "prices": {
+      "currencyPlaceholder": "Select currency",
+      "currencySearchPlaceholder": "Search currency…",
+      "currencyHint": "Use one of the available currencies to avoid input mistakes.",
+      "currencyOptions": {
+        "IDR": "IDR - Indonesian Rupiah",
+        "USD": "USD - United States Dollar",
+        "SGD": "SGD - Singapore Dollar",
+        "EUR": "EUR - Euro"
+      },
+      "amountLabel": "Amount",
+      "amountPlaceholder": "Example: 199,000",
+      "amountHint": "The amount is formatted automatically while you type.",
+      "effectiveStartLabel": "Effective From",
+      "effectiveEndLabel": "Effective Until",
+      "effectiveStartHint": "Choose the date and time when this price becomes active.",
+      "effectiveEndHint": "Leave empty if this price has no end date."
+    }
   }
 }

@@ -406,7 +406,7 @@ const submitUpdate = handleSubmit(async (values) => {
         size="sm"
         @click="openCreate"
       >
-        {{ uiText('Create student') }}
+        {{ uiText('Add New') }}
       </Button>
     </template>
     <template #detail="{ loading, close }">

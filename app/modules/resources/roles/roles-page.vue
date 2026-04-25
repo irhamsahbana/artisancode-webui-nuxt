@@ -595,7 +595,7 @@ const submitAdminInvite = async () => {
           size="sm"
           @click="openCreate"
         >
-          {{ uiText('Create role') }}
+          {{ uiText('Add New') }}
         </Button>
         <Button
           v-if="canInviteAdmins"

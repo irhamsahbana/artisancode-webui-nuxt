@@ -151,7 +151,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        + {{ t('company.addWorkLocation') }}
+        {{ t('common.addNew') }}
       </Button>
     </template>
 

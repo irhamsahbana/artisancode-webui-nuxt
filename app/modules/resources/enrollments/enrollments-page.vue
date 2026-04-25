@@ -607,7 +607,7 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
         size="sm"
         @click="openCreate"
       >
-        {{ uiText('Create enrollment') }}
+        {{ uiText('Add New') }}
       </Button>
     </template>
     <template #row-actions="{ row, close }">

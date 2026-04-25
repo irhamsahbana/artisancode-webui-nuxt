@@ -138,7 +138,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        + {{ uiText('Add Job Position') }}
+        {{ uiText('Add New') }}
       </Button>
     </template>
 

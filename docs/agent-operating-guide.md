@@ -16,6 +16,7 @@
   - `pnpm build`
   - `pnpm preview`
   - `pnpm lint`
+  - `pnpm test:unit`
   - `pnpm typecheck`
   - `pnpm exec nuxi typecheck`
 
@@ -26,4 +27,7 @@
 - Keep `agents.md` short; put durable details in focused docs files.
 - Write agent-facing documentation in English unless a task explicitly requires another language.
 - If codebase behavior drifts from the docs, update the relevant doc in the same task when practical.
+- If helper logic changes, add or update unit tests for that behavior and run `pnpm test:unit`.
+- `pnpm test:unit` should rely on Node test discovery so new `*.test.ts` coverage runs without editing the script.
+- If `agents.md` or related workflow/docs files change, rerun `pnpm test:unit` so documentation changes stay coupled to executable verification.
 - Mention documentation changes in the final response.

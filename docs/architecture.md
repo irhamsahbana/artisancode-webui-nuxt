@@ -51,6 +51,7 @@ Current public auth routes:
 - `/auth/email-verification`
 - `/auth/forgot-password`
 - `/auth/reset-password`
+- `/internal/login`
 
 Tenant-aware public auth payload contracts:
 
@@ -62,6 +63,7 @@ Tenant-aware public auth payload contracts:
 Active route wrapper files:
 
 - `app/pages/login.vue`
+- `app/pages/internal/login.vue`
 - `app/pages/register.vue`
 - `app/pages/auth/check-email.vue`
 - `app/pages/auth/email-verification.vue`
@@ -71,6 +73,7 @@ Active route wrapper files:
 Active auth modules:
 
 - `app/modules/auth/login-page.vue`
+- `app/modules/auth/internal-login-page.vue`
 - `app/modules/auth/register-page.vue`
 - `app/modules/auth/check-email-page.vue`
 - `app/modules/auth/email-verification-page.vue`
@@ -139,6 +142,7 @@ Resource modules currently active in the repository:
 - companies
 - employees
 - enrollments
+- internal products
 - invoices
 - job positions
 - org units
@@ -155,6 +159,7 @@ Important notes:
 
 - The `branches` module exists at `app/modules/resources/branches/branches-page.vue`.
 - There is no `app/pages/resources/branches.vue` route file yet, so the module is not exposed as a normal route.
+- Internal admin routes live under `/internal/*`, including `/internal/login`, `/internal/users`, and `/internal/products`. These flows use a separate internal auth token flow.
 
 ## App Shell Notes
 
@@ -175,6 +180,7 @@ The active sidebar intentionally exposes only a subset of core resources:
 - companies
 - employees
 - attendance logs
+- internal products
 - job positions
 - work locations
 - work shifts

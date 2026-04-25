@@ -21,6 +21,8 @@ This file is the short entry point for work in `webui/`.
 - Use `useDateTime()` or `app/utils/date-time.ts` helpers for dates shown to users. Do not expose raw ISO timestamps in UI.
 - Keep agent-facing documentation in English unless a user explicitly asks for another language.
 - Run the smallest meaningful verification first, normally `pnpm typecheck` then `pnpm lint`.
+- When helper behavior changes, add or update focused unit tests and run `pnpm test:unit`.
+- When `agents.md` or related workflow/docs files change, rerun `pnpm test:unit` in addition to the usual verification so documentation-backed expectations stay enforced.
 - Never commit to git unless the user explicitly asks.
 
 ## Quick Context

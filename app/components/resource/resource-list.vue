@@ -31,6 +31,7 @@ const props = withDefaults(
     emptyText?: string;
     canViewDetail?: boolean;
     canDelete?: boolean;
+    authMode?: "user" | "internal" | "none";
     deleteLabelKey?: string | null;
     deleteLabelFormatter?: (row: Record<string, unknown>) => string;
   }>(),
@@ -43,6 +44,7 @@ const props = withDefaults(
     emptyText: undefined,
     canViewDetail: true,
     canDelete: true,
+    authMode: "user",
     deleteLabelKey: "name",
     deleteLabelFormatter: () => "",
   }
@@ -75,6 +77,7 @@ const buildQuery = () => {
   const base: Record<string, unknown> = {
     page: query.page,
     limit: query.limit,
+    paginate: query.limit,
   };
 
   if (props.extraQuery) {
@@ -126,6 +129,7 @@ const { data, pending, refresh, error } = useAsyncData(
     return apiFetch<ListResponse<Record<string, unknown>>>(props.endpoint, {
       query: buildQuery(),
       signal: listRequestController.value?.signal,
+      authMode: props.authMode,
     });
   },
   { server: false }
@@ -243,7 +247,33 @@ watch(
 const rows = computed(() => resolvedResponse.value?.data?.items ?? []);
 const showInitialSkeleton = computed(() => pending.value && rows.value.length === 0);
 const showRefreshingState = computed(() => pending.value && rows.value.length > 0);
-const pagination = computed(() => resolvedResponse.value?.data?.pagination);
+const pagination = computed(() => {
+  const data = resolvedResponse.value?.data as
+    | (ListResponse<Record<string, unknown>> & {
+      meta?: {
+        page?: number;
+        paginate?: number;
+        total_data?: number;
+        total_page?: number;
+      };
+    })
+    | undefined;
+
+  if (data?.pagination) {
+    return data.pagination;
+  }
+
+  if (data?.meta) {
+    return {
+      page: data.meta.page ?? query.page,
+      per_page: data.meta.paginate ?? query.limit,
+      total: data.meta.total_data ?? rows.value.length,
+      last_page: data.meta.total_page ?? 1,
+    };
+  }
+
+  return undefined;
+});
 const currentPage = computed(() => pagination.value?.page ?? query.page ?? 1);
 const lastPage = computed(() => pagination.value?.last_page ?? 1);
 const skeletonRows = computed(() => Math.max(1, Number(query.limit ?? 1)));
@@ -356,7 +386,10 @@ const openDetailById = async (id: string) => {
   detailRequestController.value = import.meta.client ? new AbortController() : null;
   const response = await apiFetch<Record<string, unknown>>(
     `${props.endpoint}/${id}`,
-    { signal: detailRequestController.value?.signal }
+    {
+      signal: detailRequestController.value?.signal,
+      authMode: props.authMode,
+    }
   );
   if (response.success && response.data) {
     detailRow.value = response.data;
@@ -429,6 +462,7 @@ const confirmDelete = async () => {
   deleteLoading.value = true;
   const response = await apiFetch(`${props.endpoint}/${id}`, {
     method: "DELETE",
+    authMode: props.authMode,
   });
   deleteLoading.value = false;
   if (response.success) {

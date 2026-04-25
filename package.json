@@ -18,6 +18,7 @@
     "format": "prettier .",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "test:unit": "node --test",
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {

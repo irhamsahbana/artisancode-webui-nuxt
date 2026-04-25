@@ -39,7 +39,8 @@ After meaningful changes, run:
 
 1. `pnpm typecheck` or `pnpm exec nuxi typecheck`
 2. `pnpm lint`
-3. route-level browser smoke test
+3. `pnpm test:unit` when helper logic, shared utilities, or workflow/agent docs changed
+4. route-level browser smoke test
 
 If shared infrastructure changed, also verify:
 - a list page using `ResourceList`
@@ -51,4 +52,6 @@ If shared infrastructure changed, also verify:
 
 - Update `docs/` when frontend conventions, structure, or workflow expectations change.
 - Update `agents.md` as well when the task changes workflow expectations, review rules, or agent operating instructions for future frontend work.
+- After changing `agents.md` or related workflow docs, run `pnpm test:unit` as part of the same task and mention that verification in the final response.
+- Keep `pnpm test:unit` on Node test discovery so newly added `*.test.ts` files run automatically without script edits.
 - Prefer small incremental documentation updates over large rewrites.
