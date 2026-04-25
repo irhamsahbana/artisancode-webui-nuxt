@@ -29,11 +29,6 @@ const editForm = reactive({
 // Config form state
 const configLoading = ref(false)
 const configForm = reactive({
-  attendance_radius_meters: 50,
-  attendance_check_in_start: '08:00',
-  attendance_check_in_end: '09:00',
-  attendance_check_out_start: '17:00',
-  attendance_check_out_end: '23:59',
   leave_allowance_annual: 12,
   overtime_rate_multiplier: 1.5,
   preferred_language: 'id',
@@ -44,7 +39,7 @@ const configForm = reactive({
 })
 
 const updateConfigNumber = (
-  key: 'attendance_radius_meters' | 'leave_allowance_annual' | 'overtime_rate_multiplier',
+  key: 'leave_allowance_annual' | 'overtime_rate_multiplier',
   value: string | number,
 ) => {
   const nextValue = Number(value)
@@ -96,11 +91,6 @@ const loadCompany = async () => {
     editForm.name = response.data.name ?? ''
     // Populate config form from API response
     const cfg = response.data.config ?? {}
-    if (cfg.attendance_radius_meters != null) configForm.attendance_radius_meters = Number(cfg.attendance_radius_meters)
-    if (cfg.attendance_check_in_start) configForm.attendance_check_in_start = String(cfg.attendance_check_in_start)
-    if (cfg.attendance_check_in_end) configForm.attendance_check_in_end = String(cfg.attendance_check_in_end)
-    if (cfg.attendance_check_out_start) configForm.attendance_check_out_start = String(cfg.attendance_check_out_start)
-    if (cfg.attendance_check_out_end) configForm.attendance_check_out_end = String(cfg.attendance_check_out_end)
     if (cfg.leave_allowance_annual != null) configForm.leave_allowance_annual = Number(cfg.leave_allowance_annual)
     if (cfg.overtime_rate_multiplier != null) configForm.overtime_rate_multiplier = Number(cfg.overtime_rate_multiplier)
     if (cfg.preferred_language) configForm.preferred_language = String(cfg.preferred_language)
@@ -433,23 +423,12 @@ onMounted(async () => {
           <CardTitle>{{ t('company.companyConfiguration') }}</CardTitle>
         </CardHeader>
         <CardContent class="grid gap-6">
-          <!-- Attendance Settings -->
+          <!-- Leave Settings -->
           <div>
             <h3 class="text-sm font-semibold mb-3">
-              {{ t('company.attendance') }}
+              {{ t('company.leave') }}
             </h3>
             <div class="grid gap-4 sm:grid-cols-2">
-              <div class="grid gap-2">
-                <Label for="cfg-radius">{{ t('company.attendanceRadius') }}</Label>
-                <Input
-                  id="cfg-radius"
-                  :model-value="String(configForm.attendance_radius_meters)"
-                  type="number"
-                  min="0"
-                  placeholder="50"
-                  @update:model-value="updateConfigNumber('attendance_radius_meters', $event)"
-                />
-              </div>
               <div class="grid gap-2">
                 <Label for="cfg-leave">{{ t('company.leaveAllowance') }}</Label>
                 <Input
@@ -459,38 +438,6 @@ onMounted(async () => {
                   min="0"
                   placeholder="12"
                   @update:model-value="updateConfigNumber('leave_allowance_annual', $event)"
-                />
-              </div>
-              <div class="grid gap-2">
-                <Label for="cfg-checkin-start">{{ t('company.checkInStart') }}</Label>
-                <Input
-                  id="cfg-checkin-start"
-                  v-model="configForm.attendance_check_in_start"
-                  type="time"
-                />
-              </div>
-              <div class="grid gap-2">
-                <Label for="cfg-checkin-end">{{ t('company.checkInEnd') }}</Label>
-                <Input
-                  id="cfg-checkin-end"
-                  v-model="configForm.attendance_check_in_end"
-                  type="time"
-                />
-              </div>
-              <div class="grid gap-2">
-                <Label for="cfg-checkout-start">{{ t('company.checkOutStart') }}</Label>
-                <Input
-                  id="cfg-checkout-start"
-                  v-model="configForm.attendance_check_out_start"
-                  type="time"
-                />
-              </div>
-              <div class="grid gap-2">
-                <Label for="cfg-checkout-end">{{ t('company.checkOutEnd') }}</Label>
-                <Input
-                  id="cfg-checkout-end"
-                  v-model="configForm.attendance_check_out_end"
-                  type="time"
                 />
               </div>
             </div>
