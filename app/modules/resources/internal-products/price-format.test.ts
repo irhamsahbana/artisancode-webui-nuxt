@@ -18,17 +18,29 @@ test('normalizes amount input into backend-safe numeric strings', () => {
 test('formats amount input using Indonesian separators', () => {
   assert.equal(formatPriceAmountInput('199000', 'id'), '199.000')
   assert.equal(formatPriceAmountInput('1234567.89', 'id'), '1.234.567,89')
+  assert.equal(formatPriceAmountInput('14.', 'id'), '14,')
 })
 
 test('formats amount input using English separators', () => {
   assert.equal(formatPriceAmountInput('199000', 'en'), '199,000')
   assert.equal(formatPriceAmountInput('1234567.89', 'en'), '1,234,567.89')
+  assert.equal(formatPriceAmountInput('14.', 'en'), '14.')
 })
 
 test('normalizes localized amount input without treating group separators as decimals', () => {
   assert.equal(normalizeLocalizedPriceAmountInput('2.131.231', 'id'), '2131231')
+  assert.equal(normalizeLocalizedPriceAmountInput('1.234', 'id'), '1234')
   assert.equal(normalizeLocalizedPriceAmountInput('1.234.567,89', 'id'), '1234567.89')
   assert.equal(normalizeLocalizedPriceAmountInput('1,234,567.89', 'en'), '1234567.89')
+  assert.equal(normalizeLocalizedPriceAmountInput('14,', 'id'), '14.')
+  assert.equal(normalizeLocalizedPriceAmountInput('14.', 'en'), '14.')
+})
+
+test('accepts dot as a decimal separator for Indonesian decimal drafts', () => {
+  assert.equal(normalizeLocalizedPriceAmountInput('14.', 'id'), '14.')
+  assert.equal(normalizeLocalizedPriceAmountInput('14.5', 'id'), '14.5')
+  assert.equal(normalizeLocalizedPriceAmountInput('14.25', 'id'), '14.25')
+  assert.equal(isPriceAmountDraftValid('14.5', 'id'), true)
 })
 
 test('validates draft amount input before formatting', () => {
