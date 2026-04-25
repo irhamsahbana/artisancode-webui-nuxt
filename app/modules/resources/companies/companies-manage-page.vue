@@ -3,9 +3,8 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
-import { ArrowLeft, Building2, Network, Settings } from 'lucide-vue-next'
+import { ArrowLeft, Building2, Network } from 'lucide-vue-next'
 import TreeView from '~/components/resource/tree-view.vue'
-import { getTimezoneOptions } from '~/utils/timezone-options'
 
 defineOptions({ name: 'CompaniesManagePage' })
 
@@ -13,7 +12,7 @@ const route = useRoute()
 const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { t, format, locale } = useLocale()
+const { t, format } = useLocale()
 const localePath = useLocalePath()
 
 const companyId = computed(() => route.params.id as string)
@@ -26,28 +25,8 @@ const editForm = reactive({
   name: '',
 })
 
-// Config form state
-const configLoading = ref(false)
-const configForm = reactive({
-  leave_allowance_annual: 12,
-  overtime_rate_multiplier: 1.5,
-  preferred_language: 'id',
-  supported_languages: ['id', 'en'],
-  timezone: 'Asia/Makassar',
-  date_format: 'YYYY-MM-DD',
-  time_format: 'HH:mm:ss',
-})
-
-const updateConfigNumber = (
-  key: 'leave_allowance_annual' | 'overtime_rate_multiplier',
-  value: string | number,
-) => {
-  const nextValue = Number(value)
-  configForm[key] = Number.isFinite(nextValue) ? nextValue : 0
-}
-
 // Org tree state
-const activeTab = ref<'edit' | 'orgtree' | 'config'>('edit')
+const activeTab = ref<'edit' | 'orgtree'>('edit')
 const orgTreeLoading = ref(false)
 
 interface TreeNode {
@@ -85,21 +64,10 @@ const categoryHierarchy: Record<string, string[]> = {
 // Load company data
 const loadCompany = async () => {
   pageLoading.value = true
-  const response = await apiFetch<{ code: string; name: string; config: Record<string, unknown> }>(`/companies/${companyId.value}`)
+  const response = await apiFetch<{ code: string; name: string }>(`/companies/${companyId.value}`)
   if (response.success && response.data) {
     editForm.code = response.data.code ?? ''
     editForm.name = response.data.name ?? ''
-    // Populate config form from API response
-    const cfg = response.data.config ?? {}
-    if (cfg.leave_allowance_annual != null) configForm.leave_allowance_annual = Number(cfg.leave_allowance_annual)
-    if (cfg.overtime_rate_multiplier != null) configForm.overtime_rate_multiplier = Number(cfg.overtime_rate_multiplier)
-    if (cfg.preferred_language) configForm.preferred_language = String(cfg.preferred_language)
-    if (Array.isArray(cfg.supported_languages) && cfg.supported_languages.length > 0) {
-      configForm.supported_languages = cfg.supported_languages.map(item => String(item))
-    }
-    if (cfg.timezone) configForm.timezone = String(cfg.timezone)
-    if (cfg.date_format) configForm.date_format = String(cfg.date_format)
-    if (cfg.time_format) configForm.time_format = String(cfg.time_format)
   }
   pageLoading.value = false
 }
@@ -233,53 +201,6 @@ const submitOrgUnit = async () => {
   }
 }
 
-// Submit config form
-const submitConfig = async () => {
-  if (!configForm.supported_languages.includes(configForm.preferred_language)) {
-    show(t('company.supportedLanguagesMustIncludePreferred'), 'error')
-    return
-  }
-
-  configLoading.value = true
-  const response = await apiFetch(`/companies/${companyId.value}`, {
-    method: 'PUT',
-    body: {
-      code: editForm.code,
-      name: editForm.name,
-      config: { ...configForm },
-    },
-  })
-  configLoading.value = false
-  if (response.success) {
-    show(t('company.configurationUpdated'), 'success')
-  }
-}
-
-const languageOptions = computed(() => [
-  { value: 'id', label: t('common.indonesian') },
-  { value: 'en', label: t('common.english') },
-])
-
-const timezoneOptions = computed(() => getTimezoneOptions(locale.value))
-
-const toggleSupportedLanguage = (language: 'id' | 'en', checked: boolean) => {
-  if (checked) {
-    if (!configForm.supported_languages.includes(language)) {
-      configForm.supported_languages = [...configForm.supported_languages, language]
-    }
-    return
-  }
-
-  if (configForm.supported_languages.length === 1) {
-    return
-  }
-
-  configForm.supported_languages = configForm.supported_languages.filter(item => item !== language)
-  if (!configForm.supported_languages.includes(configForm.preferred_language)) {
-    configForm.preferred_language = configForm.supported_languages[0] || 'id'
-  }
-}
-
 // Submit edit form
 const submitEdit = async () => {
   const name = editForm.name.trim()
@@ -287,19 +208,11 @@ const submitEdit = async () => {
     show(format('common.requiredField', { field: t('common.name') }), 'error')
     return
   }
-  const code = editForm.code.trim()
-  if (!code) {
-    show(format('common.requiredField', { field: t('common.code') }), 'error')
-    return
-  }
-
   editLoading.value = true
   const response = await apiFetch(`/companies/${companyId.value}`, {
     method: 'PUT',
     body: {
-      code,
       name,
-      config: { ...configForm },
     },
   })
   editLoading.value = false
@@ -357,14 +270,6 @@ onMounted(async () => {
         <Network class="mr-2 h-4 w-4" />
         {{ t('company.organizationStructure') }}
       </Button>
-      <Button
-        :variant="activeTab === 'config' ? 'default' : 'ghost'"
-        size="sm"
-        @click="activeTab = 'config'"
-      >
-        <Settings class="mr-2 h-4 w-4" />
-        {{ t('company.configuration') }}
-      </Button>
     </div>
 
     <!-- Loading -->
@@ -388,6 +293,7 @@ onMounted(async () => {
               id="company-code"
               v-model="editForm.code"
               :placeholder="t('company.companyCode')"
+              disabled
             />
           </div>
           <div class="grid gap-2">
@@ -417,140 +323,6 @@ onMounted(async () => {
         </CardFooter>
       </Card>
 
-      <!-- Config Tab -->
-      <Card v-if="activeTab === 'config'">
-        <CardHeader>
-          <CardTitle>{{ t('company.companyConfiguration') }}</CardTitle>
-        </CardHeader>
-        <CardContent class="grid gap-6">
-          <!-- Leave Settings -->
-          <div>
-            <h3 class="text-sm font-semibold mb-3">
-              {{ t('company.leave') }}
-            </h3>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="grid gap-2">
-                <Label for="cfg-leave">{{ t('company.leaveAllowance') }}</Label>
-                <Input
-                  id="cfg-leave"
-                  :model-value="String(configForm.leave_allowance_annual)"
-                  type="number"
-                  min="0"
-                  placeholder="12"
-                  @update:model-value="updateConfigNumber('leave_allowance_annual', $event)"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Overtime Settings -->
-          <div>
-            <h3 class="text-sm font-semibold mb-3">
-              {{ t('company.overtime') }}
-            </h3>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="grid gap-2">
-                <Label for="cfg-overtime">{{ t('company.overtimeRateMultiplier') }}</Label>
-                <Input
-                  id="cfg-overtime"
-                  :model-value="String(configForm.overtime_rate_multiplier)"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  placeholder="1.5"
-                  @update:model-value="updateConfigNumber('overtime_rate_multiplier', $event)"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Locale Settings -->
-          <div>
-            <h3 class="text-sm font-semibold mb-3">
-              {{ t('company.locale') }}
-            </h3>
-            <div class="grid gap-4 sm:grid-cols-3">
-              <div class="grid gap-2 sm:col-span-3">
-                <h4 class="text-sm font-medium">
-                  {{ t('company.languageSection') }}
-                </h4>
-                <p class="text-xs text-muted-foreground">
-                  {{ t('company.languageHint') }}
-                </p>
-              </div>
-              <div class="grid gap-2">
-                <Label for="cfg-preferred-language">{{ t('company.preferredLanguage') }}</Label>
-                <SearchableSelect
-                  id="cfg-preferred-language"
-                  v-model="configForm.preferred_language"
-                  :options="languageOptions"
-                  :placeholder="t('common.selectLanguage')"
-                />
-              </div>
-              <div class="grid gap-2 sm:col-span-2">
-                <Label>{{ t('company.supportedLanguages') }}</Label>
-                <div class="flex flex-wrap gap-4 rounded-md border p-3">
-                  <label
-                    v-for="option in languageOptions"
-                    :key="option.value"
-                    class="flex items-center gap-2 text-sm"
-                  >
-                    <input
-                      :checked="configForm.supported_languages.includes(option.value)"
-                      type="checkbox"
-                      @change="toggleSupportedLanguage(option.value as 'id' | 'en', ($event.target as HTMLInputElement).checked)"
-                    >
-                    <span>{{ option.label }}</span>
-                  </label>
-                </div>
-              </div>
-              <div class="grid gap-2">
-                <Label for="cfg-timezone">{{ t('company.timezone') }}</Label>
-                <SearchableSelect
-                  id="cfg-timezone"
-                  v-model="configForm.timezone"
-                  :options="timezoneOptions"
-                  :placeholder="t('company.timezone')"
-                  :search-placeholder="`${t('common.search')} ${t('company.timezone').toLowerCase()}`"
-                />
-              </div>
-              <div class="grid gap-2">
-                <Label for="cfg-date-format">{{ t('company.dateFormat') }}</Label>
-                <Input
-                  id="cfg-date-format"
-                  v-model="configForm.date_format"
-                  placeholder="YYYY-MM-DD"
-                />
-              </div>
-              <div class="grid gap-2">
-                <Label for="cfg-time-format">{{ t('company.timeFormat') }}</Label>
-                <Input
-                  id="cfg-time-format"
-                  v-model="configForm.time_format"
-                  placeholder="HH:mm:ss"
-                />
-              </div>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter class="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            @click="activeTab = 'edit'"
-          >
-            {{ t('common.cancel') }}
-          </Button>
-          <Button
-            size="sm"
-            :disabled="configLoading"
-            @click="submitConfig"
-          >
-            {{ configLoading ? t('common.saving') : t('common.saveConfiguration') }}
-          </Button>
-        </CardFooter>
-      </Card>
-
       <!-- Org Tree Tab -->
       <Card v-if="activeTab === 'orgtree'">
         <CardHeader>
@@ -572,6 +344,7 @@ onMounted(async () => {
           <div v-else>
             <TreeView
               :items="orgTree"
+              :can-edit-node="(node) => node.category !== 'company'"
               :can-delete-node="(node) => node.category !== 'company'"
               @add-child="handleAddChild"
               @edit="handleEditNode"

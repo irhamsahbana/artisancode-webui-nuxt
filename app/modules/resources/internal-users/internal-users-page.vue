@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import InternalResourceListControls from '../internal-resource-list-controls.vue'
 import { useBanner } from '~/composables/useBanner'
 import { useDateTime } from '~/composables/useDateTime'
 import { useApi } from '~/composables/useApi'
@@ -53,6 +54,23 @@ const modalOpen = ref(false)
 const modalMode = ref<'create' | 'edit'>('create')
 const modalLoading = ref(false)
 const submitLoading = ref(false)
+const filters = reactive({
+  role_code: '',
+  status: '',
+})
+
+const listQuery = computed(() => {
+  const query: Record<string, string> = {}
+  if (filters.role_code) {
+    query.role_code = filters.role_code
+  }
+  if (filters.status) {
+    query.status = filters.status
+  }
+  return query
+})
+
+const activeFilterCount = computed(() => Object.keys(listQuery.value).length)
 
 const form = ref({
   id: '',
@@ -208,6 +226,11 @@ const modalTitle = computed(() => (
     ? uiText('Add User')
     : uiText('Edit User')
 ))
+
+const clearFilters = () => {
+  filters.role_code = ''
+  filters.status = ''
+}
 </script>
 
 <template>
@@ -216,18 +239,56 @@ const modalTitle = computed(() => (
     :title="uiText('Users')"
     endpoint="/internal-users"
     :columns="columns"
+    :extra-query="listQuery"
     loading-variant="skeleton"
     :can-view-detail="false"
     auth-mode="internal"
     :delete-label-formatter="deleteLabelFormatter"
   >
     <template #header-actions>
-      <Button
-        size="sm"
-        @click="openCreateModal"
-      >
-        {{ uiText('Add New') }}
-      </Button>
+      <div class="flex w-full flex-wrap items-center justify-end gap-2">
+        <InternalResourceListControls
+          endpoint="/internal-users"
+          resource-key="internal-users"
+          filename-prefix="internal-users"
+          :columns="columns"
+          :query="listQuery"
+          :filter-count="activeFilterCount"
+          @reset="clearFilters"
+        >
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="space-y-2">
+              <Label for="internal-user-role-filter">{{ uiText('Role') }}</Label>
+              <SearchableSelect
+                id="internal-user-role-filter"
+                v-model="filters.role_code"
+                :options="[{ value: '', label: uiText('All roles') }, ...roleOptionList]"
+                :placeholder="uiText('All roles')"
+                :search-placeholder="uiText('Search role...')"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <Label for="internal-user-status-filter">{{ uiText('Status') }}</Label>
+              <SearchableSelect
+                id="internal-user-status-filter"
+                v-model="filters.status"
+                :options="[{ value: '', label: uiText('All statuses') }, ...statusOptionList]"
+                :placeholder="uiText('All statuses')"
+                :search-placeholder="uiText('Search status...')"
+              />
+            </div>
+          </div>
+        </InternalResourceListControls>
+
+        <Button
+          size="sm"
+          class="rounded-xl"
+          @click="openCreateModal"
+        >
+          {{ uiText('Add New') }}
+        </Button>
+      </div>
     </template>
 
     <template #row-actions="{ row, close }">

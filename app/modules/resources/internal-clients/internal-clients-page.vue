@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import InternalResourceListControls from '../internal-resource-list-controls.vue'
 import { useDateTime } from '~/composables/useDateTime'
 
 defineOptions({ name: 'InternalClientsPage' })
@@ -27,6 +28,19 @@ const permissionSaving = ref(false)
 const selectedClient = ref<Record<string, unknown> | null>(null)
 const availablePermissions = ref<PermissionItem[]>([])
 const selectedPermissionIds = ref<string[]>([])
+const filters = reactive({
+  owner: '',
+})
+
+const listQuery = computed(() => {
+  const query: Record<string, string> = {}
+  if (filters.owner.trim().length > 1) {
+    query.owner = filters.owner.trim()
+  }
+  return query
+})
+
+const activeFilterCount = computed(() => Object.keys(listQuery.value).length)
 
 const columns = computed(() => [
   { key: 'name', label: 'Client Name' },
@@ -130,6 +144,10 @@ const saveOwnerPermissions = async () => {
   show(uiText('Owner permissions updated.'), 'success')
   closePermissionDialog()
 }
+
+const clearFilters = () => {
+  filters.owner = ''
+}
 </script>
 
 <template>
@@ -138,11 +156,36 @@ const saveOwnerPermissions = async () => {
       :title="uiText('Clients')"
       endpoint="/internal-clients"
       :columns="columns"
+      :extra-query="listQuery"
       loading-variant="skeleton"
       :can-view-detail="false"
       :can-delete="false"
       auth-mode="internal"
     >
+      <template #header-actions>
+        <InternalResourceListControls
+          endpoint="/internal-clients"
+          resource-key="internal-clients"
+          filename-prefix="internal-clients"
+          :columns="columns"
+          :query="listQuery"
+          :filter-count="activeFilterCount"
+          @reset="clearFilters"
+        >
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="space-y-2">
+              <Label for="internal-client-owner-filter">{{ uiText('Owner') }}</Label>
+              <Input
+                id="internal-client-owner-filter"
+                v-model="filters.owner"
+                autocomplete="off"
+                :placeholder="uiText('Search owner name or email')"
+              />
+            </div>
+          </div>
+        </InternalResourceListControls>
+      </template>
+
       <template #row-actions="{ row, close }">
         <button
           class="w-full rounded px-3 py-2 text-left hover:bg-accent"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, reactive, ref, useSlots, watch } from "vue";
 import { useAsyncData, useRoute, useRouter } from "#app";
+import { ChevronDown } from "lucide-vue-next";
 
 import type { ApiResponse, ListResponse } from "~/types/api";
 import { useApi } from "~/composables/useApi";
@@ -34,6 +35,8 @@ const props = withDefaults(
     authMode?: "user" | "internal" | "none";
     deleteLabelKey?: string | null;
     deleteLabelFormatter?: (row: Record<string, unknown>) => string;
+    showSearchFilterTrigger?: boolean;
+    searchFilterOpen?: boolean;
   }>(),
   {
     extraQuery: undefined,
@@ -47,8 +50,14 @@ const props = withDefaults(
     authMode: "user",
     deleteLabelKey: "name",
     deleteLabelFormatter: () => "",
+    showSearchFilterTrigger: false,
+    searchFilterOpen: false,
   }
 );
+
+const emit = defineEmits<{
+  searchFilterTrigger: [];
+}>();
 
 const query = reactive({
   q: "",
@@ -532,7 +541,10 @@ watch(
 
 <template>
   <Card
-    class="overflow-hidden rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.82)]"
+    :class="[
+      'rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.82)]',
+      props.showSearchFilterTrigger ? 'overflow-visible' : 'overflow-hidden',
+    ]"
   >
     <CardHeader class="border-b border-border/70 bg-[linear-gradient(180deg,rgba(248,250,252,0.82),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(2,6,23,0.96))]">
       <div class="flex flex-wrap items-center justify-between gap-2">
@@ -546,16 +558,35 @@ watch(
         </div>
       </div>
       <div class="mt-5 flex flex-col items-stretch gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div class="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <Input
+        <div class="relative flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <div
             v-if="props.searchKey"
-            v-model="query.q"
-            name="resource-search"
-            autocomplete="off"
-            :aria-label="resolvedSearchPlaceholder"
-            :placeholder="resolvedSearchPlaceholder"
-            class="h-11 w-full min-w-0 rounded-2xl border-border/80 bg-background/90 shadow-sm sm:max-w-sm"
-          />
+            class="relative w-full min-w-0 sm:mx-auto sm:max-w-sm"
+          >
+            <Input
+              v-model="query.q"
+              name="resource-search"
+              autocomplete="off"
+              :aria-label="resolvedSearchPlaceholder"
+              :placeholder="resolvedSearchPlaceholder"
+              :class="[
+                'h-11 w-full min-w-0 rounded-2xl border-border/80 bg-background/90 shadow-sm',
+                props.showSearchFilterTrigger ? 'pr-12' : '',
+              ]"
+            />
+            <button
+              v-if="props.showSearchFilterTrigger"
+              type="button"
+              :class="[
+                'absolute inset-y-1 right-1 flex w-10 items-center justify-center rounded-xl border-l border-border hover:bg-accent hover:text-foreground',
+                props.searchFilterOpen ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground' : 'text-muted-foreground',
+              ]"
+              :aria-label="text('Open filters')"
+              @click="emit('searchFilterTrigger')"
+            >
+              <ChevronDown class="h-4 w-4" />
+            </button>
+          </div>
           <div
             v-if="props.searchKey && query.q"
             class="flex flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-muted/45 px-3 py-2 text-xs text-muted-foreground"

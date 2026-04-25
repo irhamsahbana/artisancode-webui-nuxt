@@ -4,13 +4,10 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import type { ApiResponse, ListResponse } from '~/types/api'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import AttendanceLogFilterPanel from './attendance-log-filter-panel.vue'
+import type { AttendanceLogFilters, DatePreset, ExportJob, ExportJobStatus, SelectOption } from './types'
 
 defineOptions({ name: 'AttendanceLogsPage' })
-
-type SelectOption = {
-  value: string
-  label: string
-}
 
 type AttendanceLogRow = Record<string, unknown>
 type EmployeeFilterItem = { id: string, employee_no: string, full_name: string }
@@ -24,24 +21,6 @@ const { apiFetch } = useApi()
 const { show } = useBanner()
 const { locale, text: uiText } = useLocale()
 const { formatDateOnly: formatDateOnlyLabel, formatDateTime } = useDateTime()
-
-type ExportJobStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'expired'
-type ExportJobFormat = 'xlsx'
-
-type ExportJob = {
-  id: string
-  resource_type: string
-  resource_label: string
-  format: ExportJobFormat
-  status: ExportJobStatus
-  requested_by_name: string
-  error_message: string | null
-  started_at: string | null
-  completed_at: string | null
-  expires_at: string | null
-  created_at: string
-  download_url: string | null
-}
 
 const supportedKeys = [
   'date_from',
@@ -161,7 +140,7 @@ const exportListLoading = ref(false)
 const exportItems = ref<ExportJob[]>([])
 let exportPollingTimer: ReturnType<typeof globalThis.setInterval> | null = null
 
-const filters = reactive({
+const filters = reactive<AttendanceLogFilters>({
   date_from: '',
   date_to: '',
   type: '',
@@ -287,7 +266,7 @@ const getMonthStart = () => {
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 10)
 }
 
-const applyDatePreset = (preset: 'today' | 'yesterday' | 'this_week' | 'this_month') => {
+const applyDatePreset = (preset: DatePreset) => {
   const currentDay = today()
 
   if (preset === 'today') {
@@ -327,77 +306,29 @@ const clearFilters = () => {
   filters.exception_type = ''
 }
 
+const updateFilter = (key: keyof AttendanceLogFilters, value: string) => {
+  filters[key] = value
+}
+
 const listQuery = computed(() => buildFilterQuery())
-const advancedFilterKeys = ['type', 'source', 'selfie_status', 'org_unit_id', 'branch_id', 'work_location_id', 'exception_type'] as const
-const advancedFiltersOpen = ref(false)
+const filterPanelOpen = ref(false)
+const exportMenuOpen = ref(false)
 
-const getOptionLabel = (options: SelectOption[], value: string) =>
-  options.find(option => option.value === value)?.label ?? value
-
-const activeFilterChips = computed(() => {
-  const chips: Array<{ key: keyof typeof filters, label: string, value: string }> = []
-
-  if (filters.date_from || filters.date_to) {
-    chips.push({
-      key: filters.date_from ? 'date_from' : 'date_to',
-      label: uiText('Date range'),
-      value: dateRangeSummary.value,
-    })
+const toggleFilterPanel = () => {
+  filterPanelOpen.value = !filterPanelOpen.value
+  if (filterPanelOpen.value) {
+    exportMenuOpen.value = false
   }
+}
 
-  const optionLookups: Array<{ key: keyof typeof filters, label: string, options: SelectOption[] }> = [
-    { key: 'employee_id', label: uiText('Employee'), options: employeeOptions.value },
-    { key: 'exception_type', label: uiText('Exception'), options: exceptionOptions.value },
-    { key: 'status', label: uiText('Status'), options: statusOptions.value },
-    { key: 'type', label: uiText('Type'), options: typeOptions.value },
-    { key: 'source', label: uiText('Source'), options: sourceOptions.value },
-    { key: 'selfie_status', label: uiText('Photo proof'), options: selfieOptions.value },
-    { key: 'org_unit_id', label: uiText('Org unit'), options: orgUnitOptions.value },
-    { key: 'branch_id', label: uiText('Branch'), options: branchOptions.value },
-    { key: 'work_location_id', label: uiText('Work location'), options: workLocationOptions.value },
-  ]
-
-  for (const item of optionLookups) {
-    const value = filters[item.key]
-    if (value) {
-      chips.push({
-        key: item.key,
-        label: item.label,
-        value: getOptionLabel(item.options, value),
-      })
-    }
+const toggleExportMenu = () => {
+  exportMenuOpen.value = !exportMenuOpen.value
+  if (exportMenuOpen.value) {
+    filterPanelOpen.value = false
   }
+}
 
-  return chips
-})
-
-const activeFilterCount = computed(() => activeFilterChips.value.length)
-const advancedFilterCount = computed(() => advancedFilterKeys.filter(key => filters[key]).length)
-const hasActiveFilters = computed(() => activeFilterCount.value > 0)
-
-const formatFilterDateLabel = (value: string) => (
-  formatDateOnlyLabel(value, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }, value) ?? value
-)
-
-const dateRangeSummary = computed(() => {
-  if (!filters.date_from && !filters.date_to) {
-    return uiText('No date range selected')
-  }
-
-  if (filters.date_from && filters.date_to) {
-    return filters.date_from === filters.date_to
-      ? formatFilterDateLabel(filters.date_from)
-      : `${formatFilterDateLabel(filters.date_from)} - ${formatFilterDateLabel(filters.date_to)}`
-  }
-
-  return formatFilterDateLabel(filters.date_from || filters.date_to)
-})
-
-const isDatePresetActive = (preset: 'today' | 'yesterday' | 'this_week' | 'this_month') => {
+const isDatePresetActive = (preset: DatePreset) => {
   const currentDay = today()
 
   if (preset === 'today') {
@@ -418,41 +349,18 @@ const isDatePresetActive = (preset: 'today' | 'yesterday' | 'this_week' | 'this_
 
 const completedExportCount = computed(() => exportItems.value.filter(item => item.status === 'completed').length)
 const pendingExportCount = computed(() => exportItems.value.filter(item => item.status === 'pending' || item.status === 'processing').length)
-const latestExport = computed(() => exportItems.value[0] ?? null)
-const exportActivitySummary = computed(() => {
-  if (pendingExportCount.value > 0) {
-    return uiText(`${pendingExportCount.value} in queue`)
-  }
-
-  if (completedExportCount.value > 0) {
-    return uiText(`${completedExportCount.value} ready files`)
-  }
-
-  return uiText('No export requests yet')
-})
-
-watch(
-  advancedFilterCount,
-  (count) => {
-    if (count > 0) {
-      advancedFiltersOpen.value = true
-    }
+const exportMenuItems = computed(() => [
+  {
+    key: 'export',
+    label: exportLoading.value ? uiText('Queueing...') : uiText('Export'),
+    disabled: exportLoading.value,
   },
-  { immediate: true },
-)
+])
 
-const clearFilter = (key: keyof typeof filters) => {
-  if (key === 'date_from' || key === 'date_to') {
-    filters.date_from = ''
-    filters.date_to = ''
-    return
+const handleExportMenuSelect = (key: string) => {
+  if (key === 'export') {
+    createExport()
   }
-
-  filters[key] = ''
-}
-
-const toggleAdvancedFilters = () => {
-  advancedFiltersOpen.value = !advancedFiltersOpen.value
 }
 
 const mapItems = <T extends Record<string, unknown>>(
@@ -816,6 +724,7 @@ const stopExportPolling = () => {
 }
 
 const createExport = async () => {
+  exportMenuOpen.value = false
   exportLoading.value = true
   const response = await apiFetch<{ id: string }>('/export-jobs', {
     method: 'POST',
@@ -855,350 +764,44 @@ const downloadExport = (item: ExportJob) => {
       :extra-query="listQuery"
       :columns="columns"
       :search-placeholder="uiText('Search attendance logs...')"
+      :show-search-filter-trigger="true"
+      :search-filter-open="filterPanelOpen"
       loading-variant="skeleton"
       :can-delete="false"
+      @search-filter-trigger="toggleFilterPanel"
     >
       <template #header-actions>
-        <div class="flex w-full justify-end lg:w-[320px]">
-          <FloatingPanel
-            v-model:open="advancedFiltersOpen"
-            :title="uiText('Advanced filters')"
-            :description="uiText('Apply more specific conditions without changing the table layout.')"
-            width-class="w-full max-w-lg"
-          >
-            <div class="space-y-4">
-              <div class="grid gap-4 sm:grid-cols-2">
-                <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">{{ uiText('Type') }}</Label>
-                  <SearchableSelect
-                    v-model="filters.type"
-                    :options="typeOptions"
-                    :placeholder="uiText('All types')"
-                    :search-placeholder="uiText('Search type...')"
-                    class="w-full"
-                  />
-                </div>
-
-                <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">{{ uiText('Source') }}</Label>
-                  <SearchableSelect
-                    v-model="filters.source"
-                    :options="sourceOptions"
-                    :placeholder="uiText('All sources')"
-                    :search-placeholder="uiText('Search source...')"
-                    class="w-full"
-                  />
-                </div>
-
-                <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">{{ uiText('Exception') }}</Label>
-                  <SearchableSelect
-                    v-model="filters.exception_type"
-                    :options="exceptionOptions"
-                    :placeholder="uiText('All exceptions')"
-                    :search-placeholder="uiText('Search exception...')"
-                    class="w-full"
-                  />
-                </div>
-
-                <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">{{ uiText('Photo proof') }}</Label>
-                  <SearchableSelect
-                    v-model="filters.selfie_status"
-                    :options="selfieOptions"
-                    :placeholder="uiText('All photo states')"
-                    :search-placeholder="uiText('Search photo state...')"
-                    class="w-full"
-                  />
-                </div>
-
-                <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">{{ uiText('Org unit') }}</Label>
-                  <SearchableSelect
-                    v-model="filters.org_unit_id"
-                    :options="orgUnitOptions"
-                    :placeholder="uiText('All org units')"
-                    :search-placeholder="uiText('Search org unit...')"
-                    class="w-full"
-                  />
-                </div>
-
-                <div class="space-y-1">
-                  <Label class="text-xs text-muted-foreground">{{ uiText('Branch') }}</Label>
-                  <SearchableSelect
-                    v-model="filters.branch_id"
-                    :options="branchOptions"
-                    :placeholder="uiText('All branches')"
-                    :search-placeholder="uiText('Search branch...')"
-                    class="w-full"
-                  />
-                </div>
-
-                <div class="space-y-1 sm:col-span-2">
-                  <Label class="text-xs text-muted-foreground">{{ uiText('Work location') }}</Label>
-                  <SearchableSelect
-                    v-model="filters.work_location_id"
-                    :options="workLocationOptions"
-                    :placeholder="uiText('All work locations')"
-                    :search-placeholder="uiText('Search work location...')"
-                    class="w-full"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <template #footer>
-              <div class="flex items-center justify-between gap-3">
-                <div class="text-xs text-muted-foreground">
-                  {{ uiText(`${advancedFilterCount} advanced filters active`) }}
-                </div>
-                <div class="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    @click="clearFilters"
-                  >
-                    {{ uiText('Reset all') }}
-                  </Button>
-                  <Button
-                    size="sm"
-                    @click="advancedFiltersOpen = false"
-                  >
-                    {{ uiText('Done') }}
-                  </Button>
-                </div>
-              </div>
-            </template>
-          </FloatingPanel>
-
-          <div class="w-full rounded-3xl border border-slate-900/10 bg-[linear-gradient(135deg,#0f172a_0%,#111827_52%,#1f2937_100%)] p-4 text-slate-50 shadow-[0_18px_45px_-24px_rgba(15,23,42,0.95)] dark:border-slate-700/70 dark:shadow-[0_24px_56px_-28px_rgba(2,6,23,0.95)]">
-            <div class="flex items-start justify-between gap-3">
-              <div class="space-y-1">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200/90 dark:text-slate-200">
-                  {{ uiText('Export queue') }}
-                </p>
-                <h3 class="text-base font-semibold leading-tight">
-                  {{ uiText('Export attendance logs') }}
-                </h3>
-              </div>
-              <Badge
-                variant="secondary"
-                class="rounded-full border-0 bg-white/12 px-2.5 py-1 text-[11px] font-medium text-white dark:bg-white/14"
-              >
-                XLSX
-              </Badge>
-            </div>
-
-            <p class="mt-3 text-sm leading-6 text-slate-200/90 dark:text-slate-200">
-              {{ uiText('Exports the current filtered attendance logs to XLSX.') }}
-            </p>
-
-            <div class="mt-4 grid grid-cols-2 gap-2">
-              <div class="rounded-2xl border border-white/12 bg-white/12 px-3 py-2 dark:border-white/14 dark:bg-white/14">
-                <div class="text-[11px] uppercase tracking-[0.18em] text-slate-200/85 dark:text-slate-200">
-                  {{ uiText('Ready files') }}
-                </div>
-                <div class="mt-1 text-lg font-semibold">
-                  {{ completedExportCount }}
-                </div>
-              </div>
-              <div class="rounded-2xl border border-white/12 bg-white/12 px-3 py-2 dark:border-white/14 dark:bg-white/14">
-                <div class="text-[11px] uppercase tracking-[0.18em] text-slate-200/85 dark:text-slate-200">
-                  {{ uiText('In queue') }}
-                </div>
-                <div class="mt-1 text-lg font-semibold">
-                  {{ pendingExportCount }}
-                </div>
-              </div>
-            </div>
-
-            <Button
-              size="sm"
-              class="mt-4 h-10 w-full border border-white/15 bg-white text-slate-950 hover:bg-slate-100"
-              :disabled="exportLoading"
-              @click="createExport"
-            >
-              {{ exportLoading ? uiText('Queueing...') : uiText('Export') }}
-            </Button>
-
-            <div
-              v-if="latestExport"
-              class="mt-4 rounded-2xl border border-white/12 bg-black/15 px-3 py-3 text-xs text-slate-200/90 dark:border-white/14 dark:bg-black/20 dark:text-slate-200"
-            >
-              <div class="flex items-center justify-between gap-3">
-                <div class="font-medium text-slate-50">
-                  {{ uiText('Latest request') }}
-                </div>
-                <Badge
-                  variant="secondary"
-                  class="rounded-full border-0 bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white"
-                >
-                  {{ toTitleCase(latestExport.status) }}
-                </Badge>
-              </div>
-              <div class="mt-2">
-                {{ latestExport.requested_by_name }} • {{ formatTimestamp(latestExport.created_at) }}
-              </div>
-              <div class="mt-2 text-slate-200/85">
-                {{ exportActivitySummary }}
-              </div>
-            </div>
-            <p
-              v-else
-              class="mt-4 text-xs leading-5 text-slate-200/80 dark:text-slate-200/85"
-            >
-              {{ uiText('No export requests yet. Start one from the Export button above.') }}
-            </p>
-          </div>
+        <div class="flex w-full items-center justify-end gap-2">
+          <ActionMenu
+            :open="exportMenuOpen"
+            :label="uiText('Export')"
+            :items="exportMenuItems"
+            @toggle="toggleExportMenu"
+            @close="exportMenuOpen = false"
+            @select="handleExportMenuSelect"
+          />
         </div>
       </template>
 
       <template #filters>
-        <div class="w-full min-w-0 rounded-[28px] border border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.06),transparent_32%),linear-gradient(180deg,rgba(248,250,252,0.98),rgba(255,255,255,0.98))] p-4 shadow-[0_20px_60px_-50px_rgba(15,23,42,0.55)] dark:border-slate-700/80 dark:bg-[radial-gradient(circle_at_top_left,rgba(148,163,184,0.12),transparent_36%),linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,0.96))] dark:shadow-[0_28px_70px_-56px_rgba(0,0,0,1)] sm:p-5">
-          <div class="flex flex-wrap items-start justify-between gap-4">
-            <div class="max-w-2xl">
-              <div class="text-sm font-semibold tracking-tight text-slate-950 dark:text-slate-50">
-                {{ uiText('Refine attendance logs') }}
-              </div>
-              <div class="mt-1 text-xs leading-5 text-muted-foreground dark:text-slate-300">
-                {{ uiText('Keep the primary filters visible and open advanced filters only when you need more precision.') }}
-              </div>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <Badge
-                v-if="pendingExportCount > 0"
-                variant="outline"
-                class="rounded-full border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700"
-              >
-                {{ pendingExportCount }} {{ uiText('In queue') }}
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                class="rounded-full border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                @click="toggleAdvancedFilters"
-              >
-                {{ advancedFiltersOpen ? uiText('Hide advanced filters') : uiText('More filters') }}
-                <span
-                  v-if="advancedFilterCount > 0"
-                  class="ml-1 text-xs text-muted-foreground"
-                >
-                  ({{ advancedFilterCount }})
-                </span>
-              </Button>
-              <Button
-                v-if="hasActiveFilters"
-                variant="ghost"
-                size="sm"
-                class="rounded-full px-3"
-                @click="clearFilters"
-              >
-                {{ uiText('Reset Filters') }}
-              </Button>
-            </div>
-          </div>
-
-          <div class="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]">
-            <div class="space-y-2">
-              <Label class="text-xs text-muted-foreground">{{ uiText('Date range') }}</Label>
-              <DateRangePicker
-                v-model:from="filters.date_from"
-                v-model:to="filters.date_to"
-                :placeholder="uiText('Select attendance date range')"
-              />
-
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-slate-300">
-                  {{ uiText('Quick ranges') }}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  :class="isDatePresetActive('today') ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200' : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'"
-                  class="rounded-full px-3"
-                  @click="applyDatePreset('today')"
-                >
-                  {{ uiText('Today') }}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  :class="isDatePresetActive('yesterday') ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200' : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'"
-                  class="rounded-full px-3"
-                  @click="applyDatePreset('yesterday')"
-                >
-                  {{ uiText('Yesterday') }}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  :class="isDatePresetActive('this_week') ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200' : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'"
-                  class="rounded-full px-3"
-                  @click="applyDatePreset('this_week')"
-                >
-                  {{ uiText('This Week') }}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  :class="isDatePresetActive('this_month') ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200' : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'"
-                  class="rounded-full px-3"
-                  @click="applyDatePreset('this_month')"
-                >
-                  {{ uiText('This Month') }}
-                </Button>
-              </div>
-            </div>
-
-            <div class="space-y-1">
-              <Label class="text-xs text-muted-foreground">{{ uiText('Employee') }}</Label>
-              <SearchableSelect
-                v-model="filters.employee_id"
-                :options="employeeOptions"
-                :placeholder="uiText('All employees')"
-                :search-placeholder="uiText('Search employees...')"
-                class="w-full"
-              />
-            </div>
-
-            <div class="space-y-1">
-              <Label class="text-xs text-muted-foreground">{{ uiText('Status') }}</Label>
-              <SearchableSelect
-                v-model="filters.status"
-                :options="statusOptions"
-                :placeholder="uiText('All statuses')"
-                :search-placeholder="uiText('Search status...')"
-                class="w-full"
-              />
-            </div>
-          </div>
-
-          <div
-            v-if="hasActiveFilters"
-            class="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200/80 pt-4 dark:border-slate-700"
-          >
-            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-slate-300">{{ uiText(`${activeFilterCount} filters active`) }}</span>
-            <button
-              v-for="chip in activeFilterChips"
-              :key="`${chip.key}:${chip.value}`"
-              type="button"
-              class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-600 dark:hover:bg-slate-700"
-              @click="clearFilter(chip.key)"
-            >
-              <span class="font-semibold text-slate-900 dark:text-slate-50">{{ chip.label }}:</span>
-              <span>{{ chip.value }}</span>
-              <span class="text-muted-foreground">{{ uiText('Clear') }}</span>
-            </button>
-            <Button
-              variant="ghost"
-              size="sm"
-              class="rounded-full px-3"
-              @click="clearFilters"
-            >
-              {{ uiText('Reset all') }}
-            </Button>
-          </div>
-        </div>
+        <AttendanceLogFilterPanel
+          :filters="filters"
+          :open="filterPanelOpen"
+          :employee-options="employeeOptions"
+          :status-options="statusOptions"
+          :type-options="typeOptions"
+          :source-options="sourceOptions"
+          :selfie-options="selfieOptions"
+          :org-unit-options="orgUnitOptions"
+          :branch-options="branchOptions"
+          :work-location-options="workLocationOptions"
+          :exception-options="exceptionOptions"
+          :is-date-preset-active="isDatePresetActive"
+          @close="filterPanelOpen = false"
+          @clear="clearFilters"
+          @apply-date-preset="applyDatePreset"
+          @update-filter="updateFilter"
+        />
       </template>
 
       <template #row-actions="{ row, close }">

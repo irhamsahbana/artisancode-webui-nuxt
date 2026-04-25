@@ -34,7 +34,6 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
 
 const columns = [
   { key: 'name', label: 'Name' },
-  { key: 'description', label: 'Description' },
   {
     key: 'permissions',
     label: 'Permissions',
@@ -65,13 +64,10 @@ const createPermissionPagination = ref<PaginationMeta | null>(null)
 const createPermissionsLoading = ref(false)
 const createForm = reactive({
   name: '',
-  description: '',
   permissionIds: [] as string[],
 })
 const editForm = reactive({
   id: '',
-  name: '',
-  description: '',
   permissionIds: [] as string[],
 })
 const createPermissionResults = ref<PermissionItem[]>([])
@@ -357,7 +353,6 @@ const resetCreate = () => {
   createOpen.value = false
   createLoading.value = false
   createForm.name = ''
-  createForm.description = ''
   createForm.permissionIds = []
   createPermissionQueryInput.value = ''
   createPermissionQuery.value = ''
@@ -368,8 +363,6 @@ const resetCreate = () => {
 const resetEdit = () => {
   editLoading.value = false
   editForm.id = ''
-  editForm.name = ''
-  editForm.description = ''
   editForm.permissionIds = []
   editPermissionItems.value = []
   editPermissionQueryInput.value = ''
@@ -413,10 +406,6 @@ const submitCreate = async () => {
     name,
     permissions: createForm.permissionIds,
   }
-  const description = createForm.description.trim()
-  if (description.length > 0) {
-    payload.description = description
-  }
   createLoading.value = true
   const response = await apiFetch('/role-and-permissions/roles', {
     method: 'POST',
@@ -438,8 +427,6 @@ const syncEditForm = (row: Record<string, unknown> | null) => {
     return true
   }
   editForm.id = id
-  editForm.name = typeof row.name === 'string' ? row.name : ''
-  editForm.description = typeof row.description === 'string' ? row.description : ''
   const permissionRows = Array.isArray(row.permissions) ? row.permissions : []
   const items: PermissionItem[] = []
   permissionRows.forEach((permission) => {
@@ -467,19 +454,12 @@ const syncEditForm = (row: Record<string, unknown> | null) => {
   return true
 }
 const submitUpdate = async (close: () => void, refreshList: () => Promise<void>) => {
-  const name = editForm.name.trim()
-  if (!name) {
-    show(uiText('Role name is required.'), 'error')
-    return
-  }
   if (!editForm.id) {
     show(uiText('Role id is missing.'), 'error')
     return
   }
   editLoading.value = true
   const payload: Record<string, unknown> = {
-    name,
-    description: editForm.description.trim(),
     permission_ids: editForm.permissionIds,
   }
   const response = await apiFetch(`/role-and-permissions/roles/${editForm.id}`, {
@@ -615,7 +595,7 @@ const submitAdminInvite = async () => {
           <div class="w-full max-w-5xl rounded-lg border bg-card p-6 shadow-lg">
             <div class="flex items-center justify-between">
               <div class="text-lg font-semibold">
-                {{ uiText('Edit role') }}
+                {{ uiText('Edit role permissions') }}
               </div>
               <Button
                 variant="outline"
@@ -638,22 +618,6 @@ const submitAdminInvite = async () => {
                   v-else
                   class="grid gap-4"
                 >
-                  <div class="grid gap-2">
-                    <Label for="edit-role-name">{{ uiText('Role name') }}</Label>
-                    <Input
-                      id="edit-role-name"
-                      v-model="editForm.name"
-                      :placeholder="uiText('Role name')"
-                    />
-                  </div>
-                  <div class="grid gap-2">
-                    <Label for="edit-role-description">{{ uiText('Description') }}</Label>
-                    <Input
-                      id="edit-role-description"
-                      v-model="editForm.description"
-                      :placeholder="uiText('Role description')"
-                    />
-                  </div>
                   <div class="grid gap-2">
                     <Label>{{ uiText('Permissions') }}</Label>
                     <Input
@@ -941,14 +905,6 @@ const submitAdminInvite = async () => {
             id="role-name"
             v-model="createForm.name"
             :placeholder="uiText('Role name')"
-          />
-        </div>
-        <div class="grid gap-2">
-          <Label for="role-description">{{ uiText('Description') }}</Label>
-          <Input
-            id="role-description"
-            v-model="createForm.description"
-            :placeholder="uiText('Role description')"
           />
         </div>
         <div class="grid gap-2">

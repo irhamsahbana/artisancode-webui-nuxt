@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import InternalResourceListControls from '../internal-resource-list-controls.vue'
 import InternalProductManageDialog from './internal-product-manage-dialog.vue'
 import { useInternalProductManager } from './use-internal-product-manager'
 import { useDateTime } from '~/composables/useDateTime'
@@ -10,6 +11,19 @@ const { text: uiText } = useLocale()
 const { formatReadableDateTime } = useDateTime()
 
 const refreshKey = ref(0)
+const filters = reactive({
+  status: '',
+})
+
+const listQuery = computed(() => {
+  const query: Record<string, string> = {}
+  if (filters.status) {
+    query.status = filters.status
+  }
+  return query
+})
+
+const activeFilterCount = computed(() => Object.keys(listQuery.value).length)
 
 const triggerRefresh = () => {
   refreshKey.value += 1
@@ -89,6 +103,10 @@ const openEditModal = async (row: Record<string, unknown>) => {
 
   await manager.openEditDialog(id)
 }
+
+const clearFilters = () => {
+  filters.status = ''
+}
 </script>
 
 <template>
@@ -97,18 +115,45 @@ const openEditModal = async (row: Record<string, unknown>) => {
     :title="uiText('Products')"
     endpoint="/internal-products"
     :columns="columns"
+    :extra-query="listQuery"
     loading-variant="skeleton"
     :can-view-detail="false"
     auth-mode="internal"
     :delete-label-formatter="deleteLabelFormatter"
   >
     <template #header-actions>
-      <Button
-        size="sm"
-        @click="openCreateDialog()"
-      >
-        {{ uiText('Add New') }}
-      </Button>
+      <div class="flex w-full flex-wrap items-center justify-end gap-2">
+        <InternalResourceListControls
+          endpoint="/internal-products"
+          resource-key="internal-products"
+          filename-prefix="internal-products"
+          :columns="columns"
+          :query="listQuery"
+          :filter-count="activeFilterCount"
+          @reset="clearFilters"
+        >
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="space-y-2">
+              <Label for="internal-product-status-filter">{{ uiText('Status') }}</Label>
+              <SearchableSelect
+                id="internal-product-status-filter"
+                v-model="filters.status"
+                :options="[{ value: '', label: uiText('All statuses') }, ...statusOptionList]"
+                :placeholder="uiText('All statuses')"
+                :search-placeholder="uiText('Search status...')"
+              />
+            </div>
+          </div>
+        </InternalResourceListControls>
+
+        <Button
+          size="sm"
+          class="rounded-xl"
+          @click="openCreateDialog()"
+        >
+          {{ uiText('Add New') }}
+        </Button>
+      </div>
     </template>
 
     <template #row-actions="{ row, close }">

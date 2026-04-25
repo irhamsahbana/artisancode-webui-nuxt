@@ -6,14 +6,6 @@ defineOptions({ name: 'CompaniesPage' })
 const { locale, t } = useLocale()
 const { formatDateTime } = useDateTime()
 
-const deleteLabelFormatter = (row: Record<string, unknown>) => {
-  const name = row.name
-  if (typeof name === 'string' && name.length > 0) {
-    return name
-  }
-  return String(row.id ?? '-')
-}
-
 const columns = computed(() => [
   { key: 'code', label: t('common.code') },
   { key: 'name', label: t('common.name') },
@@ -38,7 +30,7 @@ const formatCreatedAt = (value: unknown) => {
     endpoint="/companies"
     :columns="columns"
     loading-variant="skeleton"
-    :delete-label-formatter="deleteLabelFormatter"
+    :can-delete="false"
   >
     <template #cell:created_at="{ item }">
       <span v-if="item.created_at">

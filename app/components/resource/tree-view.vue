@@ -14,10 +14,12 @@ const props = withDefaults(
   defineProps<{
     items: TreeNode[]
     level?: number
+    canEditNode?: (node: TreeNode) => boolean
     canDeleteNode?: (node: TreeNode) => boolean
   }>(),
   {
     level: 0,
+    canEditNode: () => true,
     canDeleteNode: () => true,
   },
 )
@@ -101,6 +103,7 @@ const formatNodeLabel = (item: TreeNode) => {
         <!-- Node Actions -->
         <div class="ml-auto flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button
+            v-if="props.canEditNode(item)"
             variant="ghost"
             size="icon"
             class="h-6 w-6"
@@ -138,6 +141,7 @@ const formatNodeLabel = (item: TreeNode) => {
         <TreeView
           :items="item.children"
           :level="(props.level ?? 0) + 1"
+          :can-edit-node="props.canEditNode"
           :can-delete-node="props.canDeleteNode"
           @add-child="(node: TreeNode) => emit('addChild', node)"
           @edit="(node: TreeNode) => emit('edit', node)"

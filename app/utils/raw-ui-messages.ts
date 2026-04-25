@@ -470,6 +470,7 @@ export const exactIdUiMessages: Record<string, string> = {
   "Role name": "Nama peran",
   "Role description": "Deskripsi peran",
   "Edit role": "Ubah peran",
+  "Edit role permissions": "Ubah izin peran",
   "Search permissions": "Cari izin",
   "No permissions found.": "Tidak ada izin yang ditemukan.",
   "No permissions available.": "Tidak ada izin yang tersedia.",
