@@ -20,30 +20,15 @@ export const normalizePriceAmountInput = (value: string) => {
 
 const resolveAmountSeparators = (locale: string) => (
   locale.startsWith('en')
-    ? { group: ',', decimal: '.' }
-    : { group: '.', decimal: ',' }
+    ? { group: '.', decimal: ',' }
+    : { group: ',', decimal: '.' }
 )
 
 const escapeForRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 const resolveDecimalSeparatorForInput = (cleaned: string, locale: string) => {
   const { decimal } = resolveAmountSeparators(locale)
-  if (locale.startsWith('en')) {
-    return decimal
-  }
-
-  const commaCount = cleaned.split(',').length - 1
-  if (commaCount > 0) {
-    return ','
-  }
-
-  const dotCount = cleaned.split('.').length - 1
-  if (dotCount !== 1) {
-    return decimal
-  }
-
-  const [, decimalDraft = ''] = cleaned.split('.')
-  return decimalDraft.length === 3 ? decimal : '.'
+  return decimal
 }
 
 export const normalizeLocalizedPriceAmountInput = (value: string, locale: string) => {
@@ -85,7 +70,9 @@ export const isPriceAmountDraftValid = (value: string, locale: string) => {
 }
 
 export const formatPriceAmountInput = (value: string, locale: string) => {
-  const normalized = normalizePriceAmountInput(value)
+  const normalized = /^\d+(?:\.\d*)?$/.test(value)
+    ? value.replace(/^0+(?=\d)/, '')
+    : normalizeLocalizedPriceAmountInput(value, locale)
   if (!normalized) {
     return ''
   }
@@ -119,10 +106,24 @@ export const formatMoneyAmount = (
     return '-'
   }
 
+  const { group, decimal } = resolveAmountSeparators(locale)
   return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'id-ID', {
     style: 'currency',
     currency: normalizedCurrency,
     minimumFractionDigits: numericAmount % 1 === 0 ? 0 : 2,
     maximumFractionDigits: options.maximumFractionDigits ?? (numericAmount % 1 === 0 ? 0 : 2),
-  }).format(numericAmount)
+  })
+    .formatToParts(numericAmount)
+    .map(part => {
+      if (part.type === 'group') {
+        return group
+      }
+
+      if (part.type === 'decimal') {
+        return decimal
+      }
+
+      return part.value
+    })
+    .join('')
 }
