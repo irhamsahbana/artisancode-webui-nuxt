@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, shallowRef, watch } from 'vue'
-import { Plus, Play, RefreshCw, X } from 'lucide-vue-next'
+import { Play, X } from 'lucide-vue-next'
 import {
   buildCommerceActionPayload,
   normalizeCommerceActionPath,
@@ -66,6 +66,18 @@ const pageTitle = computed(() => {
   }
 
   return t(titles[props.resource])
+})
+
+const createButtonMode = computed<'quotation' | 'order' | null>(() => {
+  if (props.resource === 'quotations') {
+    return 'quotation'
+  }
+
+  if (props.resource === 'orders') {
+    return 'order'
+  }
+
+  return null
 })
 
 const formatDate = (value: unknown) => {
@@ -262,6 +274,14 @@ const openCreateDialog = async (mode: 'quotation' | 'order') => {
   await loadProducts()
 }
 
+const openCreateDialogFromHeader = () => {
+  if (!createButtonMode.value) {
+    return
+  }
+
+  void openCreateDialog(createButtonMode.value)
+}
+
 const closeCreateDialog = () => {
   if (createSaving.value) {
     return
@@ -450,35 +470,16 @@ const columns = computed(() => {
     :can-view-detail="true"
   >
     <template #header-actions>
-      <div class="flex w-full flex-wrap items-center justify-end gap-2 lg:w-auto">
+      <div
+        v-if="createButtonMode"
+        class="flex w-full flex-wrap items-center justify-end gap-2 lg:w-auto"
+      >
         <Button
-          v-if="resource === 'quotations'"
-          variant="outline"
           size="sm"
           class="rounded-xl"
-          @click="openCreateDialog('quotation')"
+          @click="openCreateDialogFromHeader"
         >
-          <Plus class="h-4 w-4" />
-          {{ t('ui.newQuotation') }}
-        </Button>
-        <Button
-          v-if="resource === 'orders'"
-          variant="outline"
-          size="sm"
-          class="rounded-xl"
-          @click="openCreateDialog('order')"
-        >
-          <Plus class="h-4 w-4" />
-          {{ t('ui.newOrder') }}
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          class="h-9 w-9 rounded-xl"
-          :aria-label="t('ui.refresh')"
-          @click="touchList"
-        >
-          <RefreshCw class="h-4 w-4" />
+          {{ t('ui.addNew') }}
         </Button>
       </div>
     </template>
