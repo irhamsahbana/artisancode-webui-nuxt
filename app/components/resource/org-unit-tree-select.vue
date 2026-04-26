@@ -165,7 +165,7 @@ defineExpose({ fetchOrgUnits })
     <!-- Trigger -->
     <button
       type="button"
-      class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
       :aria-expanded="open"
       aria-haspopup="tree"
       @click="toggle"

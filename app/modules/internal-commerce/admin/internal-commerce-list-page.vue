@@ -37,13 +37,16 @@ const refreshToken = shallowRef(0)
 const createOpen = shallowRef(false)
 const createMode = shallowRef<'quotation' | 'order'>('order')
 const createSaving = shallowRef(false)
+const clientLoading = shallowRef(false)
 const productLoading = shallowRef(false)
 const pricingLoading = shallowRef(false)
 const actionLoadingKey = shallowRef('')
+const clients = shallowRef<InternalClientOption[]>([])
 const products = shallowRef<InternalProduct[]>([])
 const pricings = shallowRef<InternalProductPricing[]>([])
 
 const createForm = reactive({
+  tenantId: '',
   internalProductId: '',
   internalProductPricingId: '',
   currencyCode: 'IDR',
@@ -55,6 +58,12 @@ const createForm = reactive({
   invoiceDueAt: '',
   note: '',
 })
+
+type InternalClientOption = {
+  id: string
+  name: string
+  code: string
+}
 
 type AmountField = 'subtotalAmount' | 'discountAmount' | 'taxAmount' | 'totalAmount'
 
@@ -126,6 +135,11 @@ const pricingOptions = computed(() => pricings.value.map(pricing => ({
   label: `${pricing.code} - ${pricing.name}`,
 })))
 
+const clientOptions = computed(() => clients.value.map(client => ({
+  value: client.id,
+  label: `${client.code} - ${client.name}`,
+})))
+
 const currencyOptions = computed(() => currencyCodes.map(code => ({
   value: code,
   label: t(`internalProducts.prices.currencyOptions.${code}`),
@@ -150,6 +164,7 @@ const taxAmountInput = createAmountModel('taxAmount')
 const totalAmountInput = createAmountModel('totalAmount')
 
 const resetCreateForm = () => {
+  createForm.tenantId = ''
   createForm.internalProductId = ''
   createForm.internalProductPricingId = ''
   createForm.currencyCode = 'IDR'
@@ -231,6 +246,35 @@ const loadProducts = async () => {
   }
 }
 
+const loadClients = async () => {
+  if (clients.value.length > 0) {
+    if (clients.value.length === 1) {
+      createForm.tenantId = clients.value[0]?.id ?? ''
+    }
+    return
+  }
+
+  if (clientLoading.value) {
+    return
+  }
+
+  clientLoading.value = true
+  const response = await apiFetch<ListResponse<InternalClientOption>>('/internal-clients', {
+    authMode: 'internal',
+    query: {
+      paginate: 100,
+    },
+  })
+  clientLoading.value = false
+
+  if (response.success && response.data) {
+    clients.value = response.data.items ?? []
+    if (clients.value.length === 1) {
+      createForm.tenantId = clients.value[0]?.id ?? ''
+    }
+  }
+}
+
 const loadPricings = async (productId: string) => {
   if (!productId) {
     pricings.value = []
@@ -271,7 +315,10 @@ const openCreateDialog = async (mode: 'quotation' | 'order') => {
   createMode.value = mode
   resetCreateForm()
   createOpen.value = true
-  await loadProducts()
+  await Promise.all([
+    loadClients(),
+    loadProducts(),
+  ])
 }
 
 const openCreateDialogFromHeader = () => {
@@ -295,16 +342,18 @@ const touchList = () => {
 }
 
 const submitCreate = async () => {
+  const tenantId = createForm.tenantId.trim()
   const productId = createForm.internalProductId.trim()
   const pricingId = createForm.internalProductPricingId.trim()
   const currencyCode = createForm.currencyCode.trim().toUpperCase()
 
-  if (!productId || !pricingId || !currencyCode) {
-    show(t('ui.productPricingAndCurrencyAreRequired'), 'error')
+  if (!tenantId || !productId || !pricingId || !currencyCode) {
+    show(t('ui.tenantProductPricingAndCurrencyAreRequired'), 'error')
     return
   }
 
   const body: Record<string, unknown> = {
+    tenant_id: tenantId,
     internal_product_id: productId,
     internal_product_pricing_id: pricingId,
     currency_code: currencyCode,
@@ -558,10 +607,26 @@ const columns = computed(() => {
   >
     <form
       class="grid gap-5"
+      autocomplete="off"
       @submit.prevent="submitCreate"
     >
       <div class="grid gap-4 sm:grid-cols-2">
-        <div class="grid gap-2">
+        <div class="relative z-10 grid gap-2 sm:col-span-2">
+          <Label for="commerce-tenant">
+            {{ t('ui.tenant') }}
+          </Label>
+          <SearchableSelect
+            id="commerce-tenant"
+            v-model="createForm.tenantId"
+            :options="clientOptions"
+            :placeholder="clientLoading ? t('ui.loadingClients') : t('ui.selectTenant')"
+            :search-placeholder="t('ui.searchClients')"
+            :disabled="clientLoading || createSaving"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="relative z-0 grid gap-2">
           <Label for="commerce-product">
             {{ t('ui.product') }}
           </Label>
@@ -572,10 +637,11 @@ const columns = computed(() => {
             :placeholder="productLoading ? t('ui.loadingProducts') : t('ui.selectProduct')"
             :search-placeholder="t('ui.searchProduct')"
             :disabled="productLoading || createSaving"
+            autocomplete="off"
           />
         </div>
 
-        <div class="grid gap-2">
+        <div class="relative z-0 grid gap-2">
           <Label for="commerce-pricing">
             {{ t('ui.pricing') }}
           </Label>
@@ -586,30 +652,26 @@ const columns = computed(() => {
             :placeholder="pricingLoading ? t('ui.loadingPricings') : t('ui.selectPricing')"
             :search-placeholder="t('ui.searchPricing')"
             :disabled="pricingLoading || createSaving || !createForm.internalProductId"
+            autocomplete="off"
           />
         </div>
 
-        <div class="grid gap-2">
+        <div class="relative z-0 grid gap-2">
           <Label for="commerce-currency">
             {{ t('ui.currency') }}
           </Label>
-          <select
+          <SearchableSelect
             id="commerce-currency"
             v-model="createForm.currencyCode"
-            class="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            :options="currencyOptions"
+            :placeholder="t('internalProducts.prices.currencyPlaceholder')"
+            :search-placeholder="t('internalProducts.prices.currencySearchPlaceholder')"
             :disabled="createSaving"
-          >
-            <option
-              v-for="option in currencyOptions"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </option>
-          </select>
+            autocomplete="off"
+          />
         </div>
 
-        <div class="grid gap-2">
+        <div class="relative z-0 grid gap-2">
           <Label for="commerce-invoice-due">
             {{ t('ui.invoiceDueAt') }}
           </Label>
@@ -618,6 +680,7 @@ const columns = computed(() => {
             v-model="createForm.invoiceDueAt"
             type="datetime-local"
             :disabled="createSaving"
+            autocomplete="off"
           />
         </div>
       </div>
@@ -635,6 +698,7 @@ const columns = computed(() => {
             v-model="subtotalAmountInput"
             inputmode="decimal"
             :disabled="createSaving"
+            autocomplete="off"
           />
         </div>
 
@@ -647,6 +711,7 @@ const columns = computed(() => {
             v-model="discountAmountInput"
             inputmode="decimal"
             :disabled="createSaving"
+            autocomplete="off"
           />
         </div>
 
@@ -659,6 +724,7 @@ const columns = computed(() => {
             v-model="taxAmountInput"
             inputmode="decimal"
             :disabled="createSaving"
+            autocomplete="off"
           />
         </div>
 
@@ -671,6 +737,7 @@ const columns = computed(() => {
             v-model="totalAmountInput"
             inputmode="decimal"
             :disabled="createSaving"
+            autocomplete="off"
           />
         </div>
 
@@ -683,6 +750,7 @@ const columns = computed(() => {
             v-model="createForm.expiresAt"
             type="datetime-local"
             :disabled="createSaving"
+            autocomplete="off"
           />
         </div>
 
@@ -695,6 +763,7 @@ const columns = computed(() => {
             v-model="createForm.note"
             class="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             :disabled="createSaving"
+            autocomplete="off"
           />
         </div>
       </div>
