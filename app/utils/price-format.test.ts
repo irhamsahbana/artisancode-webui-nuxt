@@ -7,7 +7,7 @@ const {
   isPriceAmountDraftValid,
   normalizeLocalizedPriceAmountInput,
   normalizePriceAmountInput,
-} = await import(new URL('../../../utils/price-format.ts', import.meta.url).href)
+} = await import(new URL('./price-format.ts', import.meta.url).href)
 
 test('normalizes amount input into backend-safe numeric strings', () => {
   assert.equal(normalizePriceAmountInput('00123'), '123')
