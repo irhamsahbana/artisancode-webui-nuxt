@@ -7,7 +7,7 @@ defineOptions({ name: 'JobPositionsPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -91,7 +91,7 @@ const buildPayload = () => {
 
 const handleSubmit = async () => {
   if (!form.value.name.trim()) {
-    show(uiText('Name is required'), 'error')
+    show(t('ui.nameIsRequired'), 'error')
     return
   }
 
@@ -103,7 +103,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show(uiText('Job position created successfully'), 'success')
+      show(t('ui.jobPositionCreatedSuccessfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -113,7 +113,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show(uiText('Job position updated successfully'), 'success')
+      show(t('ui.jobPositionUpdatedSuccessfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -138,7 +138,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        {{ uiText('Add New') }}
+        {{ t('ui.addNew') }}
       </Button>
     </template>
 
@@ -147,7 +147,7 @@ const handleSubmit = async () => {
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
       >
-        {{ uiText('Edit') }}
+        {{ t('ui.edit') }}
       </button>
     </template>
   </ResourceList>
@@ -158,15 +158,15 @@ const handleSubmit = async () => {
   >
     <FormDialogShell
       max-width-class="max-w-lg"
-      :title="modalMode === 'create' ? uiText('Add Job Position') : uiText('Edit Job Position')"
-      :description="uiText('Define role naming and grade structure with a cleaner form layout.')"
+      :title="modalMode === 'create' ? t('ui.addJobPosition') : t('ui.editJobPosition')"
+      :description="t('ui.defineRoleNamingAndGradeStructureWithACleanerFormLayout')"
       @close="closeModal"
     >
       <div
         v-if="modalLoading"
         class="text-sm text-muted-foreground"
       >
-        {{ uiText('Loading...') }}
+        {{ t('ui.loading2') }}
       </div>
 
       <form
@@ -205,7 +205,7 @@ const handleSubmit = async () => {
             :disabled="submitLoading"
             @click="closeModal"
           >
-            {{ uiText('Cancel') }}
+            {{ t('ui.cancel') }}
           </Button>
           <Button
             size="sm"
@@ -213,7 +213,7 @@ const handleSubmit = async () => {
             :disabled="submitLoading"
             type="submit"
           >
-            {{ submitLoading ? uiText('Saving...') : (modalMode === 'create' ? uiText('Create') : uiText('Update')) }}
+            {{ submitLoading ? t('ui.saving') : (modalMode === 'create' ? t('ui.create') : t('ui.update')) }}
           </Button>
         </div>
       </form>

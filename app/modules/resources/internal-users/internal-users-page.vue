@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
+import InternalResourceFilterPanel from '../internal-resource-filter-panel.vue'
 import InternalResourceListControls from '../internal-resource-list-controls.vue'
 import { useBanner } from '~/composables/useBanner'
 import { useDateTime } from '~/composables/useDateTime'
@@ -25,7 +26,7 @@ const statusOptionList = statusOptions.map((value) => ({ value, label: value }))
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { text: uiText } = useLocale()
+const { t } = useLocale()
 const { formatDateTime } = useDateTime()
 
 const columns = [
@@ -54,6 +55,8 @@ const modalOpen = ref(false)
 const modalMode = ref<'create' | 'edit'>('create')
 const modalLoading = ref(false)
 const submitLoading = ref(false)
+const filterPanelOpen = ref(false)
+const actionMenuOpen = ref(false)
 const filters = reactive({
   role_code: '',
   status: '',
@@ -69,8 +72,18 @@ const listQuery = computed(() => {
   }
   return query
 })
-
-const activeFilterCount = computed(() => Object.keys(listQuery.value).length)
+const actionItems = computed(() => [
+  {
+    key: 'export-users',
+    label: 'ui.export',
+    kind: 'export' as const,
+  },
+  {
+    key: 'user-export-history',
+    label: 'ui.exportHistory',
+    kind: 'export-history' as const,
+  },
+])
 
 const form = ref({
   id: '',
@@ -164,22 +177,22 @@ const buildPayload = () => {
 
 const validateForm = () => {
   if (!form.value.full_name.trim()) {
-    show(uiText('Full name is required'), 'error')
+    show(t('ui.fullNameIsRequired'), 'error')
     return false
   }
 
   if (!form.value.email.trim()) {
-    show(uiText('Email is required'), 'error')
+    show(t('ui.emailIsRequired'), 'error')
     return false
   }
 
   if (modalMode.value === 'create' && form.value.password.trim().length < 8) {
-    show(uiText('Password must be at least 8 characters'), 'error')
+    show(t('ui.passwordMustBeAtLeast8Characters'), 'error')
     return false
   }
 
   if (modalMode.value === 'edit' && form.value.password.trim().length > 0 && form.value.password.trim().length < 8) {
-    show(uiText('Password must be at least 8 characters'), 'error')
+    show(t('ui.passwordMustBeAtLeast8Characters'), 'error')
     return false
   }
 
@@ -213,8 +226,8 @@ const submitForm = async () => {
 
   show(
     modalMode.value === 'create'
-      ? uiText('User created successfully')
-      : uiText('User updated successfully'),
+      ? t('ui.userCreatedSuccessfully')
+      : t('ui.userUpdatedSuccessfully'),
     'success',
   )
   closeModal()
@@ -223,71 +236,97 @@ const submitForm = async () => {
 
 const modalTitle = computed(() => (
   modalMode.value === 'create'
-    ? uiText('Add User')
-    : uiText('Edit User')
+    ? t('ui.addUser')
+    : t('ui.editUser')
 ))
 
 const clearFilters = () => {
   filters.role_code = ''
   filters.status = ''
 }
+
+const toggleFilterPanel = () => {
+  filterPanelOpen.value = !filterPanelOpen.value
+  if (filterPanelOpen.value) {
+    actionMenuOpen.value = false
+  }
+}
+
+const updateActionMenuOpen = (open: boolean) => {
+  actionMenuOpen.value = open
+  if (open) {
+    filterPanelOpen.value = false
+  }
+}
 </script>
 
 <template>
   <ResourceList
     :key="refreshKey"
-    :title="uiText('Users')"
+    :title="t('ui.users')"
     endpoint="/internal-users"
     :columns="columns"
     :extra-query="listQuery"
     loading-variant="skeleton"
+    :search-placeholder="t('ui.searchUsers')"
+    :show-search-filter-trigger="true"
+    :search-filter-open="filterPanelOpen"
     :can-view-detail="false"
     auth-mode="internal"
     :delete-label-formatter="deleteLabelFormatter"
+    @search-filter-trigger="toggleFilterPanel"
   >
+    <template #filters>
+      <InternalResourceFilterPanel
+        v-model:open="filterPanelOpen"
+        @clear="clearFilters"
+      >
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="space-y-2">
+            <Label for="internal-user-role-filter">{{ t('ui.role') }}</Label>
+            <SearchableSelect
+              id="internal-user-role-filter"
+              v-model="filters.role_code"
+              :options="[{ value: '', label: t('ui.allRoles') }, ...roleOptionList]"
+              :placeholder="t('ui.allRoles')"
+              :search-placeholder="t('ui.searchRole')"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <Label for="internal-user-status-filter">{{ t('ui.status') }}</Label>
+            <SearchableSelect
+              id="internal-user-status-filter"
+              v-model="filters.status"
+              :options="[{ value: '', label: t('ui.allStatuses') }, ...statusOptionList]"
+              :placeholder="t('ui.allStatuses')"
+              :search-placeholder="t('ui.searchStatus')"
+            />
+          </div>
+        </div>
+      </InternalResourceFilterPanel>
+    </template>
+
     <template #header-actions>
       <div class="flex w-full flex-wrap items-center justify-end gap-2">
-        <InternalResourceListControls
-          endpoint="/internal-users"
-          resource-key="internal-users"
-          filename-prefix="internal-users"
-          :columns="columns"
-          :query="listQuery"
-          :filter-count="activeFilterCount"
-          @reset="clearFilters"
-        >
-          <div class="grid gap-4 md:grid-cols-2">
-            <div class="space-y-2">
-              <Label for="internal-user-role-filter">{{ uiText('Role') }}</Label>
-              <SearchableSelect
-                id="internal-user-role-filter"
-                v-model="filters.role_code"
-                :options="[{ value: '', label: uiText('All roles') }, ...roleOptionList]"
-                :placeholder="uiText('All roles')"
-                :search-placeholder="uiText('Search role...')"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <Label for="internal-user-status-filter">{{ uiText('Status') }}</Label>
-              <SearchableSelect
-                id="internal-user-status-filter"
-                v-model="filters.status"
-                :options="[{ value: '', label: uiText('All statuses') }, ...statusOptionList]"
-                :placeholder="uiText('All statuses')"
-                :search-placeholder="uiText('Search status...')"
-              />
-            </div>
-          </div>
-        </InternalResourceListControls>
-
         <Button
           size="sm"
           class="rounded-xl"
           @click="openCreateModal"
         >
-          {{ uiText('Add New') }}
+          {{ t('ui.addNew') }}
         </Button>
+
+        <InternalResourceListControls
+          :actions-open="actionMenuOpen"
+          endpoint="/internal-users"
+          resource-key="internal-users"
+          filename-prefix="internal-users"
+          :columns="columns"
+          :query="listQuery"
+          :action-items="actionItems"
+          @update:actions-open="updateActionMenuOpen"
+        />
       </div>
     </template>
 
@@ -296,7 +335,7 @@ const clearFilters = () => {
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
       >
-        {{ uiText('Edit') }}
+        {{ t('ui.edit') }}
       </button>
     </template>
   </ResourceList>
@@ -305,14 +344,14 @@ const clearFilters = () => {
     <FormDialogShell
       max-width-class="max-w-2xl"
       :title="modalTitle"
-      :description="uiText('Manage user access and account status.')"
+      :description="t('ui.manageUserAccessAndAccountStatus')"
       @close="closeModal"
     >
       <div
         v-if="modalLoading"
         class="text-sm text-muted-foreground"
       >
-        {{ uiText('Loading user data...') }}
+        {{ t('ui.loadingUserData') }}
       </div>
 
       <form
@@ -322,16 +361,16 @@ const clearFilters = () => {
       >
         <div class="grid gap-4 md:grid-cols-2">
           <div class="space-y-2">
-            <Label for="internal-user-full-name">{{ uiText('Full Name') }}</Label>
+            <Label for="internal-user-full-name">{{ t('ui.fullName') }}</Label>
             <Input
               id="internal-user-full-name"
               v-model="form.full_name"
-              :placeholder="uiText('Full name')"
+              :placeholder="t('ui.fullName2')"
             />
           </div>
 
           <div class="space-y-2">
-            <Label for="internal-user-email">{{ uiText('Email') }}</Label>
+            <Label for="internal-user-email">{{ t('ui.email') }}</Label>
             <Input
               id="internal-user-email"
               v-model="form.email"
@@ -343,36 +382,36 @@ const clearFilters = () => {
 
         <div class="grid gap-4 md:grid-cols-3">
           <div class="space-y-2">
-            <Label for="internal-user-role">{{ uiText('Role') }}</Label>
+            <Label for="internal-user-role">{{ t('ui.role') }}</Label>
             <SearchableSelect
               id="internal-user-role"
               v-model="form.role_code"
               :options="roleOptionList"
-              :placeholder="uiText('Select role')"
-              :search-placeholder="uiText('Search role...')"
+              :placeholder="t('ui.selectRole')"
+              :search-placeholder="t('ui.searchRole')"
             />
           </div>
 
           <div class="space-y-2">
-            <Label for="internal-user-status">{{ uiText('Status') }}</Label>
+            <Label for="internal-user-status">{{ t('ui.status') }}</Label>
             <SearchableSelect
               id="internal-user-status"
               v-model="form.status"
               :options="statusOptionList"
-              :placeholder="uiText('Select status')"
-              :search-placeholder="uiText('Search status...')"
+              :placeholder="t('ui.selectStatus')"
+              :search-placeholder="t('ui.searchStatus')"
             />
           </div>
 
           <div class="space-y-2">
             <Label for="internal-user-password">
-              {{ modalMode === 'create' ? uiText('Password') : uiText('Reset Password (Optional)') }}
+              {{ modalMode === 'create' ? t('ui.password') : t('ui.resetPasswordOptional') }}
             </Label>
             <Input
               id="internal-user-password"
               v-model="form.password"
               type="password"
-              :placeholder="modalMode === 'create' ? uiText('Minimum 8 characters') : uiText('Leave blank to keep current password')"
+              :placeholder="modalMode === 'create' ? t('ui.minimum8Characters') : t('ui.leaveBlankToKeepCurrentPassword')"
             />
           </div>
         </div>
@@ -384,14 +423,14 @@ const clearFilters = () => {
             class="rounded-xl"
             @click="closeModal"
           >
-            {{ uiText('Cancel') }}
+            {{ t('ui.cancel') }}
           </Button>
           <Button
             type="submit"
             class="rounded-xl"
             :disabled="submitLoading"
           >
-            {{ submitLoading ? uiText('Saving...') : modalTitle }}
+            {{ submitLoading ? t('ui.saving') : modalTitle }}
           </Button>
         </div>
       </form>

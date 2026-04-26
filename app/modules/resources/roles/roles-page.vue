@@ -6,7 +6,7 @@ import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 
 defineOptions({ name: 'RolesPage' })
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 const { user } = useAuth()
 const { formatReadableDateTime } = useDateTime()
 const appOrigin = computed(() => (import.meta.client ? window.location.origin : ''))
@@ -399,7 +399,7 @@ const toggleEditPermission = (id: string) => {
 const submitCreate = async () => {
   const name = createForm.name.trim()
   if (!name) {
-    show(uiText('Role name is required.'), 'error')
+    show(t('ui.roleNameIsRequired'), 'error')
     return
   }
   const payload: Record<string, unknown> = {
@@ -413,7 +413,7 @@ const submitCreate = async () => {
   })
   createLoading.value = false
   if (response.success) {
-    show(uiText('Role created.'), 'success')
+    show(t('ui.roleCreated'), 'success')
     resetCreate()
     listKey.value += 1
   }
@@ -455,7 +455,7 @@ const syncEditForm = (row: Record<string, unknown> | null) => {
 }
 const submitUpdate = async (close: () => void, refreshList: () => Promise<void>) => {
   if (!editForm.id) {
-    show(uiText('Role id is missing.'), 'error')
+    show(t('ui.roleIdIsMissing'), 'error')
     return
   }
   editLoading.value = true
@@ -468,7 +468,7 @@ const submitUpdate = async (close: () => void, refreshList: () => Promise<void>)
   })
   editLoading.value = false
   if (response.success) {
-    show(uiText('Role updated.'), 'success')
+    show(t('ui.roleUpdated'), 'success')
     await refreshList()
     handleEditClose(close)
   }
@@ -523,20 +523,20 @@ const formatInvitationDateTime = (value: string | null | undefined) => (
   formatReadableDateTime(value, undefined, '-')
 )
 
-const copyToClipboard = async (value: string, successMessage: string) => {
+const copyToClipboard = async (value: string, successMessageKey: string) => {
   if (!value || !import.meta.client || !navigator.clipboard) {
-    show(uiText('Clipboard is not available in this browser'), 'error')
+    show(t('ui.clipboardIsNotAvailableInThisBrowser'), 'error')
     return
   }
 
   await navigator.clipboard.writeText(value)
-  show(uiText(successMessage), 'success')
+  show(t(successMessageKey), 'success')
 }
 
 const submitAdminInvite = async () => {
   const email = adminInviteEmail.value.trim()
   if (!email) {
-    show(uiText('Email is required'), 'error')
+    show(t('ui.emailIsRequired'), 'error')
     return
   }
 
@@ -555,7 +555,7 @@ const submitAdminInvite = async () => {
   }
 
   adminInviteResult.value = response.data
-  show(uiText('Admin invitation created successfully'), 'success')
+  show(t('ui.adminInvitationCreatedSuccessfully'), 'success')
 }
 </script>
 
@@ -575,7 +575,7 @@ const submitAdminInvite = async () => {
           size="sm"
           @click="openCreate"
         >
-          {{ uiText('Add New') }}
+          {{ t('ui.addNew') }}
         </Button>
         <Button
           v-if="canInviteAdmins"
@@ -583,7 +583,7 @@ const submitAdminInvite = async () => {
           variant="outline"
           @click="openAdminInvite"
         >
-          {{ uiText('Invite Admin') }}
+          {{ t('ui.inviteAdmin') }}
         </Button>
       </template>
       <template #detail="{ row, loading, close, refresh: refreshList }">
@@ -595,7 +595,7 @@ const submitAdminInvite = async () => {
           <div class="w-full max-w-5xl rounded-lg border bg-card p-6 shadow-lg">
             <div class="flex items-center justify-between">
               <div class="text-lg font-semibold">
-                {{ uiText('Edit role permissions') }}
+                {{ t('ui.editRolePermissions') }}
               </div>
               <Button
                 variant="outline"
@@ -603,7 +603,7 @@ const submitAdminInvite = async () => {
                 :disabled="editLoading || loading"
                 @click="handleEditClose(close)"
               >
-                {{ uiText('Close') }}
+                {{ t('ui.close') }}
               </Button>
             </div>
             <div class="mt-4 max-h-[70vh] overflow-auto">
@@ -612,24 +612,24 @@ const submitAdminInvite = async () => {
                   v-if="loading"
                   class="text-muted-foreground"
                 >
-                  {{ uiText('Loading...') }}
+                  {{ t('ui.loading2') }}
                 </div>
                 <div
                   v-else
                   class="grid gap-4"
                 >
                   <div class="grid gap-2">
-                    <Label>{{ uiText('Permissions') }}</Label>
+                    <Label>{{ t('ui.permissions') }}</Label>
                     <Input
                       v-model="editPermissionQueryInput"
-                      :placeholder="uiText('Search permissions')"
+                      :placeholder="t('ui.searchPermissions')"
                     />
                     <div class="max-h-72 overflow-auto rounded-md border p-2">
                       <div
                         v-if="filteredEditPermissions.length === 0"
                         class="text-sm text-muted-foreground"
                       >
-                        {{ uiText('No permissions found.') }}
+                        {{ t('ui.noPermissionsFound') }}
                       </div>
                       <div
                         v-else
@@ -668,14 +668,14 @@ const submitAdminInvite = async () => {
                 :disabled="editLoading || loading"
                 @click="handleEditClose(close)"
               >
-                {{ uiText('Cancel') }}
+                {{ t('ui.cancel') }}
               </Button>
               <Button
                 size="sm"
                 :disabled="editLoading || loading"
                 @click="submitUpdate(close, refreshList)"
               >
-                {{ editLoading ? uiText('Saving...') : uiText('Save Changes') }}
+                {{ editLoading ? t('ui.saving') : t('ui.saveChanges') }}
               </Button>
             </div>
           </div>
@@ -687,19 +687,19 @@ const submitAdminInvite = async () => {
       <CardHeader class="border-b border-border/70 bg-[linear-gradient(180deg,rgba(248,250,252,0.82),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(2,6,23,0.96))]">
         <div class="space-y-1">
           <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            {{ uiText('Roles & Permissions') }}
+            {{ t('ui.rolesAndPermissions') }}
           </div>
-          <CardTitle>{{ uiText('Permissions') }}</CardTitle>
+          <CardTitle>{{ t('ui.permissions') }}</CardTitle>
         </div>
         <p class="text-sm text-muted-foreground">
-          {{ uiText('Permissions are set by the system and can only be viewed here.') }}
+          {{ t('ui.permissionsAreSetByTheSystemAndCanOnlyBeViewedHere') }}
         </p>
       </CardHeader>
       <CardContent class="pt-5">
         <div class="mb-4 flex flex-wrap items-center gap-2">
           <Input
             v-model="permissionListQueryInput"
-            :placeholder="uiText('Search permissions')"
+            :placeholder="t('ui.searchPermissions')"
             class="h-11 w-56 rounded-2xl border-border/80 bg-background/90 shadow-sm"
           />
         </div>
@@ -707,15 +707,15 @@ const submitAdminInvite = async () => {
           v-if="error"
           class="text-sm text-destructive"
         >
-          {{ uiText('Failed to load permissions.') }}
+          {{ t('ui.failedToLoadPermissions') }}
         </div>
         <div v-else>
           <div class="overflow-hidden rounded-[24px] border border-border/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(248,250,252,0.46))] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.56),rgba(2,6,23,0.24))]">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{{ uiText('Name') }}</TableHead>
-                  <TableHead>{{ uiText('Description') }}</TableHead>
+                  <TableHead>{{ t('ui.name') }}</TableHead>
+                  <TableHead>{{ t('ui.description') }}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -745,7 +745,7 @@ const submitAdminInvite = async () => {
                       colspan="2"
                       class="py-10 text-center text-muted-foreground"
                     >
-                      {{ uiText('No permissions available.') }}
+                      {{ t('ui.noPermissionsAvailable') }}
                     </TableCell>
                   </TableRow>
                 </template>
@@ -756,7 +756,7 @@ const submitAdminInvite = async () => {
       </CardContent>
       <CardFooter class="flex flex-wrap items-center justify-end gap-4 border-t border-border/70 bg-muted/10 px-6 py-4 text-sm">
         <div class="text-muted-foreground">
-          {{ uiText('Page') }} {{ permissionCurrentPage }} {{ uiText('of') }} {{ permissionLastPage }}
+          {{ t('ui.page') }} {{ permissionCurrentPage }} {{ t('ui.of') }} {{ permissionLastPage }}
         </div>
         <div class="flex items-center gap-2">
           <Button
@@ -766,7 +766,7 @@ const submitAdminInvite = async () => {
             :disabled="permissionPage === 1"
             @click="prevPermissionPage"
           >
-            {{ uiText('Previous') }}
+            {{ t('ui.previous') }}
           </Button>
           <Button
             variant="outline"
@@ -775,7 +775,7 @@ const submitAdminInvite = async () => {
             :disabled="permissionPage >= permissionLastPage"
             @click="nextPermissionPage"
           >
-            {{ uiText('Next') }}
+            {{ t('ui.next') }}
           </Button>
         </div>
       </CardFooter>
@@ -789,7 +789,7 @@ const submitAdminInvite = async () => {
     <div class="w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          {{ uiText('Invite Admin Access') }}
+          {{ t('ui.inviteAdminAccess') }}
         </div>
         <Button
           variant="outline"
@@ -797,20 +797,20 @@ const submitAdminInvite = async () => {
           :disabled="adminInviteLoading"
           @click="closeAdminInvite"
         >
-          {{ uiText('Close') }}
+          {{ t('ui.close') }}
         </Button>
       </div>
       <div class="mt-2 text-sm text-muted-foreground">
-        {{ uiText('Use this flow for admin account access while users stay hidden from the main product navigation.') }}
+        {{ t('ui.useThisFlowForAdminAccountAccessWhileUsersStayHiddenFromTheMainProductNavigation') }}
       </div>
       <div class="mt-4 grid gap-4">
         <div class="grid gap-2">
-          <Label for="admin-invite-email">{{ uiText('Admin email') }}</Label>
+          <Label for="admin-invite-email">{{ t('ui.adminEmail') }}</Label>
           <Input
             id="admin-invite-email"
             v-model="adminInviteEmail"
             type="email"
-            :placeholder="uiText('e.g. admin@example.com')"
+            :placeholder="t('ui.eGAdminExampleCom')"
           />
         </div>
         <div
@@ -818,13 +818,13 @@ const submitAdminInvite = async () => {
           class="space-y-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 p-4 text-sm dark:border-emerald-900/60 dark:bg-emerald-950/20"
         >
           <div class="font-medium text-emerald-900 dark:text-emerald-100">
-            {{ uiText('Invitation token is ready') }}
+            {{ t('ui.invitationTokenIsReady') }}
           </div>
           <div class="text-emerald-800 dark:text-emerald-200">
-            {{ uiText('Email delivery is not wired yet, so keep this token for the acceptance flow.') }}
+            {{ t('ui.emailDeliveryIsNotWiredYetSoKeepThisTokenForTheAcceptanceFlow') }}
           </div>
           <div class="space-y-1">
-            <Label for="admin-invitation-token">{{ uiText('Invitation token') }}</Label>
+            <Label for="admin-invitation-token">{{ t('ui.invitationToken') }}</Label>
             <Input
               id="admin-invitation-token"
               :model-value="adminInviteResult.accept_token"
@@ -832,7 +832,7 @@ const submitAdminInvite = async () => {
             />
           </div>
           <div class="space-y-1">
-            <Label for="admin-invitation-link">{{ uiText('Invitation link') }}</Label>
+            <Label for="admin-invitation-link">{{ t('ui.invitationLink') }}</Label>
             <Input
               id="admin-invitation-link"
               :model-value="adminInvitationLink"
@@ -840,22 +840,22 @@ const submitAdminInvite = async () => {
             />
           </div>
           <div class="text-xs text-emerald-800/80 dark:text-emerald-200/80">
-            {{ uiText('Expires at') }}: {{ formatInvitationDateTime(adminInviteResult.expires_at) }}
+            {{ t('ui.expiresAt2') }}: {{ formatInvitationDateTime(adminInviteResult.expires_at) }}
           </div>
           <div class="flex flex-wrap gap-2">
             <Button
               variant="outline"
               size="sm"
-              @click="copyToClipboard(adminInviteResult.accept_token, 'Invitation token copied')"
+              @click="copyToClipboard(adminInviteResult.accept_token, 'ui.invitationTokenCopied')"
             >
-              {{ uiText('Copy token') }}
+              {{ t('ui.copyToken') }}
             </Button>
             <Button
               variant="outline"
               size="sm"
-              @click="copyToClipboard(adminInvitationLink, 'Invitation link copied')"
+              @click="copyToClipboard(adminInvitationLink, 'ui.invitationLinkCopied')"
             >
-              {{ uiText('Copy invitation link') }}
+              {{ t('ui.copyInvitationLink') }}
             </Button>
           </div>
         </div>
@@ -867,14 +867,14 @@ const submitAdminInvite = async () => {
           :disabled="adminInviteLoading"
           @click="closeAdminInvite"
         >
-          {{ uiText('Cancel') }}
+          {{ t('ui.cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="adminInviteLoading"
           @click="submitAdminInvite"
         >
-          {{ adminInviteLoading ? uiText('Sending...') : uiText('Create Invitation') }}
+          {{ adminInviteLoading ? t('ui.sending') : t('ui.createInvitation') }}
         </Button>
       </div>
     </div>
@@ -887,7 +887,7 @@ const submitAdminInvite = async () => {
     <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          {{ uiText('Create role') }}
+          {{ t('ui.createRole') }}
         </div>
         <Button
           variant="outline"
@@ -895,23 +895,23 @@ const submitAdminInvite = async () => {
           :disabled="createLoading"
           @click="resetCreate"
         >
-          {{ uiText('Close') }}
+          {{ t('ui.close') }}
         </Button>
       </div>
       <div class="mt-4 grid gap-4">
         <div class="grid gap-2">
-          <Label for="role-name">{{ uiText('Role name') }}</Label>
+          <Label for="role-name">{{ t('ui.roleName') }}</Label>
           <Input
             id="role-name"
             v-model="createForm.name"
-            :placeholder="uiText('Role name')"
+            :placeholder="t('ui.roleName')"
           />
         </div>
         <div class="grid gap-2">
-          <Label>{{ uiText('Permissions') }}</Label>
+          <Label>{{ t('ui.permissions') }}</Label>
           <Input
             v-model="createPermissionQueryInput"
-            :placeholder="uiText('Search permissions')"
+            :placeholder="t('ui.searchPermissions')"
           />
           <div
             class="max-h-72 overflow-auto rounded-md border p-2"
@@ -937,7 +937,7 @@ const submitAdminInvite = async () => {
               v-else-if="filteredPermissions.length === 0"
               class="text-sm text-muted-foreground"
             >
-              {{ uiText('No permissions found.') }}
+              {{ t('ui.noPermissionsFound') }}
             </div>
             <div
               v-else
@@ -972,7 +972,7 @@ const submitAdminInvite = async () => {
             <div
               class="text-muted-foreground"
             >
-              {{ uiText('Page') }} {{ createPermissionCurrentPage }} {{ uiText('of') }} {{ createPermissionLastPage }}
+              {{ t('ui.page') }} {{ createPermissionCurrentPage }} {{ t('ui.of') }} {{ createPermissionLastPage }}
             </div>
             <div class="flex items-center gap-2">
               <Button
@@ -981,7 +981,7 @@ const submitAdminInvite = async () => {
                 :disabled="createPermissionPage === 1"
                 @click="prevCreatePermissionPage"
               >
-                {{ uiText('Previous') }}
+                {{ t('ui.previous') }}
               </Button>
               <Button
                 variant="outline"
@@ -989,7 +989,7 @@ const submitAdminInvite = async () => {
                 :disabled="createPermissionPage >= createPermissionLastPage"
                 @click="nextCreatePermissionPage"
               >
-                {{ uiText('Next') }}
+                {{ t('ui.next') }}
               </Button>
             </div>
           </div>
@@ -1002,14 +1002,14 @@ const submitAdminInvite = async () => {
           :disabled="createLoading"
           @click="resetCreate"
         >
-          {{ uiText('Cancel') }}
+          {{ t('ui.cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="createLoading"
           @click="submitCreate"
         >
-          {{ createLoading ? uiText('Saving...') : uiText('Create role') }}
+          {{ createLoading ? t('ui.saving') : t('ui.createRole') }}
         </Button>
       </div>
     </div>

@@ -19,7 +19,7 @@ const route = useRoute()
 const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 const { formatDateOnly: formatDateOnlyLabel, formatDateTime } = useDateTime()
 
 const supportedKeys = [
@@ -36,28 +36,28 @@ const supportedKeys = [
   'exception_type',
 ]
 
-const columns = [
-  { key: 'employee_no', label: 'Employee No' },
-  { key: 'employee_name', label: 'Employee Name' },
+const columns = computed(() => [
+  { key: 'employee_no', label: t('ui.employeeNo') },
+  { key: 'employee_name', label: t('ui.employeeName') },
   {
     key: 'type',
-    label: 'Type',
+    label: t('ui.type'),
     format: (value: unknown) => String(value ?? '').replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase()),
   },
   {
     key: 'source',
-    label: 'Source',
+    label: t('ui.source'),
     format: (value: unknown) => String(value ?? '').replace(/\b\w/g, char => char.toUpperCase()),
   },
   {
     key: 'status',
-    label: 'Status',
+    label: t('ui.status'),
     format: (value: unknown) => String(value ?? '').replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase()),
   },
-  { key: 'attendance_date', label: 'Date' },
+  { key: 'attendance_date', label: t('ui.date') },
   {
     key: 'logged_at',
-    label: 'Logged At',
+    label: t('ui.loggedAt'),
     format: (value: unknown) => {
       if (typeof value !== 'string' || value.length === 0) {
         return '-'
@@ -71,36 +71,36 @@ const columns = [
   },
   {
     key: 'selfie_url',
-    label: 'Photo Proof',
-    format: (value: unknown) => (typeof value === 'string' && value.length > 0 ? uiText('Available') : '-'),
+    label: t('ui.photoProof'),
+    format: (value: unknown) => (typeof value === 'string' && value.length > 0 ? t('ui.available') : '-'),
   },
-]
+])
 
-const withAnyOption = (label: string, options: SelectOption[]) => [{ value: '', label: uiText(label) }, ...options]
+const withAnyOption = (labelKey: string, options: SelectOption[]) => [{ value: '', label: t(labelKey) }, ...options]
 
-const typeOptions = computed<SelectOption[]>(() => withAnyOption('All types', [
-  { value: 'check_in', label: uiText('Check In') },
-  { value: 'check_out', label: uiText('Check Out') },
+const typeOptions = computed<SelectOption[]>(() => withAnyOption('ui.allTypes', [
+  { value: 'check_in', label: t('ui.checkIn') },
+  { value: 'check_out', label: t('ui.checkOut') },
 ]))
 
-const sourceOptions = computed<SelectOption[]>(() => withAnyOption('All sources', [
-  { value: 'mobile', label: uiText('Mobile') },
-  { value: 'web', label: uiText('Web') },
+const sourceOptions = computed<SelectOption[]>(() => withAnyOption('ui.allSources', [
+  { value: 'mobile', label: t('ui.mobile') },
+  { value: 'web', label: t('ui.web') },
 ]))
 
-const statusOptions = computed<SelectOption[]>(() => withAnyOption('All statuses', [
-  { value: 'recorded', label: uiText('Recorded') },
+const statusOptions = computed<SelectOption[]>(() => withAnyOption('ui.allStatuses', [
+  { value: 'recorded', label: t('ui.recorded') },
 ]))
 
-const selfieOptions = computed<SelectOption[]>(() => withAnyOption('All photo states', [
-  { value: 'with_photo', label: uiText('With Photo') },
-  { value: 'without_photo', label: uiText('Without Photo') },
+const selfieOptions = computed<SelectOption[]>(() => withAnyOption('ui.allPhotoStates', [
+  { value: 'with_photo', label: t('ui.withPhoto') },
+  { value: 'without_photo', label: t('ui.withoutPhoto') },
 ]))
 
-const exceptionOptions = computed<SelectOption[]>(() => withAnyOption('All exceptions', [
-  { value: 'late_check_in', label: uiText('Late Check In') },
-  { value: 'missing_check_out', label: uiText('Missing Check Out') },
-  { value: 'missing_check_in', label: uiText('Missing Check In') },
+const exceptionOptions = computed<SelectOption[]>(() => withAnyOption('ui.allExceptions', [
+  { value: 'late_check_in', label: t('ui.lateCheckIn') },
+  { value: 'missing_check_out', label: t('ui.missingCheckOut2') },
+  { value: 'missing_check_in', label: t('ui.missingCheckIn2') },
 ]))
 
 const employeeItems = ref<EmployeeFilterItem[]>([])
@@ -108,28 +108,36 @@ const orgUnitItems = ref<OrgUnitFilterItem[]>([])
 const branchItems = ref<BranchFilterItem[]>([])
 const workLocationItems = ref<WorkLocationFilterItem[]>([])
 const employeeOptions = computed<SelectOption[]>(() => withAnyOption(
-  'All employees',
+  'ui.allEmployees',
   employeeItems.value.map(item => ({
     value: item.id,
     label: `${item.full_name} (${item.employee_no})`,
   })),
 ))
+const orgUnitCategoryLabelKeys: Record<string, string> = {
+  branch: 'ui.branch',
+  company: 'layout.companies',
+  department: 'ui.department',
+  division: 'ui.division',
+  team: 'ui.team',
+}
+
 const orgUnitOptions = computed<SelectOption[]>(() => withAnyOption(
-  'All org units',
+  'ui.allOrgUnits',
   orgUnitItems.value.map(item => ({
     value: item.id,
-    label: item.category ? `${item.name} (${uiText(item.category)})` : item.name,
+    label: item.category ? `${item.name} (${t(orgUnitCategoryLabelKeys[item.category] ?? 'ui.organizationUnit')})` : item.name,
   })),
 ))
 const branchOptions = computed<SelectOption[]>(() => withAnyOption(
-  'All branches',
+  'ui.allBranches',
   branchItems.value.map(item => ({
     value: item.id,
     label: item.name,
   })),
 ))
 const workLocationOptions = computed<SelectOption[]>(() => withAnyOption(
-  'All work locations',
+  'ui.allWorkLocations',
   workLocationItems.value.map(item => ({
     value: item.id,
     label: item.name,
@@ -352,7 +360,7 @@ const pendingExportCount = computed(() => exportItems.value.filter(item => item.
 const exportMenuItems = computed(() => [
   {
     key: 'export',
-    label: exportLoading.value ? uiText('Queueing...') : uiText('Export'),
+    label: exportLoading.value ? t('ui.queueing') : t('ui.export'),
     disabled: exportLoading.value,
   },
 ])
@@ -478,7 +486,7 @@ const formatDetailValue = (key: string, value: unknown) => {
   }
 
   if (key === 'selfie_url') {
-    return typeof value === 'string' && value.length > 0 ? uiText('Available') : '-'
+    return typeof value === 'string' && value.length > 0 ? t('ui.available') : '-'
   }
 
   if (typeof value === 'object') {
@@ -494,28 +502,28 @@ const formatDetailValue = (key: string, value: unknown) => {
 }
 
 const detailFieldLabels: Record<string, string> = {
-  employee_name: 'Employee Name',
-  employee_no: 'Employee No',
-  employee_id: 'Employee ID',
-  attendance_date: 'Attendance Date',
-  logged_at: 'Logged At',
-  type: 'Attendance Type',
-  source: 'Source',
-  status: 'Status',
-  notes: 'Notes',
-  address: 'Recorded Address',
-  latitude: 'Latitude',
-  longitude: 'Longitude',
-  device_name: 'Device Name',
-  device_id: 'Device ID',
-  selfie_url: 'Photo Proof',
-  selfie_file_id: 'Photo File ID',
-  created_at: 'Created At',
-  updated_at: 'Updated At',
-  id: 'Attendance Log ID',
+  employee_name: 'ui.employeeName',
+  employee_no: 'ui.employeeNo',
+  employee_id: 'ui.employeeId',
+  attendance_date: 'ui.attendanceDate',
+  logged_at: 'ui.loggedAt',
+  type: 'ui.attendanceType',
+  source: 'ui.source',
+  status: 'ui.status',
+  notes: 'ui.notes',
+  address: 'ui.recordedAddress',
+  latitude: 'common.latitude',
+  longitude: 'common.longitude',
+  device_name: 'ui.deviceName',
+  device_id: 'ui.deviceId',
+  selfie_url: 'ui.photoProof',
+  selfie_file_id: 'ui.photoFileId',
+  created_at: 'ui.createdAt',
+  updated_at: 'ui.updatedAt',
+  id: 'ui.attendanceLogId',
 }
 
-const getDetailFieldLabel = (key: string) => uiText(detailFieldLabels[key] ?? toTitleCase(key))
+const getDetailFieldLabel = (key: string) => detailFieldLabels[key] ? t(detailFieldLabels[key]) : toTitleCase(key)
 
 const getDetailValue = (row: AttendanceLogRow | null | undefined, key: string) => row?.[key]
 
@@ -527,24 +535,24 @@ const buildDetailSummary = (row: AttendanceLogRow | null | undefined) => {
   return [
     {
       key: 'attendance_date',
-      label: uiText('Attendance Date'),
+      label: t('ui.attendanceDate'),
       value: typeof getDetailValue(row, 'attendance_date') === 'string'
         ? formatAttendanceDate(getDetailValue(row, 'attendance_date'))
         : '-',
     },
     {
       key: 'logged_at',
-      label: uiText('Logged At'),
+      label: t('ui.loggedAt'),
       value: formatDetailValue('logged_at', getDetailValue(row, 'logged_at')),
     },
     {
       key: 'type',
-      label: uiText('Type'),
+      label: t('ui.type'),
       value: formatDetailValue('type', getDetailValue(row, 'type')),
     },
     {
       key: 'source',
-      label: uiText('Source'),
+      label: t('ui.source'),
       value: formatDetailValue('source', getDetailValue(row, 'source')),
     },
   ].filter(item => item.value !== '-')
@@ -554,8 +562,8 @@ const detailSections = computed(() => {
   return [
     {
       id: 'employee',
-      title: uiText('Employee Information'),
-      description: uiText('Who the attendance record belongs to.'),
+      title: t('ui.employeeInformation'),
+      description: t('ui.whoTheAttendanceRecordBelongsTo'),
       fields: [
         'employee_name',
         'employee_no',
@@ -564,8 +572,8 @@ const detailSections = computed(() => {
     },
     {
       id: 'attendance',
-      title: uiText('Attendance Record'),
-      description: uiText('Main attendance activity and supporting notes.'),
+      title: t('ui.attendanceRecord'),
+      description: t('ui.mainAttendanceActivityAndSupportingNotes'),
       fields: [
         'attendance_date',
         'logged_at',
@@ -577,8 +585,8 @@ const detailSections = computed(() => {
     },
     {
       id: 'location',
-      title: uiText('Location Details'),
-      description: uiText('Address and coordinates captured when the log was created.'),
+      title: t('ui.locationDetails'),
+      description: t('ui.addressAndCoordinatesCapturedWhenTheLogWasCreated'),
       fields: [
         'address',
         'latitude',
@@ -587,8 +595,8 @@ const detailSections = computed(() => {
     },
     {
       id: 'device',
-      title: uiText('Device Details'),
-      description: uiText('Device information used during the attendance submission.'),
+      title: t('ui.deviceDetails'),
+      description: t('ui.deviceInformationUsedDuringTheAttendanceSubmission'),
       fields: [
         'device_name',
         'device_id',
@@ -596,8 +604,8 @@ const detailSections = computed(() => {
     },
     {
       id: 'system',
-      title: uiText('System Metadata'),
-      description: uiText('Internal identifiers and timestamps for auditing.'),
+      title: t('ui.systemMetadata'),
+      description: t('ui.internalIdentifiersAndTimestampsForAuditing'),
       fields: [
         'id',
         'selfie_file_id',
@@ -741,7 +749,7 @@ const createExport = async () => {
   }
 
   show(
-    uiText('Attendance export queued.'),
+    t('ui.attendanceExportQueued'),
     'success',
   )
   await loadExports()
@@ -763,7 +771,7 @@ const downloadExport = (item: ExportJob) => {
       endpoint="/attendance-logs"
       :extra-query="listQuery"
       :columns="columns"
-      :search-placeholder="uiText('Search attendance logs...')"
+      :search-placeholder="t('ui.searchAttendanceLogs')"
       :show-search-filter-trigger="true"
       :search-filter-open="filterPanelOpen"
       loading-variant="skeleton"
@@ -774,7 +782,7 @@ const downloadExport = (item: ExportJob) => {
         <div class="flex w-full items-center justify-end gap-2">
           <ActionMenu
             :open="exportMenuOpen"
-            :label="uiText('Export')"
+            :label="t('ui.export')"
             :items="exportMenuItems"
             @toggle="toggleExportMenu"
             @close="exportMenuOpen = false"
@@ -810,7 +818,7 @@ const downloadExport = (item: ExportJob) => {
           class="w-full rounded px-3 py-2 text-left hover:bg-accent"
           @click="openSelfie(row); close()"
         >
-          {{ uiText('View Photo') }}
+          {{ t('ui.viewPhoto') }}
         </button>
       </template>
 
@@ -823,10 +831,10 @@ const downloadExport = (item: ExportJob) => {
             <div class="flex items-center justify-between gap-4 border-b px-5 py-4 sm:px-6">
               <div class="min-w-0">
                 <div class="text-lg font-semibold sm:text-xl">
-                  {{ uiText('Attendance Log Detail') }}
+                  {{ t('ui.attendanceLogDetail') }}
                 </div>
                 <div class="text-sm text-muted-foreground">
-                  {{ uiText('Review the attendance record with a cleaner summary, supporting context, and photo proof.') }}
+                  {{ t('ui.reviewTheAttendanceRecordWithACleanerSummarySupportingContextAndPhotoProof') }}
                 </div>
               </div>
               <Button
@@ -834,7 +842,7 @@ const downloadExport = (item: ExportJob) => {
                 size="sm"
                 @click="close"
               >
-                {{ uiText('Close') }}
+                {{ t('ui.close') }}
               </Button>
             </div>
 
@@ -844,7 +852,7 @@ const downloadExport = (item: ExportJob) => {
                   v-if="loading"
                   class="rounded-xl border border-dashed bg-muted/20 p-6 text-sm text-muted-foreground"
                 >
-                  {{ uiText('Loading attendance detail...') }}
+                  {{ t('ui.loadingAttendanceDetail') }}
                 </div>
 
                 <template v-else>
@@ -852,10 +860,10 @@ const downloadExport = (item: ExportJob) => {
                     <div class="flex flex-wrap items-start justify-between gap-4">
                       <div class="space-y-2">
                         <div class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                          {{ uiText('Attendance Summary') }}
+                          {{ t('ui.attendanceSummary') }}
                         </div>
                         <div class="text-xl font-semibold leading-tight">
-                          {{ String(row?.employee_name ?? uiText('Unknown Employee')) }}
+                          {{ String(row?.employee_name ?? t('ui.unknownEmployee')) }}
                         </div>
                         <div class="text-sm text-muted-foreground">
                           {{ String(row?.employee_no ?? '-') }}
@@ -926,7 +934,7 @@ const downloadExport = (item: ExportJob) => {
                         v-if="getSectionEntries(row, section.fields).length === 0"
                         class="mt-4 rounded-xl border border-dashed px-4 py-3 text-sm text-muted-foreground"
                       >
-                        {{ uiText('No data available in this section.') }}
+                        {{ t('ui.noDataAvailableInThisSection') }}
                       </div>
 
                       <div
@@ -960,7 +968,7 @@ const downloadExport = (item: ExportJob) => {
                             class="h-64 w-full"
                             loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade"
-                            :title="uiText('Attendance Location Map')"
+                            :title="t('ui.attendanceLocationMap')"
                           />
                         </div>
 
@@ -971,7 +979,7 @@ const downloadExport = (item: ExportJob) => {
                             rel="noopener noreferrer"
                             class="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-accent"
                           >
-                            {{ uiText('Open Coordinates in Maps') }}
+                            {{ t('ui.openCoordinatesInMaps') }}
                           </a>
                         </div>
                       </div>
@@ -984,10 +992,10 @@ const downloadExport = (item: ExportJob) => {
                 <div class="sticky top-0 space-y-4">
                   <div>
                     <div class="text-sm font-semibold">
-                      {{ uiText('Photo Proof') }}
+                      {{ t('ui.photoProof') }}
                     </div>
                     <div class="text-xs text-muted-foreground">
-                      {{ uiText('Use the photo to quickly verify that the record matches the employee submission.') }}
+                      {{ t('ui.useThePhotoToQuicklyVerifyThatTheRecordMatchesTheEmployeeSubmission') }}
                     </div>
                   </div>
 
@@ -995,7 +1003,7 @@ const downloadExport = (item: ExportJob) => {
                     v-if="loading"
                     class="rounded-xl border border-dashed p-6 text-sm text-muted-foreground"
                   >
-                    {{ uiText('Loading photo...') }}
+                    {{ t('ui.loadingPhoto') }}
                   </div>
                   <div
                     v-else-if="hasSelfie(row)"
@@ -1012,10 +1020,10 @@ const downloadExport = (item: ExportJob) => {
                     <div class="grid gap-3">
                       <div class="rounded-xl border bg-background px-4 py-3">
                         <div class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                          {{ uiText('Photo Status') }}
+                          {{ t('ui.photoStatus') }}
                         </div>
                         <div class="mt-1 text-sm font-medium">
-                          {{ uiText('Available') }}
+                          {{ t('ui.available') }}
                         </div>
                       </div>
 
@@ -1024,7 +1032,7 @@ const downloadExport = (item: ExportJob) => {
                         class="w-full"
                         @click="openSelfie(row)"
                       >
-                        {{ uiText('Open Full Size') }}
+                        {{ t('ui.openFullSize') }}
                       </Button>
                     </div>
                   </div>
@@ -1032,7 +1040,7 @@ const downloadExport = (item: ExportJob) => {
                     v-else
                     class="rounded-2xl border border-dashed bg-background p-6 text-sm text-muted-foreground"
                   >
-                    {{ uiText('No photo proof is attached to this attendance log.') }}
+                    {{ t('ui.noPhotoProofIsAttachedToThisAttendanceLog') }}
                   </div>
                 </div>
               </div>
@@ -1046,7 +1054,7 @@ const downloadExport = (item: ExportJob) => {
       <CardHeader class="flex flex-col gap-4 border-b border-slate-200/80 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(255,255,255,0.98))] dark:border-slate-700/80 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,0.96))] sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
         <div class="space-y-2">
           <div class="flex flex-wrap items-center gap-2">
-            <CardTitle>{{ uiText('Recent Exports') }}</CardTitle>
+            <CardTitle>{{ t('ui.recentExports') }}</CardTitle>
             <Badge
               variant="secondary"
               class="rounded-full px-3 py-1 text-xs"
@@ -1055,7 +1063,7 @@ const downloadExport = (item: ExportJob) => {
             </Badge>
           </div>
           <p class="text-sm leading-6 text-muted-foreground dark:text-slate-300">
-            {{ uiText('Exports follow the active filters at the time the request is created and will appear here once the file is ready to download.') }}
+            {{ t('ui.exportsFollowTheActiveFiltersAtTheTimeTheRequestIsCreatedAndWillAppearHereOnceTheFileIsReadyToDownload') }}
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -1063,13 +1071,13 @@ const downloadExport = (item: ExportJob) => {
             variant="outline"
             class="rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
           >
-            {{ completedExportCount }} {{ uiText('Ready files') }}
+            {{ completedExportCount }} {{ t('ui.readyFiles') }}
           </Badge>
           <Badge
             variant="outline"
             class="rounded-full border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700"
           >
-            {{ pendingExportCount }} {{ uiText('In queue') }}
+            {{ pendingExportCount }} {{ t('ui.inQueue') }}
           </Badge>
           <Button
             variant="outline"
@@ -1078,7 +1086,7 @@ const downloadExport = (item: ExportJob) => {
             :disabled="exportListLoading"
             @click="loadExports"
           >
-            {{ uiText('Refresh') }}
+            {{ t('ui.refresh') }}
           </Button>
         </div>
       </CardHeader>
@@ -1087,14 +1095,14 @@ const downloadExport = (item: ExportJob) => {
           v-if="exportListLoading && exportItems.length === 0"
           class="text-sm text-muted-foreground"
         >
-          {{ uiText('Loading recent exports...') }}
+          {{ t('ui.loadingRecentExports') }}
         </div>
 
         <div
           v-else-if="exportItems.length === 0"
           class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-5 text-sm text-muted-foreground dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300"
         >
-          {{ uiText('No export requests yet. Start one from the Export button above.') }}
+          {{ t('ui.noExportRequestsYetStartOneFromTheExportButtonAbove') }}
         </div>
 
         <div
@@ -1134,7 +1142,7 @@ const downloadExport = (item: ExportJob) => {
                 <div class="grid gap-2 text-sm text-muted-foreground dark:text-slate-300 sm:grid-cols-2 xl:grid-cols-4">
                   <div class="rounded-2xl border border-slate-200/80 bg-white/80 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/75">
                     <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-slate-300">
-                      {{ uiText('Requested') }}
+                      {{ t('ui.requested') }}
                     </div>
                     <div class="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                       {{ formatTimestamp(item.created_at) }}
@@ -1142,7 +1150,7 @@ const downloadExport = (item: ExportJob) => {
                   </div>
                   <div class="rounded-2xl border border-slate-200/80 bg-white/80 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/75">
                     <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-slate-300">
-                      {{ uiText('Started') }}
+                      {{ t('ui.started') }}
                     </div>
                     <div class="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                       {{ formatTimestamp(item.started_at) }}
@@ -1150,7 +1158,7 @@ const downloadExport = (item: ExportJob) => {
                   </div>
                   <div class="rounded-2xl border border-slate-200/80 bg-white/80 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/75">
                     <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-slate-300">
-                      {{ uiText('Completed') }}
+                      {{ t('ui.completed') }}
                     </div>
                     <div class="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                       {{ formatTimestamp(item.completed_at) }}
@@ -1158,7 +1166,7 @@ const downloadExport = (item: ExportJob) => {
                   </div>
                   <div class="rounded-2xl border border-slate-200/80 bg-white/80 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/75">
                     <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-slate-300">
-                      {{ uiText('Expires') }}
+                      {{ t('ui.expires') }}
                     </div>
                     <div class="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                       {{ formatTimestamp(item.expires_at) }}
@@ -1181,13 +1189,13 @@ const downloadExport = (item: ExportJob) => {
                   class="rounded-full px-4"
                   @click="downloadExport(item)"
                 >
-                  {{ uiText('Download') }}
+                  {{ t('ui.download') }}
                 </Button>
                 <span
                   v-else
                   class="rounded-full border border-slate-200 bg-white/80 px-3 py-2 text-sm text-muted-foreground dark:border-slate-700 dark:bg-slate-900/75 dark:text-slate-300"
                 >
-                  {{ item.status === 'failed' ? uiText('Generation failed') : uiText('Waiting for file') }}
+                  {{ item.status === 'failed' ? t('ui.generationFailed') : t('ui.waitingForFile') }}
                 </span>
               </div>
             </div>

@@ -8,7 +8,7 @@ defineOptions({ name: 'WorkShiftsPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 
 const timezoneOptions = computed(() => getTimezoneOptions(locale.value))
 
@@ -115,19 +115,19 @@ const buildPayload = () => ({
 
 const handleSubmit = async () => {
   if (!form.value.name.trim()) {
-    show(uiText('Name is required'), 'error')
+    show(t('ui.nameIsRequired'), 'error')
     return
   }
   if (!form.value.timezone.trim()) {
-    show(uiText('Timezone is required'), 'error')
+    show(t('ui.timezoneIsRequired'), 'error')
     return
   }
   if (!form.value.start_time) {
-    show(uiText('Start time is required'), 'error')
+    show(t('ui.startTimeIsRequired'), 'error')
     return
   }
   if (!form.value.end_time) {
-    show(uiText('End time is required'), 'error')
+    show(t('ui.endTimeIsRequired'), 'error')
     return
   }
 
@@ -139,7 +139,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show(uiText('Work shift created successfully'), 'success')
+      show(t('ui.workShiftCreatedSuccessfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -149,7 +149,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show(uiText('Work shift updated successfully'), 'success')
+      show(t('ui.workShiftUpdatedSuccessfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -175,7 +175,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        {{ uiText('Add New') }}
+        {{ t('ui.addNew') }}
       </Button>
     </template>
 
@@ -184,7 +184,7 @@ const handleSubmit = async () => {
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
       >
-        {{ uiText('Edit') }}
+        {{ t('ui.edit') }}
       </button>
     </template>
   </ResourceList>
@@ -195,15 +195,15 @@ const handleSubmit = async () => {
   >
     <FormDialogShell
       max-width-class="max-w-lg"
-      :title="modalMode === 'create' ? uiText('Add Work Shift') : uiText('Edit Work Shift')"
-      :description="uiText('Organize shift timing and grace settings with a cleaner form layout.')"
+      :title="modalMode === 'create' ? t('ui.addWorkShift') : t('ui.editWorkShift')"
+      :description="t('ui.organizeShiftTimingAndGraceSettingsWithACleanerFormLayout')"
       @close="closeModal"
     >
       <div
         v-if="modalLoading"
         class="text-sm text-muted-foreground"
       >
-        {{ uiText('Loading...') }}
+        {{ t('ui.loading2') }}
       </div>
 
       <form
@@ -229,12 +229,12 @@ const handleSubmit = async () => {
             id="ws-timezone"
             v-model="form.timezone"
             :options="timezoneOptions"
-            :placeholder="uiText('Select timezone')"
-            :search-placeholder="uiText('Search timezone')"
+            :placeholder="t('ui.selectTimezone')"
+            :search-placeholder="t('ui.searchTimezone')"
             class="mt-1"
           />
           <p class="mt-1 text-xs text-muted-foreground">
-            {{ uiText('Use friendly timezone labels such as WIB, WITA, or WIT.') }}
+            {{ t('ui.useFriendlyTimezoneLabelsSuchAsWibWitaOrWit') }}
           </p>
         </div>
 
@@ -284,7 +284,7 @@ const handleSubmit = async () => {
             :disabled="submitLoading"
             @click="closeModal"
           >
-            {{ uiText('Cancel') }}
+            {{ t('ui.cancel') }}
           </Button>
           <Button
             size="sm"
@@ -292,7 +292,7 @@ const handleSubmit = async () => {
             :disabled="submitLoading"
             type="submit"
           >
-            {{ submitLoading ? uiText('Saving...') : (modalMode === 'create' ? uiText('Create') : uiText('Update')) }}
+            {{ submitLoading ? t('ui.saving') : (modalMode === 'create' ? t('ui.create') : t('ui.update')) }}
           </Button>
         </div>
       </form>

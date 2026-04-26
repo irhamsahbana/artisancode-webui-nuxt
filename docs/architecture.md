@@ -155,10 +155,21 @@ Resource modules currently active in the repository:
 - work locations
 - work shifts
 
+## Internal Commerce Route Map
+
+Internal commerce is an internal-admin feature, not a tenant-admin/owner workflow. Route files stay thin:
+
+- `/app/internal/quotations` -> `app/modules/internal-commerce/admin/internal-commerce-list-page.vue`
+- `/app/internal/orders` -> `app/modules/internal-commerce/admin/internal-commerce-list-page.vue`
+- `/app/internal/invoices` -> `app/modules/internal-commerce/admin/internal-commerce-list-page.vue`
+
+Shared commerce list helpers live in `app/modules/internal-commerce/`.
+
 Important notes:
 
 - Client admin routes live under `/app/resources/*`.
-- Internal admin routes live under `/app/internal/*`, including `/app/internal/login`, `/app/internal/users`, `/app/internal/clients`, and `/app/internal/products`. These flows use a separate internal auth token flow.
+- Internal admin routes live under `/app/internal/*`, including `/app/internal/login`, `/app/internal/users`, `/app/internal/clients`, `/app/internal/products`, `/app/internal/quotations`, `/app/internal/orders`, and `/app/internal/invoices`. These flows use a separate internal auth token flow.
+- Internal auth detection should match `/app/internal` exactly or `/app/internal/*`.
 
 ## App Shell Notes
 

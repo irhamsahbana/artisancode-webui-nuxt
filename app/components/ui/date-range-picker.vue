@@ -29,9 +29,15 @@ const emit = defineEmits<{
   'update:to': [value: string]
 }>()
 
-const { locale, text } = useLocale()
+const { locale, t } = useLocale()
 
 const open = ref(false)
+const triggerRef = ref<HTMLElement | null>(null)
+const popoverPosition = ref({
+  top: 0,
+  left: 0,
+  width: 704,
+})
 
 const toLocalIso = (date: Date) => {
   const timezoneOffset = date.getTimezoneOffset() * 60_000
@@ -83,7 +89,7 @@ const formatTriggerLabel = (from: string, to: string) => {
   return format(from || to)
 }
 
-const localizedPlaceholder = computed(() => text(props.placeholder))
+const localizedPlaceholder = computed(() => props.placeholder)
 const triggerLabel = computed(() => {
   if (!props.from && !props.to) {
     return localizedPlaceholder.value
@@ -157,14 +163,50 @@ const clearRange = () => {
   emit('update:from', '')
   emit('update:to', '')
 }
+
+const updatePopoverPosition = () => {
+  if (!import.meta.client || !triggerRef.value) {
+    return
+  }
+
+  const rect = triggerRef.value.getBoundingClientRect()
+  const padding = 16
+  const width = Math.min(704, window.innerWidth - (padding * 2))
+  const left = Math.min(
+    Math.max(padding, rect.left),
+    Math.max(padding, window.innerWidth - width - padding),
+  )
+
+  popoverPosition.value = {
+    top: rect.bottom + 8,
+    left,
+    width,
+  }
+}
+
+const toggleOpen = () => {
+  if (!open.value) {
+    updatePopoverPosition()
+  }
+  open.value = !open.value
+}
+
+const popoverStyle = computed(() => ({
+  top: `${popoverPosition.value.top}px`,
+  left: `${popoverPosition.value.left}px`,
+  width: `${popoverPosition.value.width}px`,
+}))
 </script>
 
 <template>
-  <div class="relative">
+  <div
+    ref="triggerRef"
+    class="relative"
+  >
     <Button
       variant="outline"
       class="h-9 w-full justify-start text-left font-normal"
-      @click="open = !open"
+      @click="toggleOpen"
     >
       <CalendarDays class="h-4 w-4 shrink-0" />
       <span :class="(props.from || props.to) ? 'text-foreground' : 'text-muted-foreground'">
@@ -172,22 +214,27 @@ const clearRange = () => {
       </span>
     </Button>
 
-    <div v-if="open">
+    <Teleport to="body">
       <button
+        v-if="open"
         type="button"
         class="fixed inset-0 z-40 bg-transparent"
-        :aria-label="text('Close')"
+        :aria-label="t('ui.close')"
         @click="open = false"
       />
 
-      <div class="absolute left-0 top-full z-50 mt-2 w-[min(44rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] rounded-xl border bg-background p-4 shadow-2xl">
+      <div
+        v-if="open"
+        class="fixed z-50 max-w-[calc(100vw-2rem)] rounded-xl border bg-background p-4 shadow-2xl"
+        :style="popoverStyle"
+      >
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
           <div>
             <div class="text-sm font-medium">
-              {{ text('Select date range') }}
+              {{ t('ui.selectDateRange') }}
             </div>
             <div class="text-xs text-muted-foreground">
-              {{ text('Pick a start date, then an end date.') }}
+              {{ t('ui.pickAStartDateThenAnEndDate') }}
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -196,14 +243,14 @@ const clearRange = () => {
               size="sm"
               @click="clearRange"
             >
-              {{ text('Clear') }}
+              {{ t('ui.clear') }}
             </Button>
             <Button
               variant="ghost"
               size="sm"
               @click="open = false"
             >
-              {{ text('Close') }}
+              {{ t('ui.close') }}
             </Button>
           </div>
         </div>
@@ -304,13 +351,13 @@ const clearRange = () => {
 
         <div class="mt-4 flex flex-wrap items-center gap-2 border-t pt-3 text-xs text-muted-foreground">
           <span class="rounded-full border px-2 py-1">
-            {{ text('Start') }}: {{ props.from || '-' }}
+            {{ t('ui.start') }}: {{ props.from || '-' }}
           </span>
           <span class="rounded-full border px-2 py-1">
-            {{ text('End') }}: {{ props.to || '-' }}
+            {{ t('ui.end') }}: {{ props.to || '-' }}
           </span>
         </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>

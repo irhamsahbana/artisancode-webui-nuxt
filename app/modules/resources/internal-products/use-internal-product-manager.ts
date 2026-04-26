@@ -1,7 +1,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
-import { normalizePriceAmountInput } from './price-format'
+import { normalizePriceAmountInput } from '~/utils/price-format'
 import type {
   InternalProduct,
   InternalProductForm,
@@ -91,7 +91,7 @@ const extractResponseId = (value: unknown) => {
 export const useInternalProductManager = (onProductSaved: () => void) => {
   const { apiFetch } = useApi()
   const { show } = useBanner()
-  const { text: uiText } = useLocale()
+  const { t } = useLocale()
 
   const dialogOpen = ref(false)
   const dialogMode = ref<DialogMode>('create')
@@ -330,17 +330,17 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
 
   const validateProductForm = () => {
     if (!productForm.code.trim()) {
-      show(uiText('Code is required'), 'error')
+      show(t('ui.codeIsRequired'), 'error')
       return false
     }
 
     if (!productForm.name.trim()) {
-      show(uiText('Name is required'), 'error')
+      show(t('ui.nameIsRequired'), 'error')
       return false
     }
 
     if (!statusOptions.includes(productForm.status)) {
-      show(uiText('Status is invalid'), 'error')
+      show(t('ui.statusIsInvalid'), 'error')
       return false
     }
 
@@ -393,8 +393,8 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
 
     show(
       wasCreate
-        ? uiText('Internal product created successfully')
-        : uiText('Internal product updated successfully'),
+        ? t('ui.internalProductCreatedSuccessfully')
+        : t('ui.internalProductUpdatedSuccessfully'),
       'success',
     )
     onProductSaved()
@@ -416,22 +416,22 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
 
   const validatePricingForm = () => {
     if (!hasSavedProduct.value) {
-      show(uiText('Save product first to manage pricings and prices.'), 'error')
+      show(t('ui.saveProductFirstToManagePricingsAndPrices'), 'error')
       return false
     }
 
     if (!pricingForm.code.trim()) {
-      show(uiText('Code is required'), 'error')
+      show(t('ui.codeIsRequired'), 'error')
       return false
     }
 
     if (!pricingForm.name.trim()) {
-      show(uiText('Name is required'), 'error')
+      show(t('ui.nameIsRequired'), 'error')
       return false
     }
 
     if (!statusOptions.includes(pricingForm.status)) {
-      show(uiText('Status is invalid'), 'error')
+      show(t('ui.statusIsInvalid'), 'error')
       return false
     }
 
@@ -478,8 +478,8 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
 
     show(
       pricingEditorMode.value === 'create'
-        ? uiText('Pricing created successfully')
-        : uiText('Pricing updated successfully'),
+        ? t('ui.pricingCreatedSuccessfully')
+        : t('ui.pricingUpdatedSuccessfully'),
       'success',
     )
 
@@ -491,7 +491,7 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
   }
 
   const deletePricing = async (pricing: InternalProductPricing) => {
-    if (!confirm(uiText('Delete this pricing and its linked price setup?'))) {
+    if (!confirm(t('ui.deleteThisPricingAndItsLinkedPriceSetup'))) {
       return
     }
 
@@ -506,7 +506,7 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
       return
     }
 
-    show(uiText('Pricing deleted successfully'), 'success')
+    show(t('ui.pricingDeletedSuccessfully'), 'success')
 
     if (pricingForm.id === pricing.id) {
       resetPricingForm()
@@ -537,33 +537,33 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
 
   const validatePriceForm = () => {
     if (!selectedPricingId.value) {
-      show(uiText('Select a pricing to manage its prices.'), 'error')
+      show(t('ui.selectAPricingToManageItsPrices'), 'error')
       return false
     }
 
     if (!priceForm.currency_code.trim()) {
-      show(uiText('Currency code is required'), 'error')
+      show(t('ui.currencyCodeIsRequired'), 'error')
       return false
     }
 
     if (!priceForm.amount.trim()) {
-      show(uiText('Amount is required'), 'error')
+      show(t('ui.amountIsRequired'), 'error')
       return false
     }
 
     if (!priceForm.started_at.trim()) {
-      show(uiText('Start time is required'), 'error')
+      show(t('ui.startTimeIsRequired'), 'error')
       return false
     }
 
     const startedAtIso = toIsoDateTime(priceForm.started_at)
     if (!startedAtIso) {
-      show(uiText('Start time is invalid'), 'error')
+      show(t('ui.startTimeIsInvalid'), 'error')
       return false
     }
 
     if (priceForm.ended_at.trim() && !toIsoDateTime(priceForm.ended_at)) {
-      show(uiText('End time is invalid'), 'error')
+      show(t('ui.endTimeIsInvalid'), 'error')
       return false
     }
 
@@ -614,8 +614,8 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
 
     show(
       priceEditorMode.value === 'create'
-        ? uiText('Price created successfully')
-        : uiText('Price updated successfully'),
+        ? t('ui.priceCreatedSuccessfully')
+        : t('ui.priceUpdatedSuccessfully'),
       'success',
     )
 
@@ -627,7 +627,7 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
   }
 
   const deletePrice = async (price: InternalProductPrice) => {
-    if (!confirm(uiText('Delete this price point?'))) {
+    if (!confirm(t('ui.deleteThisPricePoint'))) {
       return
     }
 
@@ -642,7 +642,7 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
       return
     }
 
-    show(uiText('Price deleted successfully'), 'success')
+    show(t('ui.priceDeletedSuccessfully'), 'success')
 
     if (priceForm.id === price.id) {
       resetPriceForm()

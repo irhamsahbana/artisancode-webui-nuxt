@@ -7,7 +7,7 @@ defineOptions({ name: 'EmployeesPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 const { formatDateOnly, formatReadableDateTime, normalizeDateInput } = useDateTime()
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 const appOrigin = computed(() => (import.meta.client ? window.location.origin : ''))
@@ -297,39 +297,39 @@ const canInviteEmployee = (row: Record<string, unknown>) => String(row.access_st
 const hasPendingInvitation = (row: Record<string, unknown>) => String(row.access_status ?? 'no_access') === 'invited'
 const invitePrimaryActionLabel = computed(() => {
   if (inviteSource.value === 'manage') {
-    return uiText('Resend invitation email')
+    return t('ui.resendInvitationEmail')
   }
 
-  return uiText('Send invitation email')
+  return t('ui.sendInvitationEmail')
 })
 
-const copyToClipboard = async (value: string, successMessage: string) => {
+const copyToClipboard = async (value: string, successMessageKey: string) => {
   if (!value || !import.meta.client || !navigator.clipboard) {
-    show(uiText('Clipboard is not available in this browser'), 'error')
+    show(t('ui.clipboardIsNotAvailableInThisBrowser'), 'error')
     return
   }
 
   await navigator.clipboard.writeText(value)
-  show(uiText(successMessage), 'success')
+  show(t(successMessageKey), 'success')
 }
 
 const accessStatusMeta = (value: unknown): { label: string; class: string } => {
   const status = String(value ?? 'no_access')
   if (status === 'active') {
     return {
-      label: uiText('Access Active'),
+      label: t('ui.accessActive'),
       class: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-200',
     }
   }
   if (status === 'invited') {
     return {
-      label: uiText('Invitation Pending'),
+      label: t('ui.invitationPending'),
       class: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-200',
     }
   }
 
   return {
-    label: uiText('Access Not Sent'),
+    label: t('ui.accessNotSent'),
     class: 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-200',
   }
 }
@@ -354,23 +354,23 @@ const buildPayload = () => {
 
 const handleSubmit = async () => {
   if (!form.value.employee_no.trim()) {
-    show(uiText('Employee number is required'), 'error')
+    show(t('ui.employeeNumberIsRequired'), 'error')
     return
   }
   if (!form.value.full_name.trim()) {
-    show(uiText('Full name is required'), 'error')
+    show(t('ui.fullNameIsRequired'), 'error')
     return
   }
   if (!form.value.email.trim()) {
-    show(uiText('Email is required'), 'error')
+    show(t('ui.emailIsRequired'), 'error')
     return
   }
   if (!form.value.shift_id) {
-    show(uiText('Work shift is required'), 'error')
+    show(t('ui.workShiftIsRequired'), 'error')
     return
   }
   if (modalMode.value === 'edit' && form.value.password.trim() && form.value.password.trim().length < 8) {
-    show(uiText('Password must be at least 8 characters'), 'error')
+    show(t('ui.passwordMustBeAtLeast8Characters'), 'error')
     return
   }
 
@@ -388,7 +388,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show(uiText('Employee created successfully'), 'success')
+      show(t('ui.employeeCreatedSuccessfully'), 'success')
       createdEmployee.id = String(resp.data?.id ?? '')
       closeModal()
       if (createdEmployee.id) {
@@ -402,7 +402,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (resp.success) {
-      show(uiText('Employee updated successfully'), 'success')
+      show(t('ui.employeeUpdatedSuccessfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -413,7 +413,7 @@ const handleSubmit = async () => {
 
 const handleInviteEmployee = async () => {
   if (!inviteEmployee.value?.id || !inviteEmployee.value.email.trim()) {
-    show(uiText('Employee invitation requires a valid employee email'), 'error')
+    show(t('ui.employeeInvitationRequiresAValidEmployeeEmail'), 'error')
     return
   }
 
@@ -436,7 +436,7 @@ const handleInviteEmployee = async () => {
 
   inviteResult.value = response.data
   show(
-    uiText(response.data.email_sent ? 'Invitation email sent successfully' : 'Employee invitation created successfully'),
+    response.data.email_sent ? t('ui.invitationEmailSentSuccessfully') : t('ui.employeeInvitationCreatedSuccessfully'),
     'success',
   )
   await loadPendingInvitationSummary()
@@ -503,7 +503,7 @@ const handleResendInvitation = async () => {
 
   inviteResult.value = response.data
   show(
-    uiText(response.data.email_sent ? 'Invitation email resent successfully' : 'Invitation resent successfully'),
+    response.data.email_sent ? t('ui.invitationEmailResentSuccessfully') : t('ui.invitationResentSuccessfully'),
     'success',
   )
   await loadPendingInvitationSummary()
@@ -527,7 +527,7 @@ const handleRevokeInvitation = async () => {
 
   inviteResult.value = null
   inviteSummary.value = null
-  show(uiText('Invitation revoked successfully'), 'success')
+  show(t('ui.invitationRevokedSuccessfully'), 'success')
   triggerRefresh()
   closeInviteModal()
 }
@@ -549,7 +549,7 @@ const handleRevokeInvitation = async () => {
         class="rounded-xl"
         @click="openCreateModal"
       >
-        {{ uiText('Add New') }}
+        {{ t('ui.addNew') }}
       </Button>
     </template>
 
@@ -559,20 +559,20 @@ const handleRevokeInvitation = async () => {
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openInviteModal(row)"
       >
-        {{ uiText('Send Access') }}
+        {{ t('ui.sendAccess') }}
       </button>
       <button
         v-if="hasPendingInvitation(row)"
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openManageInviteModal(row)"
       >
-        {{ uiText('Manage Access') }}
+        {{ t('ui.manageAccess') }}
       </button>
       <button
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
       >
-        {{ uiText('Edit') }}
+        {{ t('ui.edit') }}
       </button>
     </template>
   </ResourceList>
@@ -583,15 +583,15 @@ const handleRevokeInvitation = async () => {
   >
     <FormDialogShell
       max-width-class="max-w-lg"
-      :title="modalMode === 'create' ? uiText('Add Employee') : uiText('Edit Employee')"
-      :description="modalMode === 'create' ? '' : uiText('Keep employee identity, assignment, and attendance setup aligned.')"
+      :title="modalMode === 'create' ? t('ui.addEmployee') : t('ui.editEmployee')"
+      :description="modalMode === 'create' ? '' : t('ui.keepEmployeeIdentityAssignmentAndAttendanceSetupAligned')"
       @close="closeModal"
     >
       <div
         v-if="modalLoading"
         class="text-sm text-muted-foreground"
       >
-        {{ uiText('Loading...') }}
+        {{ t('ui.loading2') }}
       </div>
 
       <form
@@ -635,24 +635,24 @@ const handleRevokeInvitation = async () => {
 
         <div v-if="modalMode === 'edit'">
           <Label for="emp-password">
-            {{ uiText('Reset Password') }}
+            {{ t('ui.resetPassword') }}
           </Label>
           <Input
             id="emp-password"
             v-model="form.password"
             type="password"
-            :placeholder="uiText('Optional, leave blank to keep current password')"
+            :placeholder="t('ui.optionalLeaveBlankToKeepCurrentPassword')"
             class="mt-1"
           />
         </div>
 
         <!-- Org Unit -->
         <div>
-          <Label>{{ uiText('Organization Unit') }}</Label>
+          <Label>{{ t('ui.organizationUnit') }}</Label>
           <SearchableTreeSelect
             v-model="form.org_unit_id"
             :items="orgUnits"
-            :placeholder="uiText('Not assigned')"
+            :placeholder="t('ui.notAssigned')"
             search-placeholder="Search org units..."
             class="mt-1"
           />
@@ -660,11 +660,11 @@ const handleRevokeInvitation = async () => {
 
         <!-- Job Position -->
         <div>
-          <Label>{{ uiText('Job Position') }}</Label>
+          <Label>{{ t('ui.jobPosition') }}</Label>
           <SearchableSelect
             v-model="form.job_position_id"
             :options="jobPositionOptions"
-            :placeholder="uiText('Not assigned')"
+            :placeholder="t('ui.notAssigned')"
             search-placeholder="Search job positions..."
             class="mt-1"
           />
@@ -672,11 +672,11 @@ const handleRevokeInvitation = async () => {
 
         <!-- Work Location -->
         <div>
-          <Label>{{ uiText('Work Location') }}</Label>
+          <Label>{{ t('ui.workLocation') }}</Label>
           <SearchableSelect
             v-model="form.location_id"
             :options="workLocationOptions"
-            :placeholder="uiText('Not assigned')"
+            :placeholder="t('ui.notAssigned')"
             search-placeholder="Search work locations..."
             class="mt-1"
           />
@@ -684,11 +684,11 @@ const handleRevokeInvitation = async () => {
 
         <!-- Work Shift -->
         <div>
-          <Label>{{ uiText('Work Shift') }} *</Label>
+          <Label>{{ t('ui.workShift') }} *</Label>
           <SearchableSelect
             v-model="form.shift_id"
             :options="workShiftOptions"
-            :placeholder="uiText('Select work shift')"
+            :placeholder="t('ui.selectWorkShift')"
             search-placeholder="Search work shifts..."
             class="mt-1"
           />
@@ -700,7 +700,7 @@ const handleRevokeInvitation = async () => {
           <SearchableSelect
             v-model="form.status"
             :options="statusOptions"
-            :placeholder="uiText('Select status')"
+            :placeholder="t('ui.selectStatus')"
             search-placeholder="Search status..."
             class="mt-1"
           />
@@ -726,7 +726,7 @@ const handleRevokeInvitation = async () => {
             :disabled="submitLoading"
             @click="closeModal"
           >
-            {{ uiText('Cancel') }}
+            {{ t('ui.cancel') }}
           </Button>
           <Button
             size="sm"
@@ -734,7 +734,7 @@ const handleRevokeInvitation = async () => {
             :disabled="submitLoading"
             type="submit"
           >
-            {{ submitLoading ? uiText('Saving...') : (modalMode === 'create' ? uiText('Create') : uiText('Update')) }}
+            {{ submitLoading ? t('ui.saving') : (modalMode === 'create' ? t('ui.create') : t('ui.update')) }}
           </Button>
         </div>
       </form>
@@ -744,7 +744,7 @@ const handleRevokeInvitation = async () => {
   <div v-if="inviteModalOpen">
     <FormDialogShell
       max-width-class="max-w-lg"
-      :title="inviteSource === 'manage' ? uiText('Manage Access') : uiText('Send Access')"
+      :title="inviteSource === 'manage' ? t('ui.manageAccess') : t('ui.sendAccess')"
       :description="''"
       @close="closeInviteModal"
     >
@@ -766,28 +766,28 @@ const handleRevokeInvitation = async () => {
             v-if="inviteMetaLoading"
             class="text-muted-foreground"
           >
-            {{ uiText('Loading invitation status...') }}
+            {{ t('ui.loadingInvitationStatus') }}
           </div>
           <div
             v-else-if="inviteSummary"
             class="space-y-2"
           >
             <div class="font-medium text-foreground">
-              {{ uiText('Invitation email is pending') }}
+              {{ t('ui.invitationEmailIsPending') }}
             </div>
             <div class="text-muted-foreground">
-              {{ uiText('Resend the email to deliver a fresh access link, or revoke it if this employee should not receive access right now.') }}
+              {{ t('ui.resendTheEmailToDeliverAFreshAccessLinkOrRevokeItIfThisEmployeeShouldNotReceiveAccessRightNow') }}
             </div>
             <div class="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-              <div>{{ uiText('Last sent at') }}: {{ formatInvitationDateTime(inviteSummary.last_sent_at) }}</div>
-              <div>{{ uiText('Expires at') }}: {{ formatInvitationDateTime(inviteSummary.expires_at) }}</div>
+              <div>{{ t('ui.lastSentAt') }}: {{ formatInvitationDateTime(inviteSummary.last_sent_at) }}</div>
+              <div>{{ t('ui.expiresAt2') }}: {{ formatInvitationDateTime(inviteSummary.expires_at) }}</div>
             </div>
           </div>
           <div
             v-else
             class="text-muted-foreground"
           >
-            {{ uiText('No active invitation was found for this employee.') }}
+            {{ t('ui.noActiveInvitationWasFoundForThisEmployee') }}
           </div>
         </div>
 
@@ -796,29 +796,29 @@ const handleRevokeInvitation = async () => {
           class="space-y-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 p-4 text-sm dark:border-emerald-900/60 dark:bg-emerald-950/20"
         >
           <div class="font-medium text-emerald-900 dark:text-emerald-100">
-            {{ uiText(inviteEmailSent ? 'Invitation email is on its way' : 'Activation link is ready') }}
+            {{ inviteEmailSent ? t('ui.invitationEmailIsOnItsWay') : t('ui.activationLinkIsReady') }}
           </div>
           <div
             v-if="inviteEmailSent"
             class="text-emerald-800 dark:text-emerald-200"
           >
-            {{ uiText('We sent the activation email to this employee. They can set their password directly from their inbox.') }}
+            {{ t('ui.weSentTheActivationEmailToThisEmployeeTheyCanSetTheirPasswordDirectlyFromTheirInbox') }}
           </div>
           <div
             v-else
             class="text-emerald-800 dark:text-emerald-200"
           >
-            {{ uiText('Email could not be sent automatically yet. Use the backup link below if you still need to share access manually.') }}
+            {{ t('ui.emailCouldNotBeSentAutomaticallyYetUseTheBackupLinkBelowIfYouStillNeedToShareAccessManually') }}
           </div>
           <div class="text-xs text-emerald-800/80 dark:text-emerald-200/80">
-            {{ uiText('Expires at') }}: {{ formatInvitationDateTime(inviteResult.expires_at) }}
+            {{ t('ui.expiresAt2') }}: {{ formatInvitationDateTime(inviteResult.expires_at) }}
           </div>
           <div
             v-if="showManualInviteFallback"
             class="space-y-3"
           >
             <div class="space-y-1">
-              <Label for="employee-invitation-token">{{ uiText('Invitation token') }}</Label>
+              <Label for="employee-invitation-token">{{ t('ui.invitationToken') }}</Label>
               <Input
                 id="employee-invitation-token"
                 :model-value="inviteResult.accept_token"
@@ -826,7 +826,7 @@ const handleRevokeInvitation = async () => {
               />
             </div>
             <div class="space-y-1">
-              <Label for="employee-invitation-link">{{ uiText('Invitation link') }}</Label>
+              <Label for="employee-invitation-link">{{ t('ui.invitationLink') }}</Label>
               <Input
                 id="employee-invitation-link"
                 :model-value="invitationLink"
@@ -839,27 +839,27 @@ const handleRevokeInvitation = async () => {
               v-if="showManualInviteFallback"
               size="sm"
               class="rounded-xl"
-              @click="copyToClipboard(invitationLink, 'Invitation link copied')"
+              @click="copyToClipboard(invitationLink, 'ui.invitationLinkCopied')"
             >
-              {{ uiText('Copy activation link') }}
+              {{ t('ui.copyActivationLink') }}
             </Button>
             <Button
               v-if="showManualInviteFallback"
               variant="outline"
               size="sm"
               class="rounded-xl"
-              @click="copyToClipboard(invitationMessage, 'Invitation message copied')"
+              @click="copyToClipboard(invitationMessage, 'ui.invitationMessageCopied')"
             >
-              {{ uiText('Copy invitation message') }}
+              {{ t('ui.copyInvitationMessage') }}
             </Button>
             <Button
               v-if="showManualInviteFallback"
               variant="outline"
               size="sm"
               class="rounded-xl"
-              @click="copyToClipboard(inviteResult.accept_token, 'Invitation token copied')"
+              @click="copyToClipboard(inviteResult.accept_token, 'ui.invitationTokenCopied')"
             >
-              {{ uiText('Copy token') }}
+              {{ t('ui.copyToken') }}
             </Button>
           </div>
         </div>
@@ -873,7 +873,7 @@ const handleRevokeInvitation = async () => {
             :disabled="inviteLoading || inviteMetaLoading"
             @click="handleRevokeInvitation"
           >
-            {{ uiText('Revoke Invitation') }}
+            {{ t('ui.revokeInvitation') }}
           </Button>
           <Button
             variant="outline"
@@ -882,7 +882,7 @@ const handleRevokeInvitation = async () => {
             :disabled="inviteLoading"
             @click="closeInviteModal"
           >
-            {{ uiText('Close') }}
+            {{ t('ui.close') }}
           </Button>
           <Button
             size="sm"
@@ -890,7 +890,7 @@ const handleRevokeInvitation = async () => {
             :disabled="inviteLoading || (inviteSource === 'manage' && !inviteSummary)"
             @click="handlePrimaryInviteAction"
           >
-            {{ inviteLoading ? uiText('Sending...') : invitePrimaryActionLabel }}
+            {{ inviteLoading ? t('ui.sending') : invitePrimaryActionLabel }}
           </Button>
         </div>
       </div>

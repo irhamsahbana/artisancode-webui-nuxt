@@ -37,6 +37,7 @@ const props = withDefaults(
     deleteLabelFormatter?: (row: Record<string, unknown>) => string;
     showSearchFilterTrigger?: boolean;
     searchFilterOpen?: boolean;
+    refreshToken?: number;
   }>(),
   {
     extraQuery: undefined,
@@ -52,6 +53,7 @@ const props = withDefaults(
     deleteLabelFormatter: () => "",
     showSearchFilterTrigger: false,
     searchFilterOpen: false,
+    refreshToken: 0,
   }
 );
 
@@ -70,7 +72,7 @@ const { show } = useBanner();
 const route = useRoute();
 const router = useRouter();
 const localePath = useLocalePath();
-const { locale, t, format, text } = useLocale();
+const { locale, t, format } = useLocale();
 const intlLocale = computed(() => resolveDateLocale(locale.value));
 const detailOpen = ref(false);
 const detailRow = ref<Record<string, unknown> | null>(null);
@@ -199,6 +201,13 @@ watch(
 );
 
 watch(
+  () => props.refreshToken,
+  () => {
+    refresh();
+  }
+);
+
+watch(
   () => query.limit,
   (value, previous) => {
     if (value !== previous) {
@@ -292,17 +301,17 @@ const hasHeaderActions = computed(() => Boolean(slots["header-actions"]));
 const hasRowActions = computed(() => Boolean(slots["row-actions"]));
 const resolvedSearchPlaceholder = computed(() => {
   if (props.searchPlaceholder) {
-    return text(props.searchPlaceholder);
+    return props.searchPlaceholder;
   }
 
   return `${t("common.search")}…`;
 });
 const localizedTitle = computed(() =>
-  text(props.title)
+  props.title
 );
 const localizedEmptyText = computed(() => {
   if (props.emptyText) {
-    return text(props.emptyText);
+    return props.emptyText;
   }
 
   return t("common.noData");
@@ -557,7 +566,7 @@ watch(
           </CardTitle>
         </div>
       </div>
-      <div class="mt-5 flex flex-col items-stretch gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div class="mt-5 flex flex-col items-stretch gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div class="relative flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <div
             v-if="props.searchKey"
@@ -581,7 +590,7 @@ watch(
                 'absolute inset-y-1 right-1 flex w-10 items-center justify-center rounded-xl border-l border-border hover:bg-accent hover:text-foreground',
                 props.searchFilterOpen ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground' : 'text-muted-foreground',
               ]"
-              :aria-label="text('Open filters')"
+              :aria-label="t('ui.openFilters')"
               @click="emit('searchFilterTrigger')"
             >
               <ChevronDown class="h-4 w-4" />
@@ -603,7 +612,7 @@ watch(
           </div>
           <slot name="filters" />
         </div>
-        <div class="flex w-full items-start gap-2 lg:w-auto lg:justify-end">
+        <div class="flex w-full items-center gap-2 lg:w-auto lg:justify-end">
           <slot
             v-if="hasHeaderActions"
             name="header-actions"

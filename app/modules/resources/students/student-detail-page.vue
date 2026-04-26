@@ -9,7 +9,7 @@ import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
 
 defineOptions({ name: 'StudentDetailPage' })
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const firstName = row.first_name
@@ -355,7 +355,7 @@ const submitUpdate = handleSubmit(async (values) => {
               v-if="loading || detailLoading"
               class="text-muted-foreground"
             >
-              {{ uiText('Loading...') }}
+              {{ t('ui.loading2') }}
             </div>
             <div
               v-else-if="!detailData"
@@ -634,7 +634,7 @@ const submitUpdate = handleSubmit(async (values) => {
               :disabled="saveLoading || detailLoading"
               @click="submitUpdate"
             >
-              {{ saveLoading ? uiText('Saving...') : uiText('Save Changes') }}
+              {{ saveLoading ? t('ui.saving') : t('ui.saveChanges') }}
             </Button>
           </div>
         </div>

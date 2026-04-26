@@ -7,7 +7,7 @@ defineOptions({ name: 'WorkLocationsPage' })
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { t, format, locale, text: uiText } = useLocale()
+const { t, format, locale } = useLocale()
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -191,7 +191,7 @@ const handleSubmit = async () => {
     <FormDialogShell
       max-width-class="max-w-lg"
       :title="modalMode === 'create' ? t('company.addWorkLocation') : t('company.editWorkLocation')"
-      :description="uiText('Set work location identity and map coverage in one flow.')"
+      :description="t('ui.setWorkLocationIdentityAndMapCoverageInOneFlow')"
       @close="closeModal"
     >
       <div

@@ -15,6 +15,9 @@
 - Avoid `await useAsyncData(...)` in route and shared list shells when the fetch is only needed for in-page content.
 - Keep previous data visible during refresh, filter changes, or background reloads when it helps preserve orientation.
 - Use skeletons that resemble the final layout for shared list and dashboard shells.
+- Floating menus, select dropdowns, date pickers, and filter panels must not change the height of the layout they are opened from unless the component is intentionally an inline disclosure. Use shared floating primitives or `Teleport`/fixed positioning when a dropdown lives inside a scrollable panel, table header, card, or modal where it could otherwise be clipped.
+- Related floating surfaces must coordinate open state when they share a trigger area. For example, opening a filter panel should close the neighboring action menu, and opening the action menu should close the filter panel.
+- Outside-click close should be implemented consistently for transient overlays and menus. Transparent backdrops are acceptable when they preserve visual context and prevent multiple surfaces from staying open.
 
 ## App Shell
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BriefcaseBusiness, Building2, ChevronRight, ClipboardList, Clock3, Languages, LayoutGrid, LogOut, MapPin, Menu, MoonStar, ShieldCheck, SunMedium, Users, X } from 'lucide-vue-next'
+import { BriefcaseBusiness, Building2, ChevronRight, ClipboardList, Clock3, FileText, Languages, LayoutGrid, LogOut, MapPin, Menu, MoonStar, ReceiptText, ShieldCheck, ShoppingCart, SunMedium, Users, X } from 'lucide-vue-next'
 
 defineOptions({ name: "DefaultLayout" });
 
@@ -7,12 +7,12 @@ const route = useRoute();
 const runtimeConfig = useRuntimeConfig();
 const { user, token, logout } = useAuth();
 const { user: internalUser, token: internalToken, logout: internalLogout } = useInternalAuth();
-const { locale, setLocale, t, text: uiText } = useLocale();
+const { locale, setLocale, t } = useLocale()
 const localePath = useLocalePath();
 const stripLocalePrefix = (path: string) => path.replace(/^\/en(?=\/|$)/, "") || "/";
 const normalizedPath = computed(() => stripLocalePrefix(route.path));
 const isInternalRoute = computed(() =>
-  normalizedPath.value.startsWith("/app/internal")
+  normalizedPath.value === "/app/internal" || normalizedPath.value.startsWith("/app/internal/")
 );
 const authShellPaths = [
   "/login",
@@ -37,11 +37,19 @@ const navGroups = computed(() => {
   if (isInternalRoute.value) {
     return [
       {
-        title: uiText("Internal"),
+        title: t('ui.internal'),
         items: [
-          { label: uiText("Clients"), to: "/app/internal/clients", icon: Building2 },
-          { label: uiText("Users"), to: "/app/internal/users", icon: ShieldCheck },
-          { label: uiText("Products"), to: "/app/internal/products", icon: Building2 },
+          { label: t('ui.clients'), to: "/app/internal/clients", icon: Building2 },
+          { label: t('ui.users'), to: "/app/internal/users", icon: ShieldCheck },
+          { label: t('ui.products'), to: "/app/internal/products", icon: Building2 },
+        ],
+      },
+      {
+        title: t('ui.commerce'),
+        items: [
+          { label: t('ui.quotations'), to: "/app/internal/quotations", icon: FileText },
+          { label: t('ui.orders'), to: "/app/internal/orders", icon: ShoppingCart },
+          { label: t('ui.invoices'), to: "/app/internal/invoices", icon: ReceiptText },
         ],
       },
     ];
@@ -133,7 +141,7 @@ const activeUser = computed(() => isInternalRoute.value ? internalUser.value : u
 const userDisplayName = computed(() => activeUser.value?.name || activeUser.value?.username || appName.value);
 const userTenantName = computed(() => (
   isInternalRoute.value
-    ? uiText("Internal")
+    ? t('ui.internal')
     : user.value?.tenant_name || t("layout.adminConsole")
 ));
 const currentThemeLabel = computed(() =>

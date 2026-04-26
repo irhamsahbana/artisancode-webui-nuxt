@@ -23,7 +23,7 @@ type AcceptInvitationResponse = {
 
 const route = useRoute()
 const { apiFetch } = useApi()
-const { t, locale, text: uiText } = useLocale()
+const { t, locale } = useLocale()
 const localePath = useLocalePath()
 
 const token = computed(() => (
@@ -162,7 +162,7 @@ watch(
             </div>
             <div>
               <div class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                {{ uiText('Email') }}
+                {{ t('ui.email') }}
               </div>
               <div class="font-medium">
                 {{ preview.email }}
@@ -170,7 +170,7 @@ watch(
             </div>
             <div>
               <div class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                {{ uiText('Roles') }}
+                {{ t('ui.roles') }}
               </div>
               <div class="font-medium">
                 {{ preview.role_code }}
@@ -178,7 +178,7 @@ watch(
             </div>
             <div v-if="preview.employee_name">
               <div class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                {{ uiText('Employees') }}
+                {{ t('ui.employees') }}
               </div>
               <div class="font-medium">
                 {{ preview.employee_name }}

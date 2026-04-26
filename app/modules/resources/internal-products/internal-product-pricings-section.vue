@@ -25,29 +25,29 @@ const emit = defineEmits<{
   submit: []
 }>()
 
-const { text: uiText } = useLocale()
+const { t } = useLocale()
 
 const formTitle = computed(() => (
   props.formMode === 'edit'
-    ? uiText('Edit Pricing')
-    : uiText('Add Pricing')
+    ? t('ui.editPricing')
+    : t('ui.addPricing')
 ))
 
 const formDescription = computed(() => (
   props.formMode === 'edit'
-    ? uiText('Changes are applied to the selected pricing package.')
-    : uiText('Create a new pricing package for this product.')
+    ? t('ui.changesAreAppliedToTheSelectedPricingPackage')
+    : t('ui.createANewPricingPackageForThisProduct')
 ))
 
 const resetLabel = computed(() => (
   props.formMode === 'edit'
-    ? uiText('Create New Pricing')
-    : uiText('Clear Form')
+    ? t('ui.createNewPricing')
+    : t('ui.clearForm')
 ))
 
 const submitLabel = computed(() => (
   props.saving
-    ? uiText('Saving...')
+    ? t('ui.saving')
     : formTitle.value
 ))
 
@@ -75,7 +75,7 @@ const statusBadgeClass = (status: string) => {
   <Card class="border-border/70 shadow-none">
     <div class="flex items-start justify-between gap-3 border-b border-border/70 px-5 py-4">
       <div class="text-base font-semibold">
-        {{ uiText('Pricings') }}
+        {{ t('ui.pricings') }}
       </div>
 
       <Button
@@ -85,7 +85,7 @@ const statusBadgeClass = (status: string) => {
         :disabled="!enabled"
         @click="emit('startCreate')"
       >
-        {{ uiText('New Pricing') }}
+        {{ t('ui.newPricing') }}
       </Button>
     </div>
 
@@ -94,35 +94,35 @@ const statusBadgeClass = (status: string) => {
         v-if="!enabled"
         class="rounded-2xl border border-dashed border-border/70 bg-muted/20 px-4 py-6 text-sm text-muted-foreground"
       >
-        {{ uiText('Save product first to continue.') }}
+        {{ t('ui.saveProductFirstToContinue') }}
       </div>
 
       <template v-else>
         <div class="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div class="space-y-4">
             <div class="rounded-2xl border border-border/70 bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
-              {{ uiText('Choose a pricing package from the list. Its details will open in the editor on the right.') }}
+              {{ t('ui.chooseAPricingPackageFromTheListItsDetailsWillOpenInTheEditorOnTheRight') }}
             </div>
 
             <div
               v-if="loading"
               class="text-sm text-muted-foreground"
             >
-              {{ uiText('Loading pricings...') }}
+              {{ t('ui.loadingPricings') }}
             </div>
 
             <div
               v-else-if="items.length === 0"
               class="rounded-2xl border border-dashed border-border/70 bg-muted/20 px-4 py-6 text-sm text-muted-foreground"
             >
-              <div>{{ uiText('No pricing yet for this product.') }}</div>
+              <div>{{ t('ui.noPricingYetForThisProduct') }}</div>
               <Button
                 size="sm"
                 variant="outline"
                 class="mt-4 rounded-xl"
                 @click="emit('startCreate')"
               >
-                {{ uiText('Create First Pricing') }}
+                {{ t('ui.createFirstPricing') }}
               </Button>
             </div>
 
@@ -150,7 +150,7 @@ const statusBadgeClass = (status: string) => {
                         v-if="isSelectedPricing(pricing.id)"
                         variant="secondary"
                       >
-                        {{ uiText('Editing') }}
+                        {{ t('ui.editing') }}
                       </Badge>
                     </div>
                     <div class="text-sm text-foreground">
@@ -159,8 +159,8 @@ const statusBadgeClass = (status: string) => {
                     <div class="text-xs text-muted-foreground">
                       {{
                         isSelectedPricing(pricing.id)
-                          ? uiText('This package is currently open in the editor.')
-                          : uiText('Click to edit this pricing package.')
+                          ? t('ui.thisPackageIsCurrentlyOpenInTheEditor')
+                          : t('ui.clickToEditThisPricingPackage')
                       }}
                     </div>
                   </div>
@@ -176,7 +176,7 @@ const statusBadgeClass = (status: string) => {
                       :disabled="deletingId === pricing.id"
                       @click.stop="emit('delete', pricing)"
                     >
-                      {{ deletingId === pricing.id ? uiText('Deleting...') : uiText('Delete') }}
+                      {{ deletingId === pricing.id ? t('ui.deleting') : t('ui.delete') }}
                     </Button>
                   </div>
                 </div>
@@ -215,7 +215,7 @@ const statusBadgeClass = (status: string) => {
                 class="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3"
               >
                 <div class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  {{ uiText('Selected pricing package') }}
+                  {{ t('ui.selectedPricingPackage') }}
                 </div>
                 <div class="mt-1 text-sm font-semibold">
                   {{ selectedPricing.name }}
@@ -227,7 +227,7 @@ const statusBadgeClass = (status: string) => {
 
               <div class="grid gap-4 md:grid-cols-2">
                 <div class="space-y-2">
-                  <Label for="internal-pricing-code">{{ uiText('Code') }}</Label>
+                  <Label for="internal-pricing-code">{{ t('ui.code') }}</Label>
                   <Input
                     id="internal-pricing-code"
                     v-model="model.code"
@@ -236,33 +236,33 @@ const statusBadgeClass = (status: string) => {
                 </div>
 
                 <div class="space-y-2">
-                  <Label for="internal-pricing-status">{{ uiText('Status') }}</Label>
+                  <Label for="internal-pricing-status">{{ t('ui.status') }}</Label>
                   <SearchableSelect
                     id="internal-pricing-status"
                     v-model="model.status"
                     :options="statusOptions"
-                    :placeholder="uiText('Select status')"
-                    :search-placeholder="uiText('Search status...')"
+                    :placeholder="t('ui.selectStatus')"
+                    :search-placeholder="t('ui.searchStatus')"
                   />
                 </div>
               </div>
 
               <div class="space-y-2">
-                <Label for="internal-pricing-name">{{ uiText('Name') }}</Label>
+                <Label for="internal-pricing-name">{{ t('ui.name') }}</Label>
                 <Input
                   id="internal-pricing-name"
                   v-model="model.name"
-                  :placeholder="uiText('Pricing plan name')"
+                  :placeholder="t('ui.pricingPlanName')"
                 />
               </div>
 
               <div class="space-y-2">
-                <Label for="internal-pricing-description">{{ uiText('Description') }}</Label>
+                <Label for="internal-pricing-description">{{ t('ui.description') }}</Label>
                 <textarea
                   id="internal-pricing-description"
                   v-model="model.description"
                   class="flex min-h-[110px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  :placeholder="uiText('Describe the pricing plan')"
+                  :placeholder="t('ui.describeThePricingPlan')"
                   rows="4"
                 />
               </div>

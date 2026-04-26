@@ -2,11 +2,12 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 const {
+  formatMoneyAmount,
   formatPriceAmountInput,
   isPriceAmountDraftValid,
   normalizeLocalizedPriceAmountInput,
   normalizePriceAmountInput,
-} = await import(new URL('./price-format.ts', import.meta.url).href)
+} = await import(new URL('../../../utils/price-format.ts', import.meta.url).href)
 
 test('normalizes amount input into backend-safe numeric strings', () => {
   assert.equal(normalizePriceAmountInput('00123'), '123')
@@ -49,4 +50,10 @@ test('validates draft amount input before formatting', () => {
   assert.equal(isPriceAmountDraftValid('3213213,12', 'id'), true)
   assert.equal(isPriceAmountDraftValid('3,2132131sdada', 'id'), false)
   assert.equal(isPriceAmountDraftValid('3,213,213', 'id'), false)
+})
+
+test('formats money amount with reusable currency formatter', () => {
+  assert.equal(formatMoneyAmount('150000.00', 'IDR', 'id'), 'Rp 150.000')
+  assert.equal(formatMoneyAmount('150000.50', 'IDR', 'en'), 'IDR 150,000.50')
+  assert.equal(formatMoneyAmount('abc', 'IDR', 'id'), '-')
 })

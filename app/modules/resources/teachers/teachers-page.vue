@@ -5,7 +5,7 @@ import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
 
 defineOptions({ name: 'TeachersPage' })
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const name = row.name
@@ -295,7 +295,7 @@ onMounted(() => {
         size="sm"
         @click="openCreate"
       >
-        {{ uiText('Add New') }}
+        {{ t('ui.addNew') }}
       </Button>
     </template>
     <template #detail="{ row, loading, close, refresh: refreshList }">
@@ -323,7 +323,7 @@ onMounted(() => {
               v-if="loading"
               class="text-muted-foreground"
             >
-              {{ uiText('Loading...') }}
+              {{ t('ui.loading2') }}
             </div>
             <div
               v-else
@@ -415,14 +415,14 @@ onMounted(() => {
               :disabled="editLoading || loading"
               @click="close"
             >
-              {{ uiText('Cancel') }}
+              {{ t('ui.cancel') }}
             </Button>
             <Button
               size="sm"
               :disabled="editLoading || loading"
               @click="submitEdit(refreshList, close)"
             >
-              {{ editLoading ? uiText('Saving...') : uiText('Save Changes') }}
+              {{ editLoading ? t('ui.saving') : t('ui.saveChanges') }}
             </Button>
           </div>
         </div>
@@ -437,7 +437,7 @@ onMounted(() => {
     <div class="w-full max-w-3xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          {{ uiText('Create teacher') }}
+          {{ t('ui.createTeacher') }}
         </div>
         <Button
           variant="outline"
@@ -536,14 +536,14 @@ onMounted(() => {
           :disabled="createLoading"
           @click="resetCreate"
         >
-          {{ uiText('Cancel') }}
+          {{ t('ui.cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="createLoading"
           @click="submitCreate"
         >
-          {{ createLoading ? uiText('Saving...') : uiText('Create teacher') }}
+          {{ createLoading ? t('ui.saving') : t('ui.createTeacher') }}
         </Button>
       </div>
     </div>

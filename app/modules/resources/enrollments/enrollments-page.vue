@@ -5,7 +5,7 @@ import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
 
 defineOptions({ name: 'EnrollmentsPage' })
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const student = row.student as { first_name?: string; last_name?: string } | undefined
@@ -607,7 +607,7 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
         size="sm"
         @click="openCreate"
       >
-        {{ uiText('Add New') }}
+        {{ t('ui.addNew') }}
       </Button>
     </template>
     <template #row-actions="{ row, close }">
@@ -616,7 +616,7 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
         :disabled="createInvoiceLoading"
         @click="handleCreateInvoice(row, close)"
       >
-        {{ createInvoiceLoading ? uiText('Creating...') : uiText('Generate invoice') }}
+        {{ createInvoiceLoading ? t('ui.creating') : t('ui.generateInvoice') }}
       </button>
     </template>
     <template #detail="{ row, loading, close, refresh: refreshList }">
@@ -646,7 +646,7 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
               v-if="loading"
               class="text-muted-foreground"
             >
-              {{ uiText('Loading...') }}
+              {{ t('ui.loading2') }}
             </div>
             <div
               v-else
@@ -747,14 +747,14 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
               :disabled="editLoading || loading"
               @click="close"
             >
-              {{ uiText('Cancel') }}
+              {{ t('ui.cancel') }}
             </Button>
             <Button
               size="sm"
               :disabled="editLoading || loading"
               @click="submitEdit(refreshList, close)"
             >
-              {{ editLoading ? uiText('Saving...') : uiText('Save Changes') }}
+              {{ editLoading ? t('ui.saving') : t('ui.saveChanges') }}
             </Button>
           </div>
         </div>
@@ -769,7 +769,7 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
     <div class="w-full max-w-4xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="text-lg font-semibold">
-          {{ uiText('Create enrollment') }}
+          {{ t('ui.createEnrollment') }}
         </div>
         <Button
           variant="outline"
@@ -879,14 +879,14 @@ const handleCreateInvoice = (row: Record<string, unknown>, close: () => void) =>
           :disabled="createLoading"
           @click="resetCreate"
         >
-          {{ uiText('Cancel') }}
+          {{ t('ui.cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="createLoading"
           @click="submitCreate"
         >
-          {{ createLoading ? uiText('Saving...') : uiText('Create enrollment') }}
+          {{ createLoading ? t('ui.saving') : t('ui.createEnrollment') }}
         </Button>
       </div>
     </div>

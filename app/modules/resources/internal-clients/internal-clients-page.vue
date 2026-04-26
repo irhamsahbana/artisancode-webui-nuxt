@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
+import InternalResourceFilterPanel from '../internal-resource-filter-panel.vue'
 import InternalResourceListControls from '../internal-resource-list-controls.vue'
 import { useDateTime } from '~/composables/useDateTime'
 
 defineOptions({ name: 'InternalClientsPage' })
 
-const { text: uiText } = useLocale()
+const { t } = useLocale()
 const { formatDateTime } = useDateTime()
 const { apiFetch } = useApi()
 const { show } = useBanner()
@@ -28,6 +29,8 @@ const permissionSaving = ref(false)
 const selectedClient = ref<Record<string, unknown> | null>(null)
 const availablePermissions = ref<PermissionItem[]>([])
 const selectedPermissionIds = ref<string[]>([])
+const filterPanelOpen = ref(false)
+const actionMenuOpen = ref(false)
 const filters = reactive({
   owner: '',
 })
@@ -39,8 +42,6 @@ const listQuery = computed(() => {
   }
   return query
 })
-
-const activeFilterCount = computed(() => Object.keys(listQuery.value).length)
 
 const columns = computed(() => [
   { key: 'name', label: 'Client Name' },
@@ -62,6 +63,18 @@ const columns = computed(() => [
     },
   },
 ])
+const actionItems = computed(() => [
+  {
+    key: 'export-clients',
+    label: 'ui.export',
+    kind: 'export' as const,
+  },
+  {
+    key: 'client-export-history',
+    label: 'ui.exportHistory',
+    kind: 'export-history' as const,
+  },
+])
 
 const selectedClientName = computed(() => {
   const name = selectedClient.value?.name
@@ -77,7 +90,7 @@ const openPermissionDialog = async (row: Record<string, unknown>, close?: () => 
   close?.()
   const clientId = getClientId(row)
   if (!clientId) {
-    show(uiText('Client id is missing.'), 'error')
+    show(t('ui.clientIdIsMissing'), 'error')
     return
   }
 
@@ -123,7 +136,7 @@ const saveOwnerPermissions = async () => {
   }
   const clientId = getClientId(selectedClient.value)
   if (!clientId) {
-    show(uiText('Client id is missing.'), 'error')
+    show(t('ui.clientIdIsMissing'), 'error')
     return
   }
 
@@ -141,49 +154,75 @@ const saveOwnerPermissions = async () => {
     return
   }
 
-  show(uiText('Owner permissions updated.'), 'success')
+  show(t('ui.ownerPermissionsUpdated'), 'success')
   closePermissionDialog()
 }
 
 const clearFilters = () => {
   filters.owner = ''
 }
+
+const toggleFilterPanel = () => {
+  filterPanelOpen.value = !filterPanelOpen.value
+  if (filterPanelOpen.value) {
+    actionMenuOpen.value = false
+  }
+}
+
+const updateActionMenuOpen = (open: boolean) => {
+  actionMenuOpen.value = open
+  if (open) {
+    filterPanelOpen.value = false
+  }
+}
 </script>
 
 <template>
   <div>
     <ResourceList
-      :title="uiText('Clients')"
+      :title="t('ui.clients')"
       endpoint="/internal-clients"
       :columns="columns"
       :extra-query="listQuery"
       loading-variant="skeleton"
+      :search-placeholder="t('ui.searchClients')"
+      :show-search-filter-trigger="true"
+      :search-filter-open="filterPanelOpen"
       :can-view-detail="false"
       :can-delete="false"
       auth-mode="internal"
+      @search-filter-trigger="toggleFilterPanel"
     >
+      <template #filters>
+        <InternalResourceFilterPanel
+          v-model:open="filterPanelOpen"
+          @clear="clearFilters"
+        >
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="space-y-2">
+              <Label for="internal-client-owner-filter">{{ t('ui.owner') }}</Label>
+              <Input
+                id="internal-client-owner-filter"
+                v-model="filters.owner"
+                autocomplete="off"
+                :placeholder="t('ui.searchOwnerNameOrEmail')"
+              />
+            </div>
+          </div>
+        </InternalResourceFilterPanel>
+      </template>
+
       <template #header-actions>
         <InternalResourceListControls
+          :actions-open="actionMenuOpen"
           endpoint="/internal-clients"
           resource-key="internal-clients"
           filename-prefix="internal-clients"
           :columns="columns"
           :query="listQuery"
-          :filter-count="activeFilterCount"
-          @reset="clearFilters"
-        >
-          <div class="grid gap-4 md:grid-cols-2">
-            <div class="space-y-2">
-              <Label for="internal-client-owner-filter">{{ uiText('Owner') }}</Label>
-              <Input
-                id="internal-client-owner-filter"
-                v-model="filters.owner"
-                autocomplete="off"
-                :placeholder="uiText('Search owner name or email')"
-              />
-            </div>
-          </div>
-        </InternalResourceListControls>
+          :action-items="actionItems"
+          @update:actions-open="updateActionMenuOpen"
+        />
       </template>
 
       <template #row-actions="{ row, close }">
@@ -193,7 +232,7 @@ const clearFilters = () => {
           role="menuitem"
           @click="openPermissionDialog(row, close)"
         >
-          {{ uiText('Edit owner permissions') }}
+          {{ t('ui.editOwnerPermissions') }}
         </button>
       </template>
     </ResourceList>
@@ -208,12 +247,12 @@ const clearFilters = () => {
         class="w-full max-w-3xl rounded-lg border bg-card p-6 shadow-lg"
         role="dialog"
         aria-modal="true"
-        :aria-label="uiText('Edit owner permissions')"
+        :aria-label="t('ui.editOwnerPermissions')"
       >
         <div class="flex items-center justify-between">
           <div>
             <div class="text-lg font-semibold">
-              {{ uiText('Edit owner permissions') }}
+              {{ t('ui.editOwnerPermissions') }}
             </div>
             <div class="mt-1 text-sm text-muted-foreground">
               {{ selectedClientName }}
@@ -225,7 +264,7 @@ const clearFilters = () => {
             :disabled="permissionSaving"
             @click="closePermissionDialog"
           >
-            {{ uiText('Close') }}
+            {{ t('ui.close') }}
           </Button>
         </div>
 
@@ -250,7 +289,7 @@ const clearFilters = () => {
             v-else-if="availablePermissions.length === 0"
             class="px-2 py-8 text-center text-sm text-muted-foreground"
           >
-            {{ uiText('No permissions available.') }}
+            {{ t('ui.noPermissionsAvailable') }}
           </div>
           <div
             v-else
@@ -287,14 +326,14 @@ const clearFilters = () => {
             :disabled="permissionSaving"
             @click="closePermissionDialog"
           >
-            {{ uiText('Cancel') }}
+            {{ t('ui.cancel') }}
           </Button>
           <Button
             size="sm"
             :disabled="permissionSaving || permissionDialogLoading"
             @click="saveOwnerPermissions"
           >
-            {{ permissionSaving ? uiText('Saving...') : uiText('Save Changes') }}
+            {{ permissionSaving ? t('ui.saving') : t('ui.saveChanges') }}
           </Button>
         </div>
       </div>

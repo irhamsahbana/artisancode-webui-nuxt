@@ -25,7 +25,7 @@ type UserDetail = {
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const name = row.name
@@ -169,27 +169,27 @@ const buildPayload = () => {
 
 const validateForm = () => {
   if (!form.value.name.trim()) {
-    show(uiText('Name is required'), 'error')
+    show(t('ui.nameIsRequired'), 'error')
     return false
   }
   if (!form.value.username.trim()) {
-    show(uiText('Username is required'), 'error')
+    show(t('ui.usernameIsRequired'), 'error')
     return false
   }
   if (!form.value.email.trim()) {
-    show(uiText('Email is required'), 'error')
+    show(t('ui.emailIsRequired'), 'error')
     return false
   }
   if (modalMode.value === 'create' && form.value.password.trim().length < 8) {
-    show(uiText('Password must be at least 8 characters'), 'error')
+    show(t('ui.passwordMustBeAtLeast8Characters'), 'error')
     return false
   }
   if (modalMode.value === 'edit' && form.value.password.trim().length > 0 && form.value.password.trim().length < 8) {
-    show(uiText('Password must be at least 8 characters'), 'error')
+    show(t('ui.passwordMustBeAtLeast8Characters'), 'error')
     return false
   }
   if (form.value.role_ids.length === 0) {
-    show(uiText('Select at least one role'), 'error')
+    show(t('ui.selectAtLeastOneRole'), 'error')
     return false
   }
   return true
@@ -208,7 +208,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (response.success) {
-      show(uiText('User created successfully'), 'success')
+      show(t('ui.userCreatedSuccessfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -219,7 +219,7 @@ const handleSubmit = async () => {
       body: buildPayload(),
     })
     if (response.success) {
-      show(uiText('User updated successfully'), 'success')
+      show(t('ui.userUpdatedSuccessfully'), 'success')
       closeModal()
       triggerRefresh()
     }
@@ -244,7 +244,7 @@ const handleSubmit = async () => {
         size="sm"
         @click="openCreateModal"
       >
-        {{ uiText('Add New') }}
+        {{ t('ui.addNew') }}
       </Button>
     </template>
 
@@ -253,7 +253,7 @@ const handleSubmit = async () => {
         class="w-full rounded px-3 py-2 text-left hover:bg-accent"
         @click="close(); openEditModal(row)"
       >
-        {{ uiText('Edit') }}
+        {{ t('ui.edit') }}
       </button>
     </template>
   </ResourceList>
@@ -263,15 +263,15 @@ const handleSubmit = async () => {
   >
     <FormDialogShell
       max-width-class="max-w-2xl"
-      :title="modalMode === 'create' ? uiText('Add User') : uiText('Edit User')"
-      :description="uiText('Manage account details and role assignments in one place.')"
+      :title="modalMode === 'create' ? t('ui.addUser') : t('ui.editUser')"
+      :description="t('ui.manageAccountDetailsAndRoleAssignmentsInOnePlace')"
       @close="closeModal"
     >
       <div
         v-if="modalLoading"
         class="text-sm text-muted-foreground"
       >
-        {{ uiText('Loading user data...') }}
+        {{ t('ui.loadingUserData') }}
       </div>
 
       <form
@@ -312,19 +312,19 @@ const handleSubmit = async () => {
 
           <div class="space-y-2">
             <Label for="user-password">
-              {{ modalMode === 'create' ? uiText('Password') : uiText('Reset Password (Optional)') }}
+              {{ modalMode === 'create' ? t('ui.password') : t('ui.resetPasswordOptional') }}
             </Label>
             <Input
               id="user-password"
               v-model="form.password"
               type="password"
-              :placeholder="modalMode === 'create' ? uiText('Minimum 8 characters') : uiText('Leave blank to keep current password')"
+              :placeholder="modalMode === 'create' ? t('ui.minimum8Characters') : t('ui.leaveBlankToKeepCurrentPassword')"
             />
           </div>
         </div>
 
         <div class="space-y-2">
-          <Label>{{ uiText('Roles') }}</Label>
+          <Label>{{ t('ui.roles') }}</Label>
           <div
             class="rounded-md border p-4"
           >
@@ -332,13 +332,13 @@ const handleSubmit = async () => {
               v-if="rolesLoading"
               class="text-sm text-muted-foreground"
             >
-              {{ uiText('Loading roles...') }}
+              {{ t('ui.loadingRoles') }}
             </div>
             <div
               v-else-if="roles.length === 0"
               class="text-sm text-muted-foreground"
             >
-              {{ uiText('No roles available.') }}
+              {{ t('ui.noRolesAvailable') }}
             </div>
             <div
               v-else
@@ -360,7 +360,7 @@ const handleSubmit = async () => {
             </div>
           </div>
           <p class="text-xs text-muted-foreground">
-            {{ uiText('Selected roles') }}: {{ selectedRoleNames.length > 0 ? selectedRoleNames.join(', ') : uiText('None') }}
+            {{ t('ui.selectedRoles') }}: {{ selectedRoleNames.length > 0 ? selectedRoleNames.join(', ') : t('ui.none') }}
           </p>
         </div>
 
@@ -371,14 +371,14 @@ const handleSubmit = async () => {
             class="rounded-xl"
             @click="closeModal"
           >
-            {{ uiText('Cancel') }}
+            {{ t('ui.cancel') }}
           </Button>
           <Button
             type="submit"
             class="rounded-xl"
             :disabled="submitLoading"
           >
-            {{ submitLoading ? uiText('Saving...') : (modalMode === 'create' ? uiText('Create User') : uiText('Save Changes')) }}
+            {{ submitLoading ? t('ui.saving') : (modalMode === 'create' ? t('ui.createUser') : t('ui.saveChanges')) }}
           </Button>
         </div>
       </form>

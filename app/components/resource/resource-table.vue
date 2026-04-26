@@ -36,7 +36,7 @@ const props = withDefaults(
   }
 );
 
-const { locale, t, text } = useLocale();
+const { locale, t } = useLocale();
 const intlLocale = computed(() => resolveDateLocale(locale.value));
 
 const emit = defineEmits<{
@@ -62,7 +62,7 @@ const rowKeys = computed(() =>
 const localizedColumns = computed(() =>
   props.columns.map((column) => ({
     ...column,
-    label: text(column.label),
+    label: column.label,
   }))
 );
 const allSelected = computed(

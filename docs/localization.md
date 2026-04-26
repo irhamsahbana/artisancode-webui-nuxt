@@ -15,7 +15,7 @@ Main building blocks:
 - `app/composables/useLocale.ts`
   - Wraps Nuxt i18n for app code.
   - Exposes `locale`, `setLocale`, `t`, `format`, and locale switcher options.
-  - Exposes `text(...)` only for shared components that still receive raw UI labels.
+  - Does not expose raw-string translation fallbacks; app copy must use keyed messages.
 - `app/composables/useApi.ts`
   - Sends `Accept-Language` header on every API request using current UI locale.
 - `server/api/proxy/[...path].ts`
@@ -52,13 +52,7 @@ Use `useLocale().format(...)` when:
 
 - message contains placeholders like `{name}` or `{selected}`
 
-Use `useLocale().text(...)` when:
-
-- a shared component receives raw literal strings through props
-- the string comes from generic table/filter/select configuration
-- moving the caller to keyed translations would make the change larger than the feature
-
-For new product copy, prefer keyed messages in `i18n/locales/*.ts` over adding more raw-string mappings.
+Shared components should receive either translated strings from their caller or explicit locale keys that they pass to `t(...)`. Do not introduce raw-string mapping tables.
 
 Use `useLocalePath()` when:
 
@@ -74,7 +68,7 @@ Use `useLocalePath()` when:
 - Do not create a second locale store.
 - Keep `i18n/locales/id.ts` and `i18n/locales/en.ts` entries in sync when adding new locale keys.
 - Keep internal routes locale-aware with `useLocalePath()`.
-- If a page mixes `t(...)` and `text(...)`, prefer migrating new or changed product copy to keyed messages.
+- Keep shared component props clear about whether they expect translated text or locale keys.
 
 ## Backend Integration Notes
 

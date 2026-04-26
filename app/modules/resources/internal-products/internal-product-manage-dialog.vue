@@ -55,13 +55,13 @@ const emit = defineEmits<{
   submitProduct: []
 }>()
 
-const { text: uiText } = useLocale()
+const { t } = useLocale()
 const currentSection = ref<SectionId>('product')
 
 const dialogTitle = computed(() => (
   productModel.value.id
-    ? uiText('Edit Product')
-    : uiText('Add Product')
+    ? t('ui.editProduct')
+    : t('ui.addProduct')
 ))
 
 const sectionOrder: SectionId[] = ['product', 'pricing', 'price']
@@ -69,19 +69,19 @@ const sectionOrder: SectionId[] = ['product', 'pricing', 'price']
 const sections = computed(() => [
   {
     id: 'product' as const,
-    label: uiText('Product Details'),
-    badge: productModel.value.id ? uiText('Saved') : '',
+    label: t('ui.productDetails'),
+    badge: productModel.value.id ? t('ui.saved') : '',
     disabled: false,
   },
   {
     id: 'pricing' as const,
-    label: uiText('Pricings'),
+    label: t('ui.pricings'),
     badge: productModel.value.id && productModel.value.id.length > 0 ? String(props.pricings.length) : '',
     disabled: !props.hasSavedProduct,
   },
   {
     id: 'price' as const,
-    label: uiText('Prices'),
+    label: t('ui.prices'),
     badge: props.selectedPricing ? String(props.prices.length) : '',
     disabled: !props.selectedPricing,
   },
@@ -132,7 +132,7 @@ watch(() => props.hasSavedProduct, (next, previous) => {
     <FormDialogShell
       max-width-class="max-w-6xl"
       :title="dialogTitle"
-      :description="uiText('Set up product, pricing, and prices in clear steps.')"
+      :description="t('ui.setUpProductPricingAndPricesInClearSteps')"
       @close="emit('close')"
     >
       <div class="space-y-6">
@@ -152,7 +152,7 @@ watch(() => props.hasSavedProduct, (next, previous) => {
             @click="selectSection(section.id)"
           >
             <div class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              {{ uiText('Step') }} {{ index + 1 }}
+              {{ t('ui.step') }} {{ index + 1 }}
             </div>
             <div class="mt-2 flex items-center justify-between gap-3">
               <div class="text-sm font-semibold sm:text-base">
@@ -222,7 +222,7 @@ watch(() => props.hasSavedProduct, (next, previous) => {
               class="rounded-xl"
               @click="selectSection(previousSection.id)"
             >
-              {{ uiText('Back') }}
+              {{ t('ui.back') }}
             </Button>
 
             <Button
@@ -233,7 +233,7 @@ watch(() => props.hasSavedProduct, (next, previous) => {
               :disabled="nextSection.disabled"
               @click="selectSection(nextSection.id)"
             >
-              {{ uiText('Continue') }}
+              {{ t('ui.continue') }}
             </Button>
           </div>
 
@@ -242,7 +242,7 @@ watch(() => props.hasSavedProduct, (next, previous) => {
             class="rounded-xl"
             @click="emit('close')"
           >
-            {{ uiText('Close') }}
+            {{ t('ui.close') }}
           </Button>
         </div>
       </div>

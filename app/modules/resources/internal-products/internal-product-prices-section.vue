@@ -2,10 +2,12 @@
 import { computed } from 'vue'
 import { useDateTime } from '~/composables/useDateTime'
 import {
+  currencyCodes,
+  formatMoneyAmount,
   formatPriceAmountInput,
   isPriceAmountDraftValid,
   normalizeLocalizedPriceAmountInput,
-} from './price-format'
+} from '~/utils/price-format'
 import type { InternalProductPrice, InternalProductPriceForm, InternalProductPricing } from './types'
 
 defineOptions({ name: 'InternalProductPricesSection' })
@@ -30,34 +32,32 @@ const emit = defineEmits<{
   submit: []
 }>()
 
-const { locale, t, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 const { formatReadableDateTime } = useDateTime()
 
 const formTitle = computed(() => (
   props.formMode === 'edit'
-    ? uiText('Edit Price')
-    : uiText('Add Price')
+    ? t('ui.editPrice')
+    : t('ui.addPrice')
 ))
 
 const formDescription = computed(() => (
   props.formMode === 'edit'
-    ? uiText('Changes are applied to the selected price entry.')
-    : uiText('Create a new price entry for the selected pricing package.')
+    ? t('ui.changesAreAppliedToTheSelectedPriceEntry')
+    : t('ui.createANewPriceEntryForTheSelectedPricingPackage')
 ))
 
 const resetLabel = computed(() => (
   props.formMode === 'edit'
-    ? uiText('Create New Price')
-    : uiText('Clear Form')
+    ? t('ui.createNewPrice')
+    : t('ui.clearForm')
 ))
 
 const submitLabel = computed(() => (
   props.saving
-    ? uiText('Saving...')
+    ? t('ui.saving')
     : formTitle.value
 ))
-
-const baseCurrencyOptions = ['IDR', 'USD', 'SGD', 'EUR'] as const
 
 const selectedPrice = computed(() => (
   props.items.find((item) => item.id === props.selectedPriceId) ?? null
@@ -65,13 +65,13 @@ const selectedPrice = computed(() => (
 
 const currencyOptions = computed(() => {
   const selectedCurrency = model.value.currency_code.trim().toUpperCase()
-  const values = selectedCurrency && !baseCurrencyOptions.includes(selectedCurrency as typeof baseCurrencyOptions[number])
-    ? [selectedCurrency, ...baseCurrencyOptions]
-    : [...baseCurrencyOptions]
+  const values = selectedCurrency && !currencyCodes.includes(selectedCurrency as typeof currencyCodes[number])
+    ? [selectedCurrency, ...currencyCodes]
+    : [...currencyCodes]
 
   return values.map((value) => ({
     value,
-    label: baseCurrencyOptions.includes(value as typeof baseCurrencyOptions[number])
+    label: currencyCodes.includes(value as typeof currencyCodes[number])
       ? t(`internalProducts.prices.currencyOptions.${value}`)
       : value,
   }))
@@ -144,25 +144,15 @@ const handleAmountBlur = (event: FocusEvent) => {
 }
 
 const formatAmount = (price: InternalProductPrice) => {
-  const amount = Number(price.amount)
-  if (!Number.isFinite(amount)) {
-    return `${price.currency_code} ${price.amount}`
-  }
-
-  try {
-    return new Intl.NumberFormat(locale.value === 'en' ? 'en-US' : 'id-ID', {
-      style: 'currency',
-      currency: price.currency_code,
-      maximumFractionDigits: 6,
-    }).format(amount)
-  } catch {
-    return `${price.currency_code} ${price.amount}`
-  }
+  const formatted = formatMoneyAmount(price.amount, price.currency_code, locale.value, {
+    maximumFractionDigits: 6,
+  })
+  return formatted === '-' ? `${price.currency_code} ${price.amount}` : formatted
 }
 
 const formatRangeValue = (value: string | null) => {
   if (!value) {
-    return uiText('No end date')
+    return t('ui.noEndDate')
   }
 
   return formatReadableDateTime(value, {
@@ -218,7 +208,7 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
   <Card class="border-border/70 shadow-none">
     <div class="flex items-start justify-between gap-3 border-b border-border/70 px-5 py-4">
       <div class="text-base font-semibold">
-        {{ uiText('Prices') }}
+        {{ t('ui.prices') }}
       </div>
 
       <Button
@@ -228,7 +218,7 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
         :disabled="!enabled"
         @click="emit('startCreate')"
       >
-        {{ uiText('New Price') }}
+        {{ t('ui.newPrice') }}
       </Button>
     </div>
 
@@ -237,13 +227,13 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
         v-if="!enabled"
         class="rounded-2xl border border-dashed border-border/70 bg-muted/20 px-4 py-6 text-sm text-muted-foreground"
       >
-        {{ uiText('Select a pricing to manage its prices.') }}
+        {{ t('ui.selectAPricingToManageItsPrices') }}
       </div>
 
       <template v-else>
         <div class="rounded-2xl border border-border/70 bg-muted/20 px-4 py-3">
           <div class="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {{ uiText('Selected pricing') }}
+            {{ t('ui.selectedPricing') }}
           </div>
           <div class="mt-1 text-sm font-medium">
             {{ selectedPricing?.name || '-' }}
@@ -256,28 +246,28 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
         <div class="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div class="space-y-4">
             <div class="rounded-2xl border border-border/70 bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
-              {{ uiText('Choose a price entry from the list. Its details will open in the editor on the right.') }}
+              {{ t('ui.chooseAPriceEntryFromTheListItsDetailsWillOpenInTheEditorOnTheRight') }}
             </div>
 
             <div
               v-if="loading"
               class="text-sm text-muted-foreground"
             >
-              {{ uiText('Loading prices...') }}
+              {{ t('ui.loadingPrices') }}
             </div>
 
             <div
               v-else-if="items.length === 0"
               class="rounded-2xl border border-dashed border-border/70 bg-muted/20 px-4 py-6 text-sm text-muted-foreground"
             >
-              <div>{{ uiText('No price points yet for the selected pricing.') }}</div>
+              <div>{{ t('ui.noPricePointsYetForTheSelectedPricing') }}</div>
               <Button
                 size="sm"
                 variant="outline"
                 class="mt-4 rounded-xl"
                 @click="emit('startCreate')"
               >
-                {{ uiText('Create First Price') }}
+                {{ t('ui.createFirstPrice') }}
               </Button>
             </div>
 
@@ -305,7 +295,7 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
                         v-if="isSelectedPrice(price.id)"
                         variant="secondary"
                       >
-                        {{ uiText('Editing') }}
+                        {{ t('ui.editing') }}
                       </Badge>
                     </div>
                     <div class="text-sm text-foreground">
@@ -317,8 +307,8 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
                     <div class="text-xs text-muted-foreground">
                       {{
                         isSelectedPrice(price.id)
-                          ? uiText('This price entry is currently open in the editor.')
-                          : uiText('Click to edit this price entry.')
+                          ? t('ui.thisPriceEntryIsCurrentlyOpenInTheEditor')
+                          : t('ui.clickToEditThisPriceEntry')
                       }}
                     </div>
                   </div>
@@ -330,7 +320,7 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
                     :disabled="deletingId === price.id"
                     @click.stop="emit('delete', price)"
                   >
-                    {{ deletingId === price.id ? uiText('Deleting...') : uiText('Delete') }}
+                    {{ deletingId === price.id ? t('ui.deleting') : t('ui.delete') }}
                   </Button>
                 </div>
               </button>
@@ -368,7 +358,7 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
                 class="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3"
               >
                 <div class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  {{ uiText('Selected price entry') }}
+                  {{ t('ui.selectedPriceEntry') }}
                 </div>
                 <div class="mt-1 text-sm font-semibold tabular-nums">
                   {{ formatAmount(selectedPrice) }}
@@ -380,7 +370,7 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
 
               <div class="grid gap-4 md:grid-cols-2">
                 <div class="space-y-2">
-                  <Label for="internal-price-currency">{{ uiText('Currency') }}</Label>
+                  <Label for="internal-price-currency">{{ t('ui.currency') }}</Label>
                   <SearchableSelect
                     id="internal-price-currency"
                     v-model="model.currency_code"

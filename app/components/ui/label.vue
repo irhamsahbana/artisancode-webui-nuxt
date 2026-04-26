@@ -1,25 +1,7 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue'
-
 import { cn } from '~/utils/utils'
 
 defineOptions({ name: 'UiLabel' })
-
-const { text } = useLocale()
-const slots = useSlots()
-
-const localizedText = computed(() => {
-  const nodes = slots.default?.() ?? []
-  const textChildren = nodes
-    .map(node => (typeof node.children === 'string' ? node.children : null))
-    .filter((value): value is string => value !== null)
-
-  if (textChildren.length === 0 || textChildren.length !== nodes.length) {
-    return null
-  }
-
-  return text(textChildren.join('').trim())
-})
 </script>
 
 <template>
@@ -27,9 +9,6 @@ const localizedText = computed(() => {
     v-bind="$attrs"
     :class="cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70', $attrs.class as string)"
   >
-    <template v-if="localizedText !== null">
-      {{ localizedText }}
-    </template>
-    <slot v-else />
+    <slot />
   </label>
 </template>

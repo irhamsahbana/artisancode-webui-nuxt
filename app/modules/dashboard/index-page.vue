@@ -38,19 +38,19 @@ type DashboardPayload = {
 }
 
 const cards = [
-  { label: 'Companies', href: '/app/resources/companies' },
-  { label: 'Employees', href: '/app/resources/employees' },
-  { label: 'Attendance Logs', href: '/app/resources/attendance-logs' },
-  { label: 'Work Locations', href: '/app/resources/work-locations' },
-  { label: 'Work Shifts', href: '/app/resources/work-shifts' },
-  { label: 'Job Positions', href: '/app/resources/job-positions' },
-  { label: 'Roles & Permissions', href: '/app/resources/roles' },
+  { labelKey: 'layout.companies', href: '/app/resources/companies' },
+  { labelKey: 'ui.employees', href: '/app/resources/employees' },
+  { labelKey: 'ui.attendanceLogs', href: '/app/resources/attendance-logs' },
+  { labelKey: 'ui.workLocation', href: '/app/resources/work-locations' },
+  { labelKey: 'ui.workShifts', href: '/app/resources/work-shifts' },
+  { labelKey: 'ui.jobPosition', href: '/app/resources/job-positions' },
+  { labelKey: 'ui.rolesAndPermissions', href: '/app/resources/roles' },
 ]
 
 const trendOptions = [7, 14, 30] as const
 const { user } = useAuth()
 const { apiFetch } = useApi()
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 const localePath = useLocalePath()
 const { formatDateOnly, formatDateTime } = useDateTime()
 const browserTimezone = ref(process.client ? Intl.DateTimeFormat().resolvedOptions().timeZone || '' : '')
@@ -128,37 +128,37 @@ const trendRows = computed(() => dashboard.value?.daily_trend ?? [])
 
 const metricCards = computed(() => [
   {
-    label: uiText('Active Employees'),
+    label: t('ui.activeEmployees'),
     value: summary.value.active_employee_count,
     badgeTone: 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100',
     panelTone: 'border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.98))] dark:border-slate-800 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,0.96))]',
   },
   {
-    label: uiText('Checked In'),
+    label: t('ui.checkedIn'),
     value: summary.value.checked_in_count,
     badgeTone: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100',
     panelTone: 'border-emerald-200/80 bg-[linear-gradient(180deg,rgba(236,253,245,0.95),rgba(255,255,255,0.98))] dark:border-emerald-900/70 dark:bg-[linear-gradient(180deg,rgba(6,95,70,0.3),rgba(2,6,23,0.96))]',
   },
   {
-    label: uiText('Checked Out'),
+    label: t('ui.checkedOut'),
     value: summary.value.checked_out_count,
     badgeTone: 'bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-100',
     panelTone: 'border-sky-200/80 bg-[linear-gradient(180deg,rgba(239,249,255,0.95),rgba(255,255,255,0.98))] dark:border-sky-900/70 dark:bg-[linear-gradient(180deg,rgba(7,89,133,0.28),rgba(2,6,23,0.96))]',
   },
   {
-    label: uiText('Pending Check In'),
+    label: t('ui.pendingCheckIn'),
     value: summary.value.pending_check_in_count,
     badgeTone: 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100',
     panelTone: 'border-amber-200/80 bg-[linear-gradient(180deg,rgba(255,251,235,0.95),rgba(255,255,255,0.98))] dark:border-amber-900/70 dark:bg-[linear-gradient(180deg,rgba(146,64,14,0.28),rgba(2,6,23,0.96))]',
   },
   {
-    label: uiText('Pending Check Out'),
+    label: t('ui.pendingCheckOut'),
     value: summary.value.pending_check_out_count,
     badgeTone: 'bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-100',
     panelTone: 'border-orange-200/80 bg-[linear-gradient(180deg,rgba(255,247,237,0.95),rgba(255,255,255,0.98))] dark:border-orange-900/70 dark:bg-[linear-gradient(180deg,rgba(154,52,18,0.28),rgba(2,6,23,0.96))]',
   },
   {
-    label: uiText('Late Check In'),
+    label: t('ui.lateCheckIn'),
     value: summary.value.late_check_in_count,
     badgeTone: 'bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-100',
     panelTone: 'border-rose-200/80 bg-[linear-gradient(180deg,rgba(255,241,242,0.95),rgba(255,255,255,0.98))] dark:border-rose-900/70 dark:bg-[linear-gradient(180deg,rgba(136,19,55,0.28),rgba(2,6,23,0.96))]',
@@ -189,9 +189,9 @@ const formatShortDate = (value: string) => {
 }
 
 const exceptionLabelMap = computed<Record<DashboardException['exception_type'], string>>(() => ({
-  late_check_in: uiText('Late check in'),
-  missing_check_in: uiText('Missing check in'),
-  missing_check_out: uiText('Missing check out'),
+  late_check_in: t('ui.lateCheckIn2'),
+  missing_check_in: t('ui.missingCheckIn'),
+  missing_check_out: t('ui.missingCheckOut'),
 }))
 
 const exceptionToneMap: Record<DashboardException['exception_type'], string> = {
@@ -217,24 +217,24 @@ const buildLogLink = (params: Record<string, string>) =>
         <CardContent class="flex flex-col gap-6 p-6 lg:flex-row lg:items-end lg:justify-between">
           <div class="space-y-2">
             <div class="inline-flex rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-foreground/80 dark:bg-white/10">
-              {{ uiText('Owner Attendance Dashboard') }}
+              {{ t('ui.ownerAttendanceDashboard') }}
             </div>
             <div class="space-y-1">
               <h1 class="text-2xl font-semibold tracking-tight">
-                {{ uiText(`Attendance overview for ${dashboard?.attendance_date ?? selectedDate}`) }}
+                {{ t('ui.attendanceOverviewForDate', { date: dashboard?.attendance_date ?? selectedDate }) }}
               </h1>
               <p class="max-w-2xl text-sm text-muted-foreground">
-                {{ uiText('Keep an eye on today’s attendance health, follow short-term trends, and jump into attendance logs when the team needs closer audit.') }}
+                {{ t('ui.keepAnEyeOnTodaysAttendanceHealthFollowShortTermTrendsAndJumpIntoAttendanceLogsWhenTheTeamNeedsCloserAudit') }}
               </p>
               <p class="text-xs text-muted-foreground">
-                {{ uiText('Browser timezone') }}: {{ browserTimezone || uiText('Detecting...') }}
+                {{ t('ui.browserTimezone') }}: {{ browserTimezone || t('ui.detecting') }}
               </p>
             </div>
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div class="space-y-2">
-              <Label for="attendance-date">{{ uiText('Attendance Date') }}</Label>
+              <Label for="attendance-date">{{ t('ui.attendanceDate') }}</Label>
               <Input
                 id="attendance-date"
                 v-model="selectedDate"
@@ -242,7 +242,7 @@ const buildLogLink = (params: Record<string, string>) =>
               />
             </div>
             <div class="space-y-2">
-              <Label for="trend-days">{{ uiText('Trend Window') }}</Label>
+              <Label for="trend-days">{{ t('ui.trendWindow') }}</Label>
               <select
                 id="trend-days"
                 v-model.number="trendDays"
@@ -253,7 +253,7 @@ const buildLogLink = (params: Record<string, string>) =>
                   :key="option"
                   :value="option"
                 >
-                  {{ uiText(`Last ${option} days`) }}
+                  {{ t('ui.lastDays', { days: option }) }}
                 </option>
               </select>
             </div>
@@ -262,7 +262,7 @@ const buildLogLink = (params: Record<string, string>) =>
               class="sm:col-span-2"
             >
               <div class="rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground backdrop-blur">
-                {{ uiText('Refreshing attendance insights...') }}
+                {{ t('ui.refreshingAttendanceInsights') }}
               </div>
             </div>
           </div>
@@ -285,7 +285,7 @@ const buildLogLink = (params: Record<string, string>) =>
                 class="rounded-full px-2.5 py-1 text-xs font-medium shadow-sm"
                 :class="item.badgeTone"
               >
-                {{ uiText('Live') }}
+                {{ t('ui.live') }}
               </div>
             </div>
             <div class="text-4xl font-semibold tracking-tight text-foreground dark:text-slate-50">
@@ -303,9 +303,9 @@ const buildLogLink = (params: Record<string, string>) =>
         <Card class="rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.85)]">
           <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border/70 bg-muted/15">
             <div class="space-y-1">
-              <CardTitle>{{ uiText('Attendance Trend') }}</CardTitle>
+              <CardTitle>{{ t('ui.attendanceTrend') }}</CardTitle>
               <p class="text-sm text-muted-foreground">
-                {{ uiText(`Checked in, checked out, late check in, and missing check out counts for the last ${trendDays} days.`) }}
+                {{ t('ui.attendanceTrendDescription', { days: trendDays }) }}
               </p>
             </div>
             <NuxtLink :to="buildLogLink({ date_from: selectedDate, date_to: selectedDate })">
@@ -313,7 +313,7 @@ const buildLogLink = (params: Record<string, string>) =>
                 variant="outline"
                 size="sm"
               >
-                {{ uiText('Open Logs') }}
+                {{ t('ui.openLogs') }}
               </Button>
             </NuxtLink>
           </CardHeader>
@@ -332,7 +332,7 @@ const buildLogLink = (params: Record<string, string>) =>
               v-else-if="trendRows.length === 0"
               class="rounded-xl border border-dashed p-6 text-sm text-muted-foreground"
             >
-              {{ uiText('No trend data is available yet for the selected period.') }}
+              {{ t('ui.noTrendDataIsAvailableYetForTheSelectedPeriod') }}
             </div>
             <div
               v-else
@@ -355,7 +355,7 @@ const buildLogLink = (params: Record<string, string>) =>
                 <div class="mt-4 space-y-3">
                   <div class="space-y-1">
                     <div class="flex items-center justify-between text-xs">
-                      <span>{{ uiText('Checked in') }}</span>
+                      <span>{{ t('ui.checkedIn2') }}</span>
                       <span>{{ day.checked_in_count }}</span>
                     </div>
                     <div class="h-2 rounded-full bg-muted">
@@ -367,7 +367,7 @@ const buildLogLink = (params: Record<string, string>) =>
                   </div>
                   <div class="space-y-1">
                     <div class="flex items-center justify-between text-xs">
-                      <span>{{ uiText('Checked out') }}</span>
+                      <span>{{ t('ui.checkedOut2') }}</span>
                       <span>{{ day.checked_out_count }}</span>
                     </div>
                     <div class="h-2 rounded-full bg-muted">
@@ -379,7 +379,7 @@ const buildLogLink = (params: Record<string, string>) =>
                   </div>
                   <div class="space-y-1">
                     <div class="flex items-center justify-between text-xs">
-                      <span>{{ uiText('Late') }}</span>
+                      <span>{{ t('ui.late') }}</span>
                       <span>{{ day.late_check_in_count }}</span>
                     </div>
                     <div class="h-2 rounded-full bg-muted">
@@ -391,7 +391,7 @@ const buildLogLink = (params: Record<string, string>) =>
                   </div>
                   <div class="space-y-1">
                     <div class="flex items-center justify-between text-xs">
-                      <span>{{ uiText('Missing checkout') }}</span>
+                      <span>{{ t('ui.missingCheckout') }}</span>
                       <span>{{ day.missing_check_out_count }}</span>
                     </div>
                     <div class="h-2 rounded-full bg-muted">
@@ -410,9 +410,9 @@ const buildLogLink = (params: Record<string, string>) =>
         <Card class="rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.85)]">
           <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border/70 bg-muted/15">
             <div class="space-y-1">
-              <CardTitle>{{ uiText('Needs Attention Today') }}</CardTitle>
+              <CardTitle>{{ t('ui.needsAttentionToday') }}</CardTitle>
               <p class="text-sm text-muted-foreground">
-                {{ uiText('Team members who are missing attendance actions or checked in late.') }}
+                {{ t('ui.teamMembersWhoAreMissingAttendanceActionsOrCheckedInLate') }}
               </p>
             </div>
             <NuxtLink :to="buildLogLink({ attendance_date: selectedDate })">
@@ -420,7 +420,7 @@ const buildLogLink = (params: Record<string, string>) =>
                 variant="outline"
                 size="sm"
               >
-                {{ uiText('Audit Today') }}
+                {{ t('ui.auditToday') }}
               </Button>
             </NuxtLink>
           </CardHeader>
@@ -439,7 +439,7 @@ const buildLogLink = (params: Record<string, string>) =>
               v-else-if="exceptionRows.length === 0"
               class="rounded-xl border border-dashed p-6 text-sm text-muted-foreground"
             >
-              {{ uiText('No attendance exceptions for the selected day.') }}
+              {{ t('ui.noAttendanceExceptionsForTheSelectedDay') }}
             </div>
             <div
               v-else
@@ -469,10 +469,10 @@ const buildLogLink = (params: Record<string, string>) =>
 
                 <div class="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
                   <div>
-                    {{ uiText('First check in') }}: {{ formatDateTime(item.first_check_in_at) }}
+                    {{ t('ui.firstCheckIn') }}: {{ formatDateTime(item.first_check_in_at) }}
                   </div>
                   <div>
-                    {{ uiText('Last check out') }}: {{ formatDateTime(item.last_check_out_at) }}
+                    {{ t('ui.lastCheckOut') }}: {{ formatDateTime(item.last_check_out_at) }}
                   </div>
                 </div>
               </div>
@@ -484,9 +484,9 @@ const buildLogLink = (params: Record<string, string>) =>
       <Card class="rounded-[28px] border-border/80 shadow-[0_20px_60px_-48px_rgba(15,23,42,0.85)]">
         <CardHeader class="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border/70 bg-muted/15">
           <div class="space-y-1">
-            <CardTitle>{{ uiText('Quick Actions') }}</CardTitle>
+            <CardTitle>{{ t('ui.quickActions') }}</CardTitle>
             <p class="text-sm text-muted-foreground">
-              {{ uiText('Use the owner dashboard as the overview, then open resource pages for deeper operations.') }}
+              {{ t('ui.useTheOwnerDashboardAsTheOverviewThenOpenResourcePagesForDeeperOperations') }}
             </p>
           </div>
         </CardHeader>
@@ -496,10 +496,10 @@ const buildLogLink = (params: Record<string, string>) =>
             class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
-              {{ uiText('Attendance Logs') }}
+              {{ t('ui.attendanceLogs') }}
             </div>
             <div class="mt-1 text-sm text-muted-foreground">
-              {{ uiText(`Review detailed logs for ${selectedDate}.`) }}
+              {{ t('ui.reviewDetailedLogsForDate', { date: selectedDate }) }}
             </div>
           </NuxtLink>
           <NuxtLink
@@ -507,10 +507,10 @@ const buildLogLink = (params: Record<string, string>) =>
             class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
-              {{ uiText('Check-in Records') }}
+              {{ t('ui.checkInRecords') }}
             </div>
             <div class="mt-1 text-sm text-muted-foreground">
-              {{ uiText('Focus on arrival records for the selected day.') }}
+              {{ t('ui.focusOnArrivalRecordsForTheSelectedDay') }}
             </div>
           </NuxtLink>
           <NuxtLink
@@ -518,10 +518,10 @@ const buildLogLink = (params: Record<string, string>) =>
             class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
-              {{ uiText('Employees') }}
+              {{ t('ui.employees') }}
             </div>
             <div class="mt-1 text-sm text-muted-foreground">
-              {{ uiText('Manage employee profile and attendance assignments.') }}
+              {{ t('ui.manageEmployeeProfileAndAttendanceAssignments') }}
             </div>
           </NuxtLink>
           <NuxtLink
@@ -529,10 +529,10 @@ const buildLogLink = (params: Record<string, string>) =>
             class="rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-primary hover:bg-primary/5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.85)]"
           >
             <div class="text-sm font-medium">
-              {{ uiText('Work Shifts') }}
+              {{ t('ui.workShifts') }}
             </div>
             <div class="mt-1 text-sm text-muted-foreground">
-              {{ uiText('Review shift timing and grace periods.') }}
+              {{ t('ui.reviewShiftTimingAndGracePeriods') }}
             </div>
           </NuxtLink>
         </CardContent>
@@ -541,9 +541,9 @@ const buildLogLink = (params: Record<string, string>) =>
 
     <Card v-else>
       <CardHeader>
-        <CardTitle>{{ uiText('API Dashboard') }}</CardTitle>
+        <CardTitle>{{ t('ui.apiDashboard') }}</CardTitle>
         <p class="text-sm text-muted-foreground">
-          {{ uiText('Quick access to the main API resources.') }}
+          {{ t('ui.quickAccessToTheMainApiResources') }}
         </p>
       </CardHeader>
       <CardContent class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -553,14 +553,14 @@ const buildLogLink = (params: Record<string, string>) =>
         >
           <CardContent class="flex items-center justify-between">
             <div class="text-sm font-medium">
-              {{ uiText(card.label) }}
+              {{ t(card.labelKey) }}
             </div>
             <NuxtLink :to="localePath(card.href)">
               <Button
                 variant="ghost"
                 size="sm"
               >
-                {{ uiText('Open') }}
+                {{ t('ui.open') }}
               </Button>
             </NuxtLink>
           </CardContent>
@@ -573,7 +573,7 @@ const buildLogLink = (params: Record<string, string>) =>
       class="border-destructive/40"
     >
       <CardContent class="p-5 text-sm text-muted-foreground">
-        {{ uiText('The dashboard could not be refreshed just now. Please try again or inspect the attendance logs directly.') }}
+        {{ t('ui.theDashboardCouldNotBeRefreshedJustNowPleaseTryAgainOrInspectTheAttendanceLogsDirectly') }}
       </CardContent>
     </Card>
   </div>

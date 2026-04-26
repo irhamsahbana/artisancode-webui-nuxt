@@ -4,7 +4,7 @@ import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 
 defineOptions({ name: 'OrgUnitsPage' })
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 
 const columns = [
   { key: 'name', label: 'Name' },
@@ -111,7 +111,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
         size="sm"
         @click="openCreate"
       >
-        {{ uiText('Add New') }}
+        {{ t('ui.addNew') }}
       </Button>
     </template>
   </ResourceList>
@@ -125,7 +125,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
     <div class="w-full max-w-xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          {{ uiText('Create Organization Unit') }}
+          {{ t('ui.createOrganizationUnit') }}
         </div>
         <Button
           variant="outline"
@@ -171,7 +171,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
           :disabled="createLoading"
           @click="closeCreate"
         >
-          {{ uiText('Cancel') }}
+          {{ t('ui.cancel') }}
         </Button>
         <Button
           size="sm"
@@ -180,7 +180,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
             listKey++
           })"
         >
-          {{ createLoading ? uiText('Creating...') : uiText('Create') }}
+          {{ createLoading ? t('ui.creating') : t('ui.create') }}
         </Button>
       </div>
     </div>

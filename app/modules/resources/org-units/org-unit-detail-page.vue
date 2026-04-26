@@ -10,7 +10,7 @@ const route = useRoute()
 const router = useRouter()
 const { apiFetch } = useApi()
 const { show } = useBanner()
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 const localePath = useLocalePath()
 
 const orgUnitId = computed(() => String(route.params.id))
@@ -116,14 +116,14 @@ onMounted(() => {
 
     <Card>
       <CardHeader>
-        <CardTitle>{{ uiText('Edit Organization Unit') }}</CardTitle>
+        <CardTitle>{{ t('ui.editOrganizationUnit') }}</CardTitle>
       </CardHeader>
       <CardContent>
         <div
           v-if="loading"
           class="py-8 text-center text-muted-foreground"
         >
-          {{ uiText('Loading org unit...') }}
+          {{ t('ui.loadingOrgUnit') }}
         </div>
 
         <div
@@ -167,14 +167,14 @@ onMounted(() => {
           :disabled="saveLoading"
           @click="goBack"
         >
-          {{ uiText('Cancel') }}
+          {{ t('ui.cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="saveLoading || loading"
           @click="saveChanges"
         >
-          {{ saveLoading ? uiText('Saving...') : uiText('Save Changes') }}
+          {{ saveLoading ? t('ui.saving') : t('ui.saveChanges') }}
         </Button>
       </CardFooter>
     </Card>

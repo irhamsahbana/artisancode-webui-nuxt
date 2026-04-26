@@ -17,12 +17,12 @@ const emit = defineEmits<{
   submit: []
 }>()
 
-const { text: uiText } = useLocale()
+const { t } = useLocale()
 
 const submitLabel = computed(() => (
   model.value.id
-    ? uiText('Save Product')
-    : uiText('Create Product')
+    ? t('ui.saveProduct')
+    : t('ui.createProduct')
 ))
 </script>
 
@@ -30,7 +30,7 @@ const submitLabel = computed(() => (
   <Card class="border-border/70 shadow-none">
     <div class="border-b border-border/70 px-5 py-4">
       <div class="text-base font-semibold">
-        {{ uiText('Product Details') }}
+        {{ t('ui.productDetails') }}
       </div>
     </div>
 
@@ -39,7 +39,7 @@ const submitLabel = computed(() => (
         v-if="loading"
         class="text-sm text-muted-foreground"
       >
-        {{ uiText('Loading product data...') }}
+        {{ t('ui.loadingProductData') }}
       </div>
 
       <form
@@ -49,7 +49,7 @@ const submitLabel = computed(() => (
       >
         <div class="grid gap-4 md:grid-cols-2">
           <div class="space-y-2">
-            <Label for="internal-product-code">{{ uiText('Code') }}</Label>
+            <Label for="internal-product-code">{{ t('common.code') }}</Label>
             <Input
               id="internal-product-code"
               v-model="model.code"
@@ -58,33 +58,33 @@ const submitLabel = computed(() => (
           </div>
 
           <div class="space-y-2">
-            <Label for="internal-product-status">{{ uiText('Status') }}</Label>
+            <Label for="internal-product-status">{{ t('ui.status') }}</Label>
             <SearchableSelect
               id="internal-product-status"
               v-model="model.status"
               :options="statusOptions"
-              :placeholder="uiText('Select status')"
-              :search-placeholder="uiText('Search status...')"
+              :placeholder="t('ui.selectStatus')"
+              :search-placeholder="t('ui.searchStatus')"
             />
           </div>
         </div>
 
         <div class="space-y-2">
-          <Label for="internal-product-name">{{ uiText('Name') }}</Label>
+          <Label for="internal-product-name">{{ t('common.name') }}</Label>
           <Input
             id="internal-product-name"
             v-model="model.name"
-            :placeholder="uiText('Product name')"
+            :placeholder="t('ui.productName')"
           />
         </div>
 
         <div class="space-y-2">
-          <Label for="internal-product-description">{{ uiText('Description') }}</Label>
+          <Label for="internal-product-description">{{ t('ui.description') }}</Label>
           <textarea
             id="internal-product-description"
             v-model="model.description"
             class="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            :placeholder="uiText('Describe the product')"
+            :placeholder="t('ui.describeTheProduct')"
             rows="4"
           />
         </div>
@@ -95,7 +95,7 @@ const submitLabel = computed(() => (
             class="rounded-xl"
             :disabled="saving"
           >
-            {{ saving ? uiText('Saving...') : submitLabel }}
+            {{ saving ? t('common.saving') : submitLabel }}
           </Button>
         </div>
       </form>

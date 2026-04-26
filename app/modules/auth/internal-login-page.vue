@@ -7,7 +7,7 @@ defineOptions({ name: 'InternalLoginPage' })
 
 const runtimeConfig = useRuntimeConfig()
 const { login } = useInternalAuth()
-const { locale, options: localeOptions, setLocale, text: uiText } = useLocale()
+const { locale, options: localeOptions, setLocale, t } = useLocale()
 const localePath = useLocalePath()
 const isLoading = ref(false)
 const errorMessage = ref('')
@@ -35,7 +35,7 @@ const submit = async () => {
 
     await navigateTo(localePath('/app/internal/users'))
   } catch {
-    errorMessage.value = uiText('Internal login failed')
+    errorMessage.value = t('ui.internalLoginFailed')
   } finally {
     isLoading.value = false
   }
@@ -59,16 +59,16 @@ const submit = async () => {
           >
         </div>
         <CardTitle class="auth-title text-2xl">
-          {{ uiText('Internal Admin Login') }}
+          {{ t('ui.internalAdminLogin') }}
         </CardTitle>
         <p class="auth-description text-sm text-muted-foreground">
-          {{ uiText('Sign in with your internal admin account.') }}
+          {{ t('ui.signInWithYourInternalAdminAccount') }}
         </p>
       </CardHeader>
       <CardContent class="auth-card-content space-y-4">
         <div class="space-y-2">
           <Label for="internal-login-language">
-            {{ uiText('Language') }}
+            {{ t('ui.language') }}
           </Label>
           <SearchableSelect
             id="internal-login-language"
@@ -79,7 +79,7 @@ const submit = async () => {
         </div>
         <div class="space-y-2">
           <Label for="internal-login-email">
-            {{ uiText('Email') }}
+            {{ t('ui.email') }}
           </Label>
           <Input
             id="internal-login-email"
@@ -92,7 +92,7 @@ const submit = async () => {
         </div>
         <div class="space-y-2">
           <Label for="internal-login-password">
-            {{ uiText('Password') }}
+            {{ t('ui.password') }}
           </Label>
           <Input
             id="internal-login-password"
@@ -120,7 +120,7 @@ const submit = async () => {
             v-if="isLoading"
             class="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
           />
-          {{ isLoading ? uiText('Signing in...') : uiText('Sign In') }}
+          {{ isLoading ? t('ui.signingIn') : t('ui.signIn') }}
         </Button>
       </CardFooter>
     </Card>

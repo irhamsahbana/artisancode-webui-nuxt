@@ -9,7 +9,7 @@ import { useBanner } from '~/composables/useBanner'
 import type { ListResponse } from '~/types/api'
 
 defineOptions({ name: 'StudentsPage' })
-const { locale, text: uiText } = useLocale()
+const { locale, t } = useLocale()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const firstName = row.first_name
@@ -406,7 +406,7 @@ const submitUpdate = handleSubmit(async (values) => {
         size="sm"
         @click="openCreate"
       >
-        {{ uiText('Add New') }}
+        {{ t('ui.addNew') }}
       </Button>
     </template>
     <template #detail="{ loading, close }">
@@ -430,7 +430,7 @@ const submitUpdate = handleSubmit(async (values) => {
               v-if="loading || detailLoading"
               class="text-muted-foreground"
             >
-              {{ uiText('Loading...') }}
+              {{ t('ui.loading2') }}
             </div>
             <div
               v-else-if="!detailData"
@@ -709,7 +709,7 @@ const submitUpdate = handleSubmit(async (values) => {
               :disabled="saveLoading || detailLoading"
               @click="submitUpdate"
             >
-              {{ saveLoading ? uiText('Saving...') : uiText('Save Changes') }}
+              {{ saveLoading ? t('ui.saving') : t('ui.saveChanges') }}
             </Button>
           </div>
         </div>
@@ -724,7 +724,7 @@ const submitUpdate = handleSubmit(async (values) => {
     <div class="w-full max-w-4xl rounded-lg border bg-card p-6 shadow-lg">
       <div class="flex items-center justify-between">
         <div class="text-lg font-semibold">
-          {{ uiText('Create student') }}
+          {{ t('ui.createStudent') }}
         </div>
         <Button
           variant="outline"
@@ -891,14 +891,14 @@ const submitUpdate = handleSubmit(async (values) => {
           :disabled="createLoading"
           @click="resetCreate"
         >
-          {{ uiText('Cancel') }}
+          {{ t('ui.cancel') }}
         </Button>
         <Button
           size="sm"
           :disabled="createLoading"
           @click="submitCreate"
         >
-          {{ createLoading ? uiText('Saving...') : uiText('Create student') }}
+          {{ createLoading ? t('ui.saving') : t('ui.createStudent') }}
         </Button>
       </div>
     </div>

@@ -6,7 +6,7 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized) => {
   const internalToken = useCookie<string | null>('sb_internal_token')
   const normalizedPath = to.path.replace(/^\/en(?=\/|$)/, '') || '/'
   const localePrefix = to.path.startsWith('/en') ? '/en' : ''
-  const isInternalRoute = normalizedPath.startsWith('/app/internal')
+  const isInternalRoute = normalizedPath === '/app/internal' || normalizedPath.startsWith('/app/internal/')
   const activeToken = isInternalRoute ? internalToken : token
   const isPublicPage = normalizedPath === '/'
     || normalizedPath === '/login'

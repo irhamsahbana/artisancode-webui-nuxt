@@ -30,7 +30,7 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: string | null): void
 }>()
 
-const { text } = useLocale()
+const { t } = useLocale()
 
 const rootRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
@@ -119,9 +119,9 @@ const filteredNodes = computed(() => {
   return allFlatNodes.value.filter((node) => visibleIds.has(node.id))
 })
 
-const resolvedPlaceholder = computed(() => text(props.placeholder))
-const selectedBadgeLabel = computed(() => text('Selected'))
-const emptyLabel = computed(() => text('No options'))
+const resolvedPlaceholder = computed(() => props.placeholder)
+const selectedBadgeLabel = computed(() => t('ui.selected'))
+const emptyLabel = computed(() => t('ui.noOptions'))
 
 const openList = () => {
   if (props.disabled) return
@@ -226,7 +226,7 @@ onBeforeUnmount(() => {
       <button
         v-if="selectedLabel && !disabled"
         type="button"
-        :aria-label="text('Clear')"
+        :aria-label="t('ui.clear')"
         class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
         @click="clearSelection"
       >

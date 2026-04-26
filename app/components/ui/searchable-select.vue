@@ -29,14 +29,20 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: string | number | null): void
 }>()
 
-const { text } = useLocale()
+const { t } = useLocale()
 
 const rootRef = ref<HTMLElement | null>(null)
+const popoverRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
 const query = ref('')
 const debouncedQuery = ref('')
 const listboxId = useId()
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
+const popoverPosition = ref({
+  top: 0,
+  left: 0,
+  width: 0,
+})
 
 const selectedLabel = computed(() => {
   const matched = props.options.find((option) => option.value === props.modelValue)
@@ -52,14 +58,38 @@ const filteredOptions = computed(() => {
   return props.options.filter((option) => option.label.toLowerCase().includes(term))
 })
 
-const resolvedPlaceholder = computed(() => text(props.placeholder))
-const selectedBadgeLabel = computed(() => text('Selected'))
-const emptyLabel = computed(() => text('No options'))
+const resolvedPlaceholder = computed(() => props.placeholder)
+const selectedBadgeLabel = computed(() => t('ui.selected'))
+const emptyLabel = computed(() => t('ui.noOptions'))
+const popoverStyle = computed(() => ({
+  top: `${popoverPosition.value.top}px`,
+  left: `${popoverPosition.value.left}px`,
+  width: `${popoverPosition.value.width}px`,
+}))
+
+const updatePopoverPosition = () => {
+  if (!import.meta.client || !rootRef.value) {
+    return
+  }
+
+  const rect = rootRef.value.getBoundingClientRect()
+  const padding = 8
+  const width = Math.max(160, rect.width)
+  popoverPosition.value = {
+    top: rect.bottom + 4,
+    left: Math.min(
+      Math.max(padding, rect.left),
+      Math.max(padding, window.innerWidth - width - padding),
+    ),
+    width,
+  }
+}
 
 const openList = () => {
   if (props.disabled) {
     return
   }
+  updatePopoverPosition()
   isOpen.value = true
 }
 
@@ -92,13 +122,17 @@ const onInput = (event: Event) => {
     debouncedQuery.value = query.value
   }, 200)
   if (!isOpen.value) {
+    updatePopoverPosition()
     isOpen.value = true
   }
 }
 
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as Node
-  if (rootRef.value && !rootRef.value.contains(target)) {
+  if (rootRef.value?.contains(target) || popoverRef.value?.contains(target)) {
+    return
+  }
+  if (rootRef.value) {
     closeList()
   }
 }
@@ -157,37 +191,41 @@ onBeforeUnmount(() => {
       @input="onInput"
       @keydown="handleInputKeydown"
     >
-    <div
-      v-if="isOpen"
-      :id="listboxId"
-      class="absolute z-20 mt-1 w-full rounded-md border bg-popover p-1 text-sm shadow-md"
-      role="listbox"
-    >
-      <div class="max-h-56 overflow-auto">
-        <button
-          v-for="option in filteredOptions"
-          :key="String(option.value)"
-          type="button"
-          class="flex w-full items-center justify-between rounded px-3 py-2 text-left hover:bg-accent"
-          role="option"
-          :aria-selected="option.value === props.modelValue"
-          @click="selectOption(option)"
-        >
-          <span>{{ option.label }}</span>
-          <span
-            v-if="option.value === props.modelValue"
-            class="text-xs text-muted-foreground"
+    <Teleport to="body">
+      <div
+        v-if="isOpen"
+        :id="listboxId"
+        ref="popoverRef"
+        class="fixed z-[70] rounded-md border bg-popover p-1 text-sm shadow-md"
+        :style="popoverStyle"
+        role="listbox"
+      >
+        <div class="max-h-56 overflow-auto">
+          <button
+            v-for="option in filteredOptions"
+            :key="String(option.value)"
+            type="button"
+            class="flex w-full items-center justify-between rounded px-3 py-2 text-left hover:bg-accent"
+            role="option"
+            :aria-selected="option.value === props.modelValue"
+            @click="selectOption(option)"
           >
-            {{ selectedBadgeLabel }}
-          </span>
-        </button>
-        <div
-          v-if="filteredOptions.length === 0"
-          class="px-3 py-2 text-muted-foreground"
-        >
-          {{ emptyLabel }}
+            <span>{{ option.label }}</span>
+            <span
+              v-if="option.value === props.modelValue"
+              class="text-xs text-muted-foreground"
+            >
+              {{ selectedBadgeLabel }}
+            </span>
+          </button>
+          <div
+            v-if="filteredOptions.length === 0"
+            class="px-3 py-2 text-muted-foreground"
+          >
+            {{ emptyLabel }}
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
