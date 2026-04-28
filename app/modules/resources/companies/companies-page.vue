@@ -26,7 +26,7 @@ const formatCreatedAt = (value: unknown) => {
 
 <template>
   <ResourceList
-    title="Companies"
+    :title="t('layout.companies')"
     endpoint="/companies"
     :columns="columns"
     loading-variant="skeleton"

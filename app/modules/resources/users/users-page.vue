@@ -232,7 +232,7 @@ const handleSubmit = async () => {
 <template>
   <ResourceList
     :key="refreshKey"
-    title="Users"
+    :title="t('ui.users')"
     endpoint="/users"
     :columns="columns"
     loading-variant="skeleton"

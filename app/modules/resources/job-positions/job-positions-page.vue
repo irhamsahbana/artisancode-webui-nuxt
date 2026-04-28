@@ -126,7 +126,7 @@ const handleSubmit = async () => {
 <template>
   <ResourceList
     :key="refreshKey"
-    title="Job Positions"
+    :title="t('layout.jobPositions')"
     endpoint="/job-positions"
     :columns="columns"
     loading-variant="skeleton"

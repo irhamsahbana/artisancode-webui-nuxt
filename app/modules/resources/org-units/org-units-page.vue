@@ -99,7 +99,7 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
 <template>
   <ResourceList
     :key="listKey"
-    title="Organization Units"
+    :title="t('ui.organizationUnits')"
     endpoint="/org-units"
     :columns="columns"
     loading-variant="skeleton"

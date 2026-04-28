@@ -163,7 +163,7 @@ const handleSubmit = async () => {
   <!-- The :key forces full re-mount so useAsyncData re-runs -->
   <ResourceList
     :key="refreshKey"
-    title="Work Shifts"
+    :title="t('ui.workShifts')"
     endpoint="/work-shifts"
     :columns="columns"
     loading-variant="skeleton"

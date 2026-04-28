@@ -536,7 +536,7 @@ const handleRevokeInvitation = async () => {
 <template>
   <ResourceList
     :key="refreshKey"
-    title="Employees"
+    :title="t('ui.employees')"
     endpoint="/employees"
     :columns="columns"
     loading-variant="skeleton"

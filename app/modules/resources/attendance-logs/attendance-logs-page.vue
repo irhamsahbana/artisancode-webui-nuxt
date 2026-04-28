@@ -767,11 +767,10 @@ const downloadExport = (item: ExportJob) => {
 <template>
   <div class="space-y-6">
     <ResourceList
-      title="Attendance Logs"
+      :title="t('ui.attendanceLogs')"
       endpoint="/attendance-logs"
       :extra-query="listQuery"
       :columns="columns"
-      :search-placeholder="t('ui.searchAttendanceLogs')"
       :show-search-filter-trigger="true"
       :search-filter-open="filterPanelOpen"
       loading-variant="skeleton"

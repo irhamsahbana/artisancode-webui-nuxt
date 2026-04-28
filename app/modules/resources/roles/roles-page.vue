@@ -563,7 +563,7 @@ const submitAdminInvite = async () => {
   <div class="space-y-6">
     <ResourceList
       :key="listKey"
-      title="Roles"
+      :title="t('ui.roles')"
       endpoint="/role-and-permissions/roles"
       :columns="columns"
       :search-debounce-ms="1000"
