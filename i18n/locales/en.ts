@@ -144,6 +144,192 @@ export default {
     fullNameRequired: "Full name is required"
   },
   marketing: {
+    site: {
+      nav: {
+        label: "Marketing navigation",
+        home: "Home",
+        templates: "Templates",
+        pricing: "Pricing",
+        features: "Features"
+      },
+      cta: {
+        dashboard: "Dashboard",
+        getStarted: "Get Started"
+      },
+      footer: {
+        copy: "Web and mobile attendance system for operational teams."
+      },
+      home: {
+        seo: {
+          title: "Presense - A cleaner employee attendance entry point",
+          description: "A lighter Presense marketing experience with direct paths to sign in or start a new workspace."
+        },
+        badge: "Attendance platform for modern operational teams",
+        title: "A lighter homepage focused on sign in and getting started.",
+        description: "Presense helps HR and operations teams run web and mobile attendance without relying on one long scrolling landing page. Visitors can go straight to the path they need.",
+        highlight1: "Existing users can sign in without going through a long demo section.",
+        highlight2: "Dedicated routes keep features, templates, and pricing easier to explore.",
+        highlight3: "The first screen stays clear for HR, owners, and field teams that need quick orientation.",
+        stats: {
+          companies: "Organizations",
+          employees: "Active employees",
+          locations: "Work locations"
+        },
+        panel: {
+          label: "Product snapshot",
+          title: "Attendance control from web admin to the employee mobile app.",
+          live: "Active",
+          subTitle: "Today's operations",
+          subDescription: "Send visitors to the right page without forcing them through every section first.",
+          status: "Ready",
+          item1Label: "Primary flow",
+          item1Value: "Sign in for existing users, register for new tenants.",
+          item2Label: "Marketing routes",
+          item2Value: "Features, Templates, and Pricing now live on dedicated pages."
+        },
+        products: {
+          admin: {
+            title: "Web admin for HR",
+            description: "Dashboards, audits, and master-data setup remain the center of operational control."
+          },
+          mobile: {
+            title: "Mobile app for employees",
+            description: "Check-in, check-out, selfie proof, and daily attendance status stay easy to access on field devices."
+          },
+          compliance: {
+            title: "Audit trails stay readable",
+            description: "Location, shifts, and activity history remain easy to review when teams need to inspect exceptions."
+          }
+        }
+      },
+      features: {
+        seo: {
+          title: "Presense Features",
+          description: "See Presense core capabilities for mobile attendance, operational control, and audits."
+        },
+        eyebrow: "Features",
+        title: "Core capabilities moved into a dedicated page.",
+        description: "Instead of placing everything on the homepage, this page summarizes the capabilities prospective customers search for most often.",
+        sideNote: {
+          label: "Why split it out?",
+          title: "Visitors can focus on the part they actually want to evaluate.",
+          description: "Teams that are already close to buying usually want capability, pricing, or workflow detail without scrolling through a full one-page story first."
+        },
+        groups: {
+          mobile: {
+            title: "Mobile attendance",
+            description: "The employee experience stays short and clear from app launch to completed check-out.",
+            item1: "Check-in and check-out with selfie proof.",
+            item2: "Current shift and daily attendance status are visible immediately.",
+            item3: "Notes and device context are recorded cleanly."
+          },
+          operations: {
+            title: "Operational control",
+            description: "HR and owners can read the important signals without digging through a long flow.",
+            item1: "Daily attendance dashboard.",
+            item2: "Exception and lateness monitoring.",
+            item3: "Employee, shift, and work-location management."
+          },
+          compliance: {
+            title: "Audit and compliance",
+            description: "The data needed for review and traceability stays available in a cleaner workflow.",
+            item1: "Filterable attendance logs.",
+            item2: "Photo and location proof are easier to review.",
+            item3: "Exports for admin reporting."
+          },
+          deployment: {
+            title: "Phased rollout",
+            description: "A good fit for teams that want to start small and expand workflows as operations grow.",
+            item1: "Start with a single tenant first.",
+            item2: "Separate marketing pages from login flows.",
+            item3: "Clarify onboarding for new and returning users."
+          }
+        },
+        request: {
+          eyebrow: "Need a custom workflow?",
+          title: "If there is a feature you want to request, let's discuss the operational need behind it first.",
+          description: "From complex shift rules and approval steps to location constraints and audit requirements, the conversation should stay anchored to real operations instead of becoming a vague feature wishlist.",
+          primaryCta: "Discuss My Workflow",
+          secondaryCta: "See pricing structure",
+          point1: "Useful for teams with different attendance rules across locations or business units.",
+          point2: "Feature requests can be mapped back to the HR process people actually use every day.",
+          point3: "Once someone is signed in, the CTA switches straight to Dashboard to keep the flow short."
+        }
+      },
+      templates: {
+        seo: {
+          title: "Presense Templates",
+          description: "Example setup packages and workflows that help teams start faster with Presense."
+        },
+        eyebrow: "Templates",
+        title: "Workflow templates that speed up implementation.",
+        description: "This page shows example setup structures that new tenants can use as a starting point when adopting Presense.",
+        callout: {
+          label: "Quick Start",
+          title: "Begin from the setup that matches your operations best.",
+          description: "Open a new account and configure employees, shifts, and work locations without guessing the initial flow."
+        },
+        cards: {
+          onboarding: {
+            title: "Tenant onboarding template",
+            description: "A baseline setup sequence for organizations entering the system for the first time.",
+            item1: "Create the tenant, primary admin, and organization identity.",
+            item2: "Fill in employee structure and access roles.",
+            item3: "Enable the internal team login workflow."
+          },
+          shift: {
+            title: "Shift and location template",
+            description: "Start from common combinations of work shifts and locations used by field teams.",
+            item1: "Set fixed or rotating shifts.",
+            item2: "Define location radius and workplace policy.",
+            item3: "Connect them to daily attendance status."
+          },
+          audit: {
+            title: "Attendance audit template",
+            description: "A review structure that helps HR quickly find the exceptions that matter.",
+            item1: "Separate lateness, missing check-ins, and missing check-outs.",
+            item2: "Review photo and location proof in one flow.",
+            item3: "Export reports when recaps are needed."
+          }
+        }
+      },
+      pricing: {
+        seo: {
+          title: "Presense Pricing",
+          description: "A pricing summary for onboarding, growth, and enterprise attendance operations."
+        },
+        eyebrow: "Pricing",
+        title: "Pricing that is easier to scan on its own page.",
+        description: "Pricing now lives away from the homepage so prospects can compare plans directly without getting lost in broader marketing content.",
+        highlight: "Most popular",
+        plans: {
+          starter: {
+            name: "Starter",
+            price: "Start onboarding",
+            description: "For small teams that need a basic attendance flow and a fast setup.",
+            item1: "Tenant login and registration flow.",
+            item2: "Core mobile attendance flow.",
+            item3: "Dashboard and key operational logs."
+          },
+          growth: {
+            name: "Growth",
+            price: "For active operations",
+            description: "For companies that are starting to manage more employees and work locations.",
+            item1: "Cleaner exception monitoring.",
+            item2: "Shift, location, and admin role controls.",
+            item3: "Better audit and export readiness."
+          },
+          enterprise: {
+            name: "Enterprise",
+            price: "Custom setup",
+            description: "For organizations that need integration, governance, or multi-unit rollout support.",
+            item1: "Implementation structure consulting.",
+            item2: "Phased rollout support.",
+            item3: "Operational workflow adjustments."
+          }
+        }
+      }
+    },
     presense: {
       seo: {
         title: "Presense - Web and mobile employee attendance",

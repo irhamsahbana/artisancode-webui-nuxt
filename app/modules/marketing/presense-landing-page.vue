@@ -7,21 +7,52 @@ import {
   ClipboardList,
   Globe2,
   LayoutDashboard,
+  Menu,
   ShieldCheck,
   Smartphone,
+  X,
 } from 'lucide-vue-next'
 
 defineOptions({ name: 'PresenseLandingPage' })
 
 const localePath = useLocalePath()
+const route = useRoute()
+const router = useRouter()
 const { locale, setLocale, t } = useLocale()
+const token = useCookie<string | null>('sb_token')
+const internalToken = useCookie<string | null>('sb_internal_token')
 
 const motionReady = shallowRef(false)
+const hasScrolled = shallowRef(false)
+const mobileMenuOpen = shallowRef(false)
 const adminLoginPath = computed(() => localePath('/login'))
+const registerPath = computed(() => localePath('/register'))
+const dashboardPath = computed(() => localePath(internalToken.value ? '/app/internal/users' : '/app'))
+const isSignedIn = computed(() => Boolean(token.value || internalToken.value))
 const primaryCtaHref = '#request-demo'
 const flowHref = '#how-it-works'
 const nextLocale = computed(() => (locale.value === 'id' ? 'en' : 'id'))
 const currentLocaleLabel = computed(() => (locale.value === 'id' ? 'ID' : 'EN'))
+let previousBodyOverflow: string | null = null
+
+const headerLinks = computed(() => [
+  {
+    label: t('marketing.site.nav.home'),
+    sectionId: 'top',
+  },
+  {
+    label: t('marketing.site.nav.templates'),
+    sectionId: 'how-it-works',
+  },
+  {
+    label: t('marketing.site.nav.pricing'),
+    sectionId: 'request-demo',
+  },
+  {
+    label: t('marketing.site.nav.features'),
+    sectionId: 'capabilities',
+  },
+])
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -38,20 +69,76 @@ const scrollToSection = (id: string) => {
     top: target.getBoundingClientRect().top + window.scrollY,
     behavior: prefersReducedMotion() ? 'auto' : 'smooth',
   })
+
+  mobileMenuOpen.value = false
+}
+
+const setBodyScrollLock = (locked: boolean) => {
+  if (!import.meta.client) {
+    return
+  }
+
+  if (locked) {
+    if (previousBodyOverflow === null) {
+      previousBodyOverflow = document.body.style.overflow
+    }
+    document.body.style.overflow = 'hidden'
+    return
+  }
+
+  if (previousBodyOverflow !== null) {
+    document.body.style.overflow = previousBodyOverflow
+    previousBodyOverflow = null
+  }
+}
+
+const clearRouteHash = async () => {
+  if (!route.hash) {
+    return
+  }
+
+  await router.replace({
+    path: route.path,
+    query: route.query,
+    hash: '',
+  })
 }
 
 const switchLanguage = async () => {
-  const scrollY = window.scrollY
+  const currentScrollY = window.scrollY
   const currentPathWithoutHash = `${window.location.pathname}${window.location.search}`
+  const activeElement = document.activeElement
 
+  mobileMenuOpen.value = false
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur()
+  }
   window.history.replaceState(window.history.state, '', currentPathWithoutHash)
+
+  await clearRouteHash()
   await setLocale(nextLocale.value)
   await nextTick()
 
   window.requestAnimationFrame(() => {
-    window.scrollTo({ top: scrollY, behavior: 'auto' })
+    window.scrollTo({
+      top: currentScrollY < 16 ? 0 : currentScrollY,
+      behavior: 'auto',
+    })
   })
 }
+
+const syncHeaderState = () => {
+  hasScrolled.value = window.scrollY > 12
+  if (hasScrolled.value) {
+    mobileMenuOpen.value = false
+  }
+}
+
+const toggleMobileMenu = () => {
+  mobileMenuOpen.value = !mobileMenuOpen.value
+}
+
+watch(mobileMenuOpen, setBodyScrollLock)
 
 const metricCards = computed(() => [
   {
@@ -152,6 +239,9 @@ const mobileFeatures = computed(() => [
 ])
 
 onMounted(async () => {
+  syncHeaderState()
+  window.addEventListener('scroll', syncHeaderState, { passive: true })
+
   const sections = Array.from(document.querySelectorAll<HTMLElement>('.presense-reveal'))
   const revealVisibleSections = () => {
     const viewportHeight = window.innerHeight
@@ -190,6 +280,11 @@ onMounted(async () => {
   sections.forEach(section => observer.observe(section))
 })
 
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', syncHeaderState)
+  setBodyScrollLock(false)
+})
+
 useHead(() => ({
   title: t('marketing.presense.seo.title'),
   meta: [
@@ -206,78 +301,161 @@ useHead(() => ({
     class="presense-page min-h-dvh overflow-x-hidden bg-[#f6fbf8] text-[#10231d] [&_*]:min-w-0"
     :class="{ 'is-motion-ready': motionReady }"
   >
-    <section class="relative overflow-hidden border-b border-emerald-950/10 bg-[#f6fbf8]">
-      <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-5 py-5 sm:px-8 lg:px-10">
-        <a
-          href="#top"
-          class="flex min-h-11 min-w-0 items-center gap-3 rounded-md text-[#10231d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
-          :aria-label="t('marketing.presense.logoAlt')"
-          @click.prevent="scrollToSection('top')"
-        >
-          <span class="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#0f6e56] shadow-sm">
-            <img
-              src="/brand/presense-app-icon.svg"
-              :alt="t('marketing.presense.logoAlt')"
-              class="size-full object-cover"
+    <section
+      class="fixed inset-x-0 top-0 z-40 flex flex-col transition-all duration-200"
+      :class="[
+        (hasScrolled || mobileMenuOpen)
+          ? 'border-b border-emerald-950/10 bg-[#f6fbf8] shadow-[0_18px_40px_-32px_rgba(8,80,65,0.45)]'
+          : 'border-b border-transparent bg-[#f6fbf8]',
+        mobileMenuOpen ? 'max-md:h-dvh max-md:overflow-y-auto' : '',
+      ]"
+    >
+      <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 px-5 py-4 sm:px-8 md:flex-row md:items-center md:justify-between md:gap-4 md:py-5 lg:px-10">
+        <div class="flex items-center justify-between gap-3">
+          <a
+            href="#top"
+            class="flex min-h-11 min-w-0 items-center gap-3 rounded-md text-[#10231d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
+            :aria-label="t('marketing.presense.logoAlt')"
+            @click.prevent="scrollToSection('top')"
+          >
+            <span class="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#d8ebe4] bg-white shadow-sm">
+              <img
+                src="/brand/presense-app-icon.svg"
+                :alt="t('marketing.presense.logoAlt')"
+                class="size-6 object-contain"
+              >
+            </span>
+            <span class="min-w-0 leading-tight">
+              <span class="block text-lg font-semibold text-[#0f6e56]">Presense</span>
+            </span>
+          </a>
+
+          <div class="flex items-center gap-2 md:hidden">
+            <button
+              type="button"
+              class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-[#0f6e56] transition hover:bg-[#eaf5f1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
+              :aria-expanded="mobileMenuOpen"
+              :aria-label="mobileMenuOpen ? t('common.close') : t('marketing.site.nav.label')"
+              @click="toggleMobileMenu"
             >
-          </span>
-          <span class="min-w-0 leading-tight">
-            <span class="block text-lg font-semibold">Presense</span>
-            <span class="hidden text-xs font-medium uppercase tracking-[0.16em] text-[#0f6e56] sm:block">by ArtisanCode</span>
-          </span>
-        </a>
+              <X
+                v-if="mobileMenuOpen"
+                class="size-5"
+              />
+              <Menu
+                v-else
+                class="size-5"
+              />
+            </button>
+          </div>
+        </div>
 
         <nav
           class="hidden items-center gap-6 text-sm font-medium text-[#31443d] md:flex"
-          :aria-label="t('marketing.presense.nav.label')"
+          :aria-label="t('marketing.site.nav.label')"
         >
           <a
+            v-for="item in headerLinks"
+            :key="item.label"
             class="rounded-md px-1 py-3 transition hover:text-[#0f6e56] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
-            href="#capabilities"
-            @click.prevent="scrollToSection('capabilities')"
+            :href="`#${item.sectionId}`"
+            @click.prevent="scrollToSection(item.sectionId)"
           >
-            {{ t('marketing.presense.nav.features') }}
-          </a>
-          <a
-            class="rounded-md px-1 py-3 transition hover:text-[#0f6e56] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
-            href="#how-it-works"
-            @click.prevent="scrollToSection('how-it-works')"
-          >
-            {{ t('marketing.presense.nav.flow') }}
-          </a>
-          <a
-            class="rounded-md px-1 py-3 transition hover:text-[#0f6e56] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
-            href="#platform"
-            @click.prevent="scrollToSection('platform')"
-          >
-            {{ t('marketing.presense.nav.platform') }}
+            {{ item.label }}
           </a>
         </nav>
 
-        <div class="flex items-center gap-2">
+        <div class="hidden w-full items-center gap-2 sm:w-auto md:flex">
           <button
             type="button"
-            class="inline-flex min-h-11 items-center gap-2 rounded-md border border-[#0f6e56]/25 bg-white px-3 text-sm font-semibold text-[#0f6e56] shadow-sm transition hover:bg-[#e1f5ee] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
+            class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md border border-[#0f6e56]/25 bg-white px-3 text-sm font-semibold text-[#0f6e56] shadow-sm transition hover:bg-[#e1f5ee] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
             :aria-label="t('marketing.presense.languageSwitch')"
-            @click="switchLanguage"
+            @click.stop="switchLanguage"
           >
             <Globe2 class="size-4" />
             {{ currentLocaleLabel }}
           </button>
+
           <NuxtLink
-            :to="adminLoginPath"
-            class="hidden min-h-11 items-center rounded-md px-4 text-sm font-semibold text-[#10231d] transition hover:bg-[#e1f5ee] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2 sm:inline-flex"
+            v-if="isSignedIn"
+            :to="dashboardPath"
+            class="inline-flex min-h-11 flex-1 items-center justify-center rounded-md bg-[#0f6e56] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#085041] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2 sm:flex-none"
           >
-            {{ t('marketing.presense.cta.adminLogin') }}
+            {{ t('marketing.site.cta.dashboard') }}
           </NuxtLink>
+
+          <template v-else>
+            <NuxtLink
+              :to="adminLoginPath"
+              class="inline-flex min-h-11 flex-1 items-center justify-center rounded-md border border-[#10231d]/12 bg-white px-4 text-sm font-semibold text-[#10231d] transition hover:bg-[#edf4f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2 sm:flex-none"
+            >
+              {{ t('auth.signIn') }}
+            </NuxtLink>
+            <NuxtLink
+              :to="registerPath"
+              class="inline-flex min-h-11 flex-1 shrink-0 items-center justify-center gap-2 rounded-md bg-[#0f6e56] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#085041] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2 sm:flex-none"
+            >
+              {{ t('marketing.site.cta.getStarted') }}
+            </NuxtLink>
+          </template>
+        </div>
+      </div>
+
+      <div
+        v-if="mobileMenuOpen"
+        class="flex min-h-0 flex-1 flex-col border-t border-emerald-950/10 bg-[#f6fbf8] px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_18px_40px_-32px_rgba(8,80,65,0.45)] sm:px-8 md:hidden"
+      >
+        <nav
+          class="flex flex-col gap-1"
+          :aria-label="t('marketing.site.nav.label')"
+        >
           <a
-            :href="primaryCtaHref"
-            class="hidden min-h-11 shrink-0 items-center gap-2 rounded-md bg-[#0f6e56] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#085041] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2 sm:inline-flex"
-            @click.prevent="scrollToSection('request-demo')"
+            v-for="item in headerLinks"
+            :key="item.label"
+            class="rounded-md px-3 py-3 text-sm font-medium text-[#31443d] transition hover:bg-[#edf4f0] hover:text-[#0f6e56] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
+            :href="`#${item.sectionId}`"
+            @click.prevent="scrollToSection(item.sectionId)"
           >
-            {{ t('marketing.presense.cta.demo') }}
-            <ArrowRight class="size-4" />
+            {{ item.label }}
           </a>
+        </nav>
+
+        <div class="mt-3 flex flex-col gap-2">
+          <button
+            type="button"
+            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-[#0f6e56]/25 bg-white px-3 text-sm font-semibold text-[#0f6e56] shadow-sm transition hover:bg-[#e1f5ee] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
+            :aria-label="t('marketing.presense.languageSwitch')"
+            @click.stop="switchLanguage"
+          >
+            <Globe2 class="size-4" />
+            {{ currentLocaleLabel }}
+          </button>
+
+          <NuxtLink
+            v-if="isSignedIn"
+            :to="dashboardPath"
+            class="inline-flex min-h-11 items-center justify-center rounded-md bg-[#0f6e56] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#085041] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
+            @click="mobileMenuOpen = false"
+          >
+            {{ t('marketing.site.cta.dashboard') }}
+          </NuxtLink>
+
+          <template v-else>
+            <NuxtLink
+              :to="adminLoginPath"
+              class="inline-flex min-h-11 items-center justify-center rounded-md border border-[#10231d]/12 bg-white px-4 text-sm font-semibold text-[#10231d] transition hover:bg-[#edf4f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
+              @click="mobileMenuOpen = false"
+            >
+              {{ t('auth.signIn') }}
+            </NuxtLink>
+            <NuxtLink
+              :to="registerPath"
+              class="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#0f6e56] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#085041] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f6e56] focus-visible:ring-offset-2"
+              @click="mobileMenuOpen = false"
+            >
+              {{ t('marketing.site.cta.getStarted') }}
+            </NuxtLink>
+          </template>
         </div>
       </div>
     </section>
@@ -286,7 +464,7 @@ useHead(() => ({
       id="top"
       class="relative overflow-hidden bg-[#f6fbf8]"
     >
-      <div class="mx-auto grid w-full max-w-7xl gap-10 px-5 pb-12 pt-10 sm:px-8 lg:min-h-[calc(100dvh-85px)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-10 lg:py-12">
+      <div class="mx-auto grid w-full max-w-7xl gap-10 px-5 pb-12 pt-36 sm:px-8 md:pt-32 lg:min-h-[calc(100dvh-85px)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-10 lg:pt-32 lg:pb-12">
         <div class="w-full max-w-[22rem] sm:max-w-3xl">
           <div class="inline-flex min-h-9 items-center gap-2 rounded-md border border-[#9fe1cb] bg-white px-3 text-sm font-semibold text-[#0f6e56] shadow-sm">
             <ShieldCheck class="size-4" />

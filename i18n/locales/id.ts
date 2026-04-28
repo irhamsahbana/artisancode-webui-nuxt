@@ -144,6 +144,192 @@ export default {
     fullNameRequired: "Nama lengkap wajib diisi"
   },
   marketing: {
+    site: {
+      nav: {
+        label: "Navigasi marketing",
+        home: "Beranda",
+        templates: "Template",
+        pricing: "Harga",
+        features: "Fitur"
+      },
+      cta: {
+        dashboard: "Buka Dasbor",
+        getStarted: "Mulai Sekarang"
+      },
+      footer: {
+        copy: "Sistem absensi web dan mobile untuk tim operasional."
+      },
+      home: {
+        seo: {
+          title: "Presense - Absensi karyawan yang lebih rapi",
+          description: "Landing page baru Presense dengan alur marketing yang lebih ringan, langsung ke login atau mulai setup organisasi."
+        },
+        badge: "Platform absensi untuk tim operasional modern",
+        title: "Halaman awal yang lebih ringan, fokus ke login dan mulai setup.",
+        description: "Presense membantu tim HR dan operasional menjalankan absensi web dan mobile tanpa perlu landing page satu scroll panjang. Pengunjung bisa langsung masuk ke flow yang mereka butuhkan.",
+        highlight1: "Masuk ke akun yang sudah aktif tanpa melewati demo panjang.",
+        highlight2: "Buka route khusus untuk fitur, template, dan pricing sesuai kebutuhan.",
+        highlight3: "Tetap jelas untuk HR, owner, dan tim lapangan yang butuh orientasi cepat.",
+        stats: {
+          companies: "Organisasi",
+          employees: "Karyawan aktif",
+          locations: "Lokasi kerja"
+        },
+        panel: {
+          label: "Ringkasan produk",
+          title: "Kontrol absensi dari web admin sampai aplikasi mobile.",
+          live: "Active",
+          subTitle: "Operasional hari ini",
+          subDescription: "Arahkan pengguna ke page yang tepat tanpa memaksa mereka scroll semua konten.",
+          status: "Ready",
+          item1Label: "Flow utama",
+          item1Value: "Login untuk user lama, register untuk tenant baru.",
+          item2Label: "Route marketing",
+          item2Value: "Features, Templates, dan Pricing dipisah agar lebih mudah dieksplor."
+        },
+        products: {
+          admin: {
+            title: "Web admin untuk HR",
+            description: "Dashboard, audit, dan pengaturan master data tetap jadi pusat kontrol operasional."
+          },
+          mobile: {
+            title: "Mobile app untuk karyawan",
+            description: "Check-in, check-out, selfie proof, dan status kehadiran harian tetap mudah diakses dari perangkat lapangan."
+          },
+          compliance: {
+            title: "Jejak audit lebih siap",
+            description: "Lokasi, shift, dan histori aktivitas tetap terbaca jelas saat tim perlu meninjau exception."
+          }
+        }
+      },
+      features: {
+        seo: {
+          title: "Presense Features",
+          description: "Lihat kemampuan utama Presense untuk absensi mobile, kontrol operasional, dan audit."
+        },
+        eyebrow: "Features",
+        title: "Kapabilitas inti dipisah dalam halaman khusus.",
+        description: "Alih-alih menaruh semua detail di homepage, halaman ini merangkum kemampuan inti yang paling sering dicari calon pengguna.",
+        sideNote: {
+          label: "Kenapa dipisah?",
+          title: "Pengunjung bisa langsung fokus ke hal yang ingin mereka evaluasi.",
+          description: "Tim yang sudah siap beli biasanya ingin lihat capability, pricing, atau workflow tertentu tanpa harus scroll satu halaman penuh."
+        },
+        groups: {
+          mobile: {
+            title: "Absensi mobile",
+            description: "Pengalaman karyawan dibuat singkat dan jelas sejak buka aplikasi sampai check-out selesai.",
+            item1: "Check-in dan check-out dengan selfie proof.",
+            item2: "Status shift dan kehadiran hari ini langsung terlihat.",
+            item3: "Catatan dan konteks perangkat tercatat rapi."
+          },
+          operations: {
+            title: "Kontrol operasional",
+            description: "Tim HR dan owner bisa membaca ringkasan penting tanpa menggali terlalu dalam.",
+            item1: "Dashboard kehadiran harian.",
+            item2: "Pemantauan exception dan keterlambatan.",
+            item3: "Pengelolaan karyawan, shift, dan lokasi kerja."
+          },
+          compliance: {
+            title: "Audit dan kepatuhan",
+            description: "Data yang dibutuhkan untuk review dan pelacakan tetap tersedia dalam alur yang rapi.",
+            item1: "Log absensi yang bisa difilter.",
+            item2: "Riwayat selfie dan lokasi lebih mudah ditelusuri.",
+            item3: "Ekspor laporan untuk kebutuhan admin."
+          },
+          deployment: {
+            title: "Penerapan bertahap",
+            description: "Cocok untuk tim yang ingin mulai kecil lalu menambah workflow seiring operasional tumbuh.",
+            item1: "Bisa mulai dari satu tenant lebih dulu.",
+            item2: "Pisahkan page marketing dari flow login.",
+            item3: "Perjelas onboarding antara user baru dan user lama."
+          }
+        },
+        request: {
+          eyebrow: "Butuh workflow khusus?",
+          title: "Kalau ada fitur yang ingin direquest, kita bisa diskusikan dari kebutuhan operasionalnya dulu.",
+          description: "Mulai dari shift kompleks, approval khusus, aturan lokasi, sampai audit requirement. Arah pembahasannya dibuat jelas supaya permintaan fitur tidak berhenti di daftar wish list saja.",
+          primaryCta: "Diskusikan Kebutuhan Saya",
+          secondaryCta: "Lihat struktur pricing",
+          point1: "Cocok untuk tim yang punya aturan absensi berbeda antar lokasi atau unit.",
+          point2: "Permintaan fitur bisa dipetakan ke proses HR yang benar-benar dipakai harian.",
+          point3: "Saat sudah login, CTA langsung berubah ke Dashboard supaya alurnya tetap singkat."
+        }
+      },
+      templates: {
+        seo: {
+          title: "Presense Templates",
+          description: "Contoh paket setup dan workflow Presense untuk membantu tim lebih cepat mulai."
+        },
+        eyebrow: "Templates",
+        title: "Template alur kerja untuk mempercepat implementasi.",
+        description: "Halaman ini menampilkan struktur setup yang bisa dipakai sebagai acuan saat tenant baru mulai menggunakan Presense.",
+        callout: {
+          label: "Quick Start",
+          title: "Mulai dari setup yang paling dekat dengan operasional Anda.",
+          description: "Buka akun baru lalu sesuaikan data karyawan, shift, dan lokasi kerja tanpa perlu menebak alur awal."
+        },
+        cards: {
+          onboarding: {
+            title: "Template onboarding tenant",
+            description: "Urutan setup dasar untuk organisasi yang baru pertama kali masuk ke sistem.",
+            item1: "Buat tenant, admin utama, dan identitas organisasi.",
+            item2: "Isi struktur karyawan dan peran akses.",
+            item3: "Aktifkan workflow login untuk tim internal."
+          },
+          shift: {
+            title: "Template shift dan lokasi",
+            description: "Mulai dari kombinasi shift kerja dan lokasi yang umum dipakai tim lapangan.",
+            item1: "Atur shift tetap atau bergilir.",
+            item2: "Tetapkan radius dan kebijakan lokasi kerja.",
+            item3: "Hubungkan ke status kehadiran harian."
+          },
+          audit: {
+            title: "Template audit kehadiran",
+            description: "Panduan struktur review agar tim HR cepat menemukan exception penting.",
+            item1: "Pisahkan telat, belum check-in, dan belum check-out.",
+            item2: "Tinjau bukti foto dan lokasi dalam satu alur.",
+            item3: "Ekspor laporan saat rekap diperlukan."
+          }
+        }
+      },
+      pricing: {
+        seo: {
+          title: "Presense Pricing",
+          description: "Ringkasan paket harga Presense untuk onboarding, pertumbuhan, dan kebutuhan enterprise."
+        },
+        eyebrow: "Pricing",
+        title: "Struktur harga yang mudah dibaca dari halaman sendiri.",
+        description: "Pricing dipisah dari homepage supaya calon pengguna bisa langsung membandingkan paket tanpa tenggelam di konten lain.",
+        highlight: "Most popular",
+        plans: {
+          starter: {
+            name: "Starter",
+            price: "Mulai onboarding",
+            description: "Untuk tim kecil yang butuh flow absensi dasar dan setup cepat.",
+            item1: "Flow login dan register tenant.",
+            item2: "Absensi mobile dasar.",
+            item3: "Dashboard dan log operasional inti."
+          },
+          growth: {
+            name: "Growth",
+            price: "Untuk operasional aktif",
+            description: "Untuk perusahaan yang mulai mengelola banyak karyawan dan lokasi kerja.",
+            item1: "Monitoring exception yang lebih rapi.",
+            item2: "Kontrol shift, lokasi, dan role admin.",
+            item3: "Audit dan ekspor yang lebih siap dipakai."
+          },
+          enterprise: {
+            name: "Enterprise",
+            price: "Custom setup",
+            description: "Untuk organisasi dengan kebutuhan integrasi, governance, atau rollout multi-unit.",
+            item1: "Konsultasi struktur implementasi.",
+            item2: "Pendampingan rollout bertahap.",
+            item3: "Penyesuaian workflow operasional."
+          }
+        }
+      }
+    },
     presense: {
       seo: {
         title: "Presense - Absensi karyawan web dan mobile",
