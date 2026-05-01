@@ -1,16 +1,25 @@
 <script setup lang="ts">
 import { reactive, ref, computed, watch } from 'vue'
 import { navigateTo } from '#app'
+import GoogleIdentityButton from '~/components/auth/google-identity-button.vue'
 import { useAuth } from '~/composables/useAuth'
+import { resolveGoogleAuthErrorKey } from '~/utils/google-auth-errors'
 
 defineOptions({ name: 'RegisterPage' })
 
 const runtimeConfig = useRuntimeConfig()
-const { register } = useAuth()
-const { locale, options: localeOptions, setLocale, t } = useLocale()
+const {
+  googleRegisterInit,
+  googleRegister,
+  register,
+} = useAuth()
+const { locale, t } = useLocale()
 const localePath = useLocalePath()
 const isLoading = ref(false)
+const isGoogleLoading = ref(false)
+const googleRegistrationToken = ref('')
 const errorMessage = ref('')
+const googleErrorMessage = ref('')
 const appName = computed(() => runtimeConfig.public.appName || 'ArtisanCode')
 const registerDescription = computed(() =>
   locale.value === 'id'
@@ -36,6 +45,12 @@ const form = reactive({
   tenant_code: '',
   tenant_name: '',
   language: locale.value,
+})
+
+const googleTenantForm = reactive({
+  tenant_name: '',
+  tenant_code: '',
+  confirm_tenant_setup: false,
 })
 
 const fieldErrors = reactive<Record<RegisterFieldName, string>>({
@@ -77,6 +92,12 @@ const fieldAliases: Record<string, RegisterFieldName> = {
 
 const clearFieldError = (field: RegisterFieldName) => {
   fieldErrors[field] = ''
+}
+
+const resetGoogleErrors = () => {
+  googleErrorMessage.value = ''
+  clearFieldError('tenant_name')
+  clearFieldError('tenant_code')
 }
 
 const resetErrors = () => {
@@ -194,6 +215,25 @@ watch(() => form.username, () => clearFieldError('username'))
 watch(() => form.email, () => clearFieldError('email'))
 watch(() => form.password, () => clearFieldError('password'))
 
+watch(() => googleTenantForm.tenant_code, (newVal) => {
+  const cleaned = newVal
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+  if (cleaned !== newVal) {
+    googleTenantForm.tenant_code = cleaned
+  }
+
+  clearFieldError('tenant_code')
+})
+
+watch(() => googleTenantForm.tenant_name, () => clearFieldError('tenant_name'))
+watch(() => googleTenantForm.confirm_tenant_setup, () => {
+  if (googleTenantForm.confirm_tenant_setup) {
+    googleErrorMessage.value = ''
+  }
+})
+
+const googleSetupActive = computed(() => googleRegistrationToken.value.length > 0)
 // Client-side password strength feedback
 const passwordChecks = computed(() => ({
   minLength: form.password.length >= 8,
@@ -264,6 +304,98 @@ const submit = async () => {
     isLoading.value = false
   }
 }
+
+const handleGoogleError = () => {
+  googleErrorMessage.value = t('auth.googleUnavailableDescription')
+}
+
+const handleGoogleCredential = async (idToken: string) => {
+  googleErrorMessage.value = ''
+  isGoogleLoading.value = true
+  try {
+    const response = await googleRegisterInit({ id_token: idToken })
+    if (!response.success || !response.data) {
+      const mappedKey = resolveGoogleAuthErrorKey(response)
+      googleErrorMessage.value = mappedKey ? t(mappedKey) : t('auth.googleRegisterRetryRequired')
+      return
+    }
+
+    googleRegistrationToken.value = response.data.registration_token
+    googleTenantForm.tenant_name = form.tenant_name
+    googleTenantForm.tenant_code = form.tenant_code
+    googleTenantForm.confirm_tenant_setup = false
+  } catch {
+    googleErrorMessage.value = t('auth.googleRegisterFailed')
+  } finally {
+    isGoogleLoading.value = false
+  }
+}
+
+const cancelGoogleSetup = () => {
+  googleRegistrationToken.value = ''
+  googleErrorMessage.value = ''
+  googleTenantForm.confirm_tenant_setup = false
+}
+
+const submitGoogleRegister = async () => {
+  resetGoogleErrors()
+  if (!googleRegistrationToken.value) {
+    googleErrorMessage.value = t('auth.googleRegistrationSessionInvalid')
+    return
+  }
+
+  if (!googleTenantForm.tenant_name.trim()) {
+    fieldErrors.tenant_name = t('common.requiredField', { field: t('auth.tenantName') })
+    return
+  }
+
+  if (!googleTenantForm.tenant_code.trim()) {
+    fieldErrors.tenant_code = t('common.requiredField', { field: t('auth.tenantCode') })
+    return
+  }
+
+  if (!googleTenantForm.confirm_tenant_setup) {
+    googleErrorMessage.value = t('auth.tenantSetupConfirmationRequired')
+    return
+  }
+
+  isGoogleLoading.value = true
+  try {
+    const response = await googleRegister({
+      registration_token: googleRegistrationToken.value,
+      tenant_name: googleTenantForm.tenant_name.trim(),
+      tenant_code: googleTenantForm.tenant_code.trim(),
+      confirm_tenant_setup: true,
+      language: locale.value,
+    })
+
+    if (!response.success) {
+      const hasFieldErrors = applyServerErrors(response.errors)
+      const mappedKey = resolveGoogleAuthErrorKey(response)
+      if (mappedKey) {
+        if (
+          mappedKey === 'auth.googleTokenInvalid'
+          || mappedKey === 'auth.googleRegistrationSessionInvalid'
+        ) {
+          googleRegistrationToken.value = ''
+        }
+        googleErrorMessage.value = t(mappedKey)
+        return
+      }
+
+      if (!hasFieldErrors || (response.message && response.message !== genericFailureMessage.value)) {
+        googleErrorMessage.value = response.message ? localizeServerMessage(response.message) : t('auth.googleRegisterFailed')
+      }
+      return
+    }
+
+    await navigateTo(localePath('/app'))
+  } catch {
+    googleErrorMessage.value = t('auth.googleRegisterFailed')
+  } finally {
+    isGoogleLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -291,22 +423,112 @@ const submit = async () => {
         </p>
       </CardHeader>
       <CardContent class="space-y-4">
-        <div class="space-y-2">
-          <Label for="register-language">
-            {{ t('common.language') }}
-          </Label>
-          <SearchableSelect
-            id="register-language"
-            :model-value="locale"
-            :options="localeOptions"
-            @update:model-value="setLocale(($event || 'id') as 'id' | 'en')"
-          />
-          <p
-            v-if="fieldErrors.language"
-            class="text-xs font-medium text-destructive dark:text-red-300"
+        <GoogleIdentityButton
+          mode="register"
+          :busy="isGoogleLoading"
+          @credential="handleGoogleCredential"
+          @error="handleGoogleError"
+        />
+        <div
+          v-if="googleSetupActive"
+          class="space-y-4 rounded-lg border border-border bg-muted/20 p-4"
+        >
+          <div class="space-y-1">
+            <p class="text-sm font-semibold">
+              {{ t('auth.googleTenantSetup') }}
+            </p>
+            <p class="text-sm leading-6 text-muted-foreground">
+              {{ t('auth.googleTenantSetupDescription') }}
+            </p>
+          </div>
+          <div class="space-y-3">
+            <div class="space-y-2">
+              <Label for="google-register-tenant-name">
+                {{ t('auth.tenantName') }}
+              </Label>
+              <Input
+                id="google-register-tenant-name"
+                v-model="googleTenantForm.tenant_name"
+                name="google_tenant_name"
+                autocomplete="organization"
+                :placeholder="t('auth.tenantNamePlaceholder')"
+              />
+              <p class="text-xs leading-5 text-muted-foreground">
+                {{ t('auth.tenantNameHint') }}
+              </p>
+              <p
+                v-if="fieldErrors.tenant_name"
+                class="text-xs font-medium text-destructive dark:text-red-300"
+              >
+                {{ fieldErrors.tenant_name }}
+              </p>
+            </div>
+            <div class="space-y-2">
+              <Label for="google-register-tenant-code">
+                {{ t('auth.tenantCode') }}
+              </Label>
+              <Input
+                id="google-register-tenant-code"
+                v-model="googleTenantForm.tenant_code"
+                name="google_tenant_code"
+                autocomplete="off"
+                spellcheck="false"
+                :placeholder="t('auth.tenantCodePlaceholder')"
+                maxlength="5"
+              />
+              <p class="text-xs leading-5 text-muted-foreground dark:text-slate-300">
+                {{ t('auth.tenantCodeRegisterHint') }}
+              </p>
+              <p
+                v-if="fieldErrors.tenant_code"
+                class="text-xs font-medium text-destructive dark:text-red-300"
+              >
+                {{ fieldErrors.tenant_code }}
+              </p>
+            </div>
+          </div>
+          <label class="flex items-start gap-3 rounded-md border border-border/70 bg-background/80 p-3 text-sm">
+            <input
+              v-model="googleTenantForm.confirm_tenant_setup"
+              type="checkbox"
+              class="mt-1 h-4 w-4 rounded border-border"
+            >
+            <span class="text-muted-foreground">
+              {{ t('auth.confirmTenantSetup') }}
+            </span>
+          </label>
+          <div
+            v-if="googleErrorMessage"
+            class="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive dark:border-red-400/30 dark:bg-red-500/15 dark:text-red-200"
           >
-            {{ fieldErrors.language }}
-          </p>
+            {{ googleErrorMessage }}
+          </div>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <Button
+              class="w-full"
+              :disabled="isGoogleLoading"
+              @click="submitGoogleRegister"
+            >
+              <span
+                v-if="isGoogleLoading"
+                class="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+              />
+              {{ isGoogleLoading ? t('auth.creatingWorkspace') : t('auth.createWorkspace') }}
+            </Button>
+            <Button
+              variant="outline"
+              class="w-full"
+              :disabled="isGoogleLoading"
+              @click="cancelGoogleSetup"
+            >
+              {{ t('common.cancel') }}
+            </Button>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 text-xs text-muted-foreground">
+          <Separator class="flex-1" />
+          <span>{{ t('auth.orRegisterWithEmail') }}</span>
+          <Separator class="flex-1" />
         </div>
         <!-- Tenant section -->
         <div class="space-y-3 rounded-lg border border-border/50 bg-muted/30 p-4">
@@ -323,7 +545,7 @@ const submit = async () => {
                 v-model="form.tenant_name"
                 name="organization"
                 autocomplete="organization"
-                placeholder="My Company"
+                :placeholder="t('auth.tenantNamePlaceholder')"
               />
               <p
                 v-if="fieldErrors.tenant_name"
@@ -342,7 +564,7 @@ const submit = async () => {
                 name="tenant_code"
                 autocomplete="off"
                 spellcheck="false"
-                placeholder="MYCOMP"
+                :placeholder="t('auth.tenantCodePlaceholder')"
                 maxlength="5"
               />
               <p
@@ -352,7 +574,7 @@ const submit = async () => {
                 {{ fieldErrors.tenant_code }}
               </p>
               <p class="text-xs text-muted-foreground dark:text-slate-300">
-                {{ t('auth.tenantCodeHint') }}
+                {{ t('auth.tenantCodeRegisterHint') }}
               </p>
             </div>
           </div>
@@ -370,7 +592,7 @@ const submit = async () => {
                 v-model="form.name"
                 name="name"
                 autocomplete="name"
-                placeholder="John Doe"
+                :placeholder="t('auth.fullNamePlaceholder')"
               />
               <p
                 v-if="fieldErrors.name"
@@ -389,7 +611,7 @@ const submit = async () => {
                 name="username"
                 autocomplete="username"
                 spellcheck="false"
-                placeholder="johndoe"
+                :placeholder="t('auth.usernamePlaceholder')"
               />
               <p
                 v-if="fieldErrors.username"
@@ -411,7 +633,7 @@ const submit = async () => {
               autocomplete="email"
               spellcheck="false"
               inputmode="email"
-              placeholder="you@example.com"
+              :placeholder="t('auth.emailPlaceholder')"
             />
             <p
               v-if="fieldErrors.email"

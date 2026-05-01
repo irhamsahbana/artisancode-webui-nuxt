@@ -8,6 +8,7 @@ export interface ApiResponse<T> {
   message: string
   data: T | null
   errors: unknown
+  code?: string
   meta?: ApiResponseMeta
 }
 

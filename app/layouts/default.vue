@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BriefcaseBusiness, Building2, ChevronRight, ClipboardList, Clock3, FileText, Languages, LayoutGrid, LogOut, MapPin, Menu, MoonStar, ReceiptText, ShieldCheck, ShoppingCart, SunMedium, Users, X } from 'lucide-vue-next'
+import { BriefcaseBusiness, Building2, ChevronRight, ClipboardList, Clock3, FileText, Languages, LayoutGrid, LogOut, MapPin, Menu, MoonStar, ReceiptText, Settings, ShieldCheck, ShoppingCart, SunMedium, Users, X } from 'lucide-vue-next'
 
 defineOptions({ name: "DefaultLayout" });
 
@@ -94,6 +94,10 @@ const toggleTheme = () => {
 const isDarkTheme = computed(() => colorMode.value === "dark");
 
 const currentPageTitle = computed(() => {
+  if (normalizedPath.value === "/app/settings/tenant") {
+    return t("settings.tenant.title")
+  }
+
   for (const group of navGroups.value) {
     const activeItem = group.items.find(item => isNavItemActive(item.to))
     if (activeItem) {
@@ -105,6 +109,10 @@ const currentPageTitle = computed(() => {
 })
 
 const currentPageGroup = computed(() => {
+  if (normalizedPath.value === "/app/settings/tenant") {
+    return t("layout.preferences")
+  }
+
   for (const group of navGroups.value) {
     const activeItem = group.items.find(item => isNavItemActive(item.to))
     if (activeItem) {
@@ -340,6 +348,16 @@ watch(
                       </span>
                       <span class="text-xs text-sidebar-foreground/55">{{ currentLocaleBadge }}</span>
                     </button>
+                    <NuxtLink
+                      v-if="!isInternalRoute"
+                      :to="localePath('/app/settings/tenant')"
+                      class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
+                    >
+                      <span class="flex items-center gap-3">
+                        <Settings class="h-4 w-4 text-sidebar-foreground/55" />
+                        {{ t("settings.tenant.title") }}
+                      </span>
+                    </NuxtLink>
                     <button
                       type="button"
                       class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
@@ -547,6 +565,16 @@ watch(
                         </span>
                         <span class="text-xs text-sidebar-foreground/55">{{ currentLocaleBadge }}</span>
                       </button>
+                      <NuxtLink
+                        v-if="!isInternalRoute"
+                        :to="localePath('/app/settings/tenant')"
+                        class="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
+                      >
+                        <span class="flex items-center gap-3">
+                          <Settings class="h-4 w-4 text-sidebar-foreground/55" />
+                          {{ t("settings.tenant.title") }}
+                        </span>
+                      </NuxtLink>
                       <button
                         type="button"
                         class="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"

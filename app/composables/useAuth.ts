@@ -1,4 +1,4 @@
-import { navigateTo, useCookie, useState } from '#app'
+import { navigateTo, useCookie } from '#app'
 
 import type { ApiResponse } from '~/types/api'
 import { useApi } from './useApi'
@@ -19,9 +19,30 @@ type RegisterPayload = {
   language: 'id' | 'en'
 }
 
+type GoogleLoginPayload = {
+  id_token: string
+}
+
+type GoogleRegisterInitResponse = {
+  registration_token: string
+  email: string
+  display_name: string
+  picture_url?: string | null
+}
+
+type GoogleRegisterPayload = {
+  id_token?: string
+  registration_token?: string
+  tenant_name: string
+  tenant_code: string
+  confirm_tenant_setup: true
+  language: 'id' | 'en'
+}
+
 type AuthTokenResponse = {
   access_token: string
   refresh_token: string
+  tenant_code?: string
 }
 
 type RegisterResponse = {
@@ -84,6 +105,43 @@ export const useAuth = () => {
     return response as ApiResponse<RegisterResponse>
   }
 
+  const googleLogin = async (payload: GoogleLoginPayload) => {
+    const response = await apiFetch<AuthTokenResponse>('/users/google/login', {
+      method: 'POST',
+      body: payload,
+    })
+
+    if (response.success && response.data) {
+      token.value = response.data.access_token
+      refreshToken.value = response.data.refresh_token
+    }
+
+    return response as ApiResponse<AuthTokenResponse>
+  }
+
+  const googleRegisterInit = async (payload: GoogleLoginPayload) => {
+    const response = await apiFetch<GoogleRegisterInitResponse>('/users/google/register/init', {
+      method: 'POST',
+      body: payload,
+    })
+
+    return response as ApiResponse<GoogleRegisterInitResponse>
+  }
+
+  const googleRegister = async (payload: GoogleRegisterPayload) => {
+    const response = await apiFetch<AuthTokenResponse>('/users/google/register', {
+      method: 'POST',
+      body: payload,
+    })
+
+    if (response.success && response.data) {
+      token.value = response.data.access_token
+      refreshToken.value = response.data.refresh_token
+    }
+
+    return response as ApiResponse<AuthTokenResponse>
+  }
+
   const verifyEmail = async (tokenValue: string) => {
     return apiFetch<EmptyResponse>('/users/verify-email', {
       method: 'POST',
@@ -124,6 +182,9 @@ export const useAuth = () => {
     user,
     login,
     register,
+    googleLogin,
+    googleRegisterInit,
+    googleRegister,
     verifyEmail,
     resendVerificationEmail,
     forgotPassword,
