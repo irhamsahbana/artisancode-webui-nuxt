@@ -3,7 +3,8 @@ import { reactive, ref, watch, computed } from 'vue'
 import { navigateTo } from '#app'
 import GoogleIdentityButton from '~/components/auth/google-identity-button.vue'
 import { useAuth } from '~/composables/useAuth'
-import { resolveGoogleAuthErrorKey } from '~/utils/google-auth-errors'
+import { useTenantSetupDraft } from '~/composables/useTenantSetupDraft'
+import { isGoogleAccountNotConnected, resolveGoogleAuthErrorKey } from '~/utils/google-auth-errors'
 
 defineOptions({ name: 'LoginPage' })
 
@@ -11,11 +12,11 @@ const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 const {
   googleLogin,
-  googleRegister,
   googleRegisterInit,
   login,
   resendVerificationEmail,
 } = useAuth()
+const { setDraft } = useTenantSetupDraft()
 const { locale, t } = useLocale()
 const localePath = useLocalePath()
 const isLoading = ref(false)
@@ -23,7 +24,6 @@ const isGoogleLoading = ref(false)
 const isResending = ref(false)
 const errorMessage = ref('')
 const infoMessage = ref('')
-const googleRegisterToken = ref('')
 const appName = computed(() => runtimeConfig.public.appName || 'ArtisanCode')
 const signInDescription = computed(() =>
   locale.value === 'id'
@@ -37,19 +37,9 @@ const form = reactive({
   tenant_code: '',
 })
 
-const googleTenantForm = reactive({
-  tenant_name: '',
-  tenant_code: '',
-  confirm_tenant_setup: false,
-})
-
 const showResendVerification = computed(() =>
   errorMessage.value.toLowerCase().includes('verif')
   && form.email.length > 0,
-)
-
-const showGoogleTenantSetup = computed(() =>
-  googleRegisterToken.value.length > 0,
 )
 
 if (typeof route.query.email === 'string' && route.query.email) {
@@ -77,19 +67,8 @@ watch(() => form.tenant_code, (newVal) => {
   }
 })
 
-watch(() => googleTenantForm.tenant_code, (newVal) => {
-  const cleaned = newVal
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '')
-  if (cleaned !== newVal) {
-    googleTenantForm.tenant_code = cleaned
-  }
-})
-
 const submit = async () => {
   errorMessage.value = ''
-  googleRegisterToken.value = ''
-  googleTenantForm.confirm_tenant_setup = false
   infoMessage.value = route.query.notice === 'verify-email' ? t('auth.verificationRequiredNotice') : ''
   if (route.query.notice === 'invitation-accepted') {
     infoMessage.value = t('auth.invitationAccepted')
@@ -121,20 +100,18 @@ const submit = async () => {
 }
 
 const handleGoogleError = () => {
-  googleRegisterToken.value = ''
   errorMessage.value = t('auth.googleUnavailableDescription')
 }
 
 const handleGoogleCredential = async (idToken: string) => {
   errorMessage.value = ''
   infoMessage.value = ''
-  googleRegisterToken.value = ''
   isGoogleLoading.value = true
   try {
     const response = await googleLogin({ id_token: idToken })
     if (!response.success) {
       const mappedKey = resolveGoogleAuthErrorKey(response)
-      if (mappedKey === 'auth.googleAccountNotConnected') {
+      if (isGoogleAccountNotConnected(response)) {
         const initResponse = await googleRegisterInit({ id_token: idToken })
         if (!initResponse.success || !initResponse.data) {
           const initMappedKey = resolveGoogleAuthErrorKey(initResponse)
@@ -142,10 +119,14 @@ const handleGoogleCredential = async (idToken: string) => {
           return
         }
 
-        googleRegisterToken.value = initResponse.data.registration_token
-        googleTenantForm.tenant_name = ''
-        googleTenantForm.tenant_code = ''
-        googleTenantForm.confirm_tenant_setup = false
+        setDraft({
+          kind: 'google',
+          registrationToken: initResponse.data.registration_token,
+          email: initResponse.data.email,
+          displayName: initResponse.data.display_name,
+        })
+        await navigateTo(localePath('/auth/tenant-setup'))
+        return
       }
       errorMessage.value = mappedKey ? t(mappedKey) : t('auth.googleLoginFailed')
       return
@@ -182,59 +163,6 @@ const resendVerification = async () => {
   }
 }
 
-const submitGoogleRegister = async () => {
-  if (!googleRegisterToken.value) {
-    errorMessage.value = t('auth.googleRegistrationSessionInvalid')
-    return
-  }
-
-  if (!googleTenantForm.tenant_name.trim()) {
-    errorMessage.value = t('common.requiredField', { field: t('auth.tenantName') })
-    return
-  }
-
-  if (!googleTenantForm.tenant_code.trim()) {
-    errorMessage.value = t('common.requiredField', { field: t('auth.tenantCode') })
-    return
-  }
-
-  if (!googleTenantForm.confirm_tenant_setup) {
-    errorMessage.value = t('auth.tenantSetupConfirmationRequired')
-    return
-  }
-
-  isGoogleLoading.value = true
-  errorMessage.value = ''
-  try {
-    const response = await googleRegister({
-      registration_token: googleRegisterToken.value,
-      tenant_name: googleTenantForm.tenant_name.trim(),
-      tenant_code: googleTenantForm.tenant_code.trim(),
-      confirm_tenant_setup: true,
-      language: locale.value,
-    })
-
-    if (!response.success) {
-      const mappedKey = resolveGoogleAuthErrorKey(response)
-      if (mappedKey) {
-        if (mappedKey === 'auth.googleRegistrationSessionInvalid') {
-          googleRegisterToken.value = ''
-        }
-        errorMessage.value = t(mappedKey)
-        return
-      }
-
-      errorMessage.value = response.message || t('auth.googleRegisterFailed')
-      return
-    }
-
-    await navigateTo(localePath('/app'))
-  } catch {
-    errorMessage.value = t('auth.googleRegisterFailed')
-  } finally {
-    isGoogleLoading.value = false
-  }
-}
 </script>
 
 <template>
@@ -332,65 +260,6 @@ const submitGoogleRegister = async () => {
           class="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
         >
           {{ errorMessage }}
-        </div>
-        <div
-          v-if="showGoogleTenantSetup"
-          class="space-y-4 rounded-lg border border-border bg-muted/20 p-4"
-        >
-          <div class="space-y-1">
-            <p class="text-sm font-semibold">
-              {{ t('auth.googleTenantSetup') }}
-            </p>
-            <p class="text-sm leading-6 text-muted-foreground">
-              {{ t('auth.googleTenantSetupDescription') }}
-            </p>
-          </div>
-          <div class="space-y-3">
-            <div class="space-y-2">
-              <Label for="login-google-tenant-name">
-                {{ t('auth.tenantName') }}
-              </Label>
-              <Input
-                id="login-google-tenant-name"
-                v-model="googleTenantForm.tenant_name"
-                autocomplete="organization"
-                :placeholder="t('auth.tenantNamePlaceholder')"
-              />
-            </div>
-            <div class="space-y-2">
-              <Label for="login-google-tenant-code">
-                {{ t('auth.tenantCode') }}
-              </Label>
-              <Input
-                id="login-google-tenant-code"
-                v-model="googleTenantForm.tenant_code"
-                autocomplete="off"
-                spellcheck="false"
-                :placeholder="t('auth.tenantCodePlaceholder')"
-                maxlength="5"
-              />
-              <p class="text-xs text-muted-foreground">
-                {{ t('auth.tenantCodeRegisterHint') }}
-              </p>
-            </div>
-          </div>
-          <label class="flex items-start gap-3 rounded-md border border-border/70 bg-background/80 p-3 text-sm">
-            <input
-              v-model="googleTenantForm.confirm_tenant_setup"
-              type="checkbox"
-              class="mt-1 h-4 w-4 rounded border-border"
-            >
-            <span class="text-muted-foreground">
-              {{ t('auth.confirmTenantSetup') }}
-            </span>
-          </label>
-          <Button
-            class="w-full"
-            :disabled="isGoogleLoading"
-            @click="submitGoogleRegister"
-          >
-            {{ isGoogleLoading ? t('auth.creatingWorkspace') : t('auth.createWorkspace') }}
-          </Button>
         </div>
         <Button
           v-if="showResendVerification"

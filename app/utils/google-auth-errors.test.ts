@@ -3,6 +3,7 @@ import test from 'node:test'
 
 const {
   extractGoogleAuthErrorCode,
+  isGoogleAccountNotConnected,
   resolveGoogleAuthErrorKey,
 } = await import(new URL('./google-auth-errors.ts', import.meta.url).href)
 
@@ -17,13 +18,16 @@ test('resolves top-level Google auth error codes to locale keys', () => {
 })
 
 test('maps google account not connected error for continuation flows', () => {
-  assert.equal(resolveGoogleAuthErrorKey({
+  const response = {
     success: false,
     message: '',
     data: null,
     errors: null,
     code: 'google_account_not_connected',
-  }), 'auth.googleAccountNotConnected')
+  }
+
+  assert.equal(resolveGoogleAuthErrorKey(response), 'auth.googleAccountNotConnected')
+  assert.equal(isGoogleAccountNotConnected(response), true)
 })
 
 test('extracts nested Google auth error codes from API errors', () => {

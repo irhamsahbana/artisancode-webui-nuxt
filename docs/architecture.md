@@ -49,6 +49,7 @@ Current public auth routes:
 - `/register`
 - `/auth/check-email`
 - `/auth/email-verification`
+- `/auth/tenant-setup`
 - `/auth/forgot-password`
 - `/auth/reset-password`
 - `/app/internal/login`
@@ -56,7 +57,7 @@ Current public auth routes:
 Tenant-aware public auth payload contracts:
 
 - `/login` sends `email`, `password`, and `tenant_code`.
-- `/register` sends `tenant_code` as the new tenant code.
+- `/register` stores the email registration draft locally, then `/auth/tenant-setup` collects tenant name and tenant code before submitting the complete `/users/register` payload.
 - `/auth/check-email` keeps `email` and `tenant_code` in the query so resend verification keeps tenant context.
 - `/auth/forgot-password` and resend verification send `email` plus `tenant_code`.
 
@@ -67,6 +68,7 @@ Active route wrapper files:
 - `app/pages/register.vue`
 - `app/pages/auth/check-email.vue`
 - `app/pages/auth/email-verification.vue`
+- `app/pages/auth/tenant-setup.vue`
 - `app/pages/auth/forgot-password.vue`
 - `app/pages/auth/reset-password.vue`
 
@@ -77,6 +79,7 @@ Active auth modules:
 - `app/modules/auth/register-page.vue`
 - `app/modules/auth/check-email-page.vue`
 - `app/modules/auth/email-verification-page.vue`
+- `app/modules/auth/tenant-setup-page.vue`
 - `app/modules/auth/forgot-password-page.vue`
 - `app/modules/auth/reset-password-page.vue`
 

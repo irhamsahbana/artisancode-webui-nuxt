@@ -19,6 +19,7 @@ const authShellPaths = [
   "/register",
   "/auth/check-email",
   "/auth/email-verification",
+  "/auth/tenant-setup",
   "/auth/forgot-password",
   "/auth/invitation",
   "/auth/reset-password",

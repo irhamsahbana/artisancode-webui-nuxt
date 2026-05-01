@@ -14,8 +14,8 @@ type RegisterPayload = {
   username: string
   email: string
   password: string
-  tenant_code: string
-  tenant_name: string
+  tenant_code?: string
+  tenant_name?: string
   language: 'id' | 'en'
 }
 
@@ -48,6 +48,9 @@ type AuthTokenResponse = {
 type RegisterResponse = {
   email: string
   verification_required: boolean
+  access_token?: string
+  refresh_token?: string
+  tenant_code?: string
 }
 
 type TenantScopedEmailPayload = {
@@ -101,6 +104,11 @@ export const useAuth = () => {
       method: 'POST',
       body: payload,
     })
+
+    if (response.success && response.data?.access_token && response.data.refresh_token) {
+      token.value = response.data.access_token
+      refreshToken.value = response.data.refresh_token
+    }
 
     return response as ApiResponse<RegisterResponse>
   }

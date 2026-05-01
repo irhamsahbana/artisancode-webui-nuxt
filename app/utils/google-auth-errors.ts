@@ -12,8 +12,10 @@ export type GoogleAuthErrorKey =
   | 'auth.tenantCodeAlreadyUsed'
   | 'auth.tenantSetupConfirmationRequired'
 
+export const googleAccountNotConnectedCode = 'google_account_not_connected'
+
 const googleAuthErrorKeys: Record<string, GoogleAuthErrorKey> = {
-  google_account_not_connected: 'auth.googleAccountNotConnected',
+  [googleAccountNotConnectedCode]: 'auth.googleAccountNotConnected',
   google_email_ambiguous: 'auth.googleEmailAmbiguous',
   google_email_already_registered: 'auth.googleEmailAlreadyRegistered',
   google_identity_already_linked: 'auth.googleIdentityAlreadyLinked',
@@ -47,3 +49,6 @@ export const resolveGoogleAuthErrorKey = (response: ApiResponse<unknown>) => {
   const code = extractGoogleAuthErrorCode(response)
   return code ? googleAuthErrorKeys[code] ?? null : null
 }
+
+export const isGoogleAccountNotConnected = (response: ApiResponse<unknown>) =>
+  extractGoogleAuthErrorCode(response) === googleAccountNotConnectedCode

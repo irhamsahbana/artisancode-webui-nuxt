@@ -16,6 +16,7 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized) => {
     || normalizedPath === '/auth/reset-password'
     || normalizedPath === '/auth/invitation'
     || normalizedPath === '/auth/email-verification'
+    || normalizedPath === '/auth/tenant-setup'
     || normalizedPath === '/app/internal/login'
   const isGuestOnlyPage = normalizedPath === '/login'
     || normalizedPath === '/register'
