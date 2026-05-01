@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { AttendanceLogFilters, DatePreset, SelectOption } from './types'
 
 defineOptions({ name: 'AttendanceLogFilterPanel' })
 
-const props = defineProps<{
-  open: boolean
-  filters: AttendanceLogFilters
+type AttendanceLogFilterPanelOptions = {
   employeeOptions: SelectOption[]
   statusOptions: SelectOption[]
   typeOptions: SelectOption[]
@@ -15,6 +14,21 @@ const props = defineProps<{
   branchOptions: SelectOption[]
   workLocationOptions: SelectOption[]
   exceptionOptions: SelectOption[]
+}
+
+const props = defineProps<{
+  open: boolean
+  filters: AttendanceLogFilters
+  options?: AttendanceLogFilterPanelOptions
+  employeeOptions?: SelectOption[]
+  statusOptions?: SelectOption[]
+  typeOptions?: SelectOption[]
+  sourceOptions?: SelectOption[]
+  selfieOptions?: SelectOption[]
+  orgUnitOptions?: SelectOption[]
+  branchOptions?: SelectOption[]
+  workLocationOptions?: SelectOption[]
+  exceptionOptions?: SelectOption[]
   isDatePresetActive: (preset: DatePreset) => boolean
 }>()
 
@@ -41,6 +55,18 @@ const updateFilter = (key: keyof AttendanceLogFilters, value: string) => {
 const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | number | null) => {
   emit('updateFilter', key, value === null ? '' : String(value))
 }
+
+const resolvedOptions = computed<AttendanceLogFilterPanelOptions>(() => ({
+  employeeOptions: props.options?.employeeOptions ?? props.employeeOptions ?? [],
+  statusOptions: props.options?.statusOptions ?? props.statusOptions ?? [],
+  typeOptions: props.options?.typeOptions ?? props.typeOptions ?? [],
+  sourceOptions: props.options?.sourceOptions ?? props.sourceOptions ?? [],
+  selfieOptions: props.options?.selfieOptions ?? props.selfieOptions ?? [],
+  orgUnitOptions: props.options?.orgUnitOptions ?? props.orgUnitOptions ?? [],
+  branchOptions: props.options?.branchOptions ?? props.branchOptions ?? [],
+  workLocationOptions: props.options?.workLocationOptions ?? props.workLocationOptions ?? [],
+  exceptionOptions: props.options?.exceptionOptions ?? props.exceptionOptions ?? [],
+}))
 </script>
 
 <template>
@@ -93,7 +119,7 @@ const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | num
       <div class="border-b border-border p-4 md:border-b-0 md:border-r">
         <SearchableSelect
           :model-value="props.filters.employee_id"
-          :options="props.employeeOptions"
+          :options="resolvedOptions.employeeOptions"
           :placeholder="t('ui.employee')"
           :search-placeholder="t('ui.searchEmployees')"
           class="w-full"
@@ -104,7 +130,7 @@ const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | num
       <div class="border-b border-border p-4 md:border-b-0 md:border-r">
         <div class="space-y-2">
           <button
-            v-for="option in props.statusOptions"
+            v-for="option in resolvedOptions.statusOptions"
             :key="option.value"
             type="button"
             class="flex w-full items-center justify-between gap-3 py-1.5 text-left text-sm hover:text-primary"
@@ -122,7 +148,7 @@ const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | num
       <div class="space-y-3 p-4">
         <SearchableSelect
           :model-value="props.filters.type"
-          :options="props.typeOptions"
+          :options="resolvedOptions.typeOptions"
           :placeholder="t('ui.allTypes')"
           :search-placeholder="t('ui.searchType')"
           class="w-full"
@@ -130,7 +156,7 @@ const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | num
         />
         <SearchableSelect
           :model-value="props.filters.source"
-          :options="props.sourceOptions"
+          :options="resolvedOptions.sourceOptions"
           :placeholder="t('ui.allSources')"
           :search-placeholder="t('ui.searchSource')"
           class="w-full"
@@ -138,7 +164,7 @@ const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | num
         />
         <SearchableSelect
           :model-value="props.filters.selfie_status"
-          :options="props.selfieOptions"
+          :options="resolvedOptions.selfieOptions"
           :placeholder="t('ui.allPhotoStates')"
           :search-placeholder="t('ui.searchPhotoState')"
           class="w-full"
@@ -146,7 +172,7 @@ const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | num
         />
         <SearchableSelect
           :model-value="props.filters.org_unit_id"
-          :options="props.orgUnitOptions"
+          :options="resolvedOptions.orgUnitOptions"
           :placeholder="t('ui.allOrgUnits')"
           :search-placeholder="t('ui.searchOrgUnit')"
           class="w-full"
@@ -154,7 +180,7 @@ const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | num
         />
         <SearchableSelect
           :model-value="props.filters.branch_id"
-          :options="props.branchOptions"
+          :options="resolvedOptions.branchOptions"
           :placeholder="t('ui.allBranches')"
           :search-placeholder="t('ui.searchBranch')"
           class="w-full"
@@ -162,7 +188,7 @@ const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | num
         />
         <SearchableSelect
           :model-value="props.filters.work_location_id"
-          :options="props.workLocationOptions"
+          :options="resolvedOptions.workLocationOptions"
           :placeholder="t('ui.allWorkLocations')"
           :search-placeholder="t('ui.searchWorkLocation')"
           class="w-full"
@@ -170,7 +196,7 @@ const updateSelectFilter = (key: keyof AttendanceLogFilters, value: string | num
         />
         <SearchableSelect
           :model-value="props.filters.exception_type"
-          :options="props.exceptionOptions"
+          :options="resolvedOptions.exceptionOptions"
           :placeholder="t('ui.allExceptions')"
           :search-placeholder="t('ui.searchException')"
           class="w-full"

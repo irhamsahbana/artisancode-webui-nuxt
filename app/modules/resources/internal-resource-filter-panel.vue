@@ -3,13 +3,11 @@ defineOptions({ name: 'InternalResourceFilterPanel' })
 
 const props = withDefaults(
   defineProps<{
-    open?: boolean
     title?: string
     clearLabel?: string
     applyLabel?: string
   }>(),
   {
-    open: false,
     title: 'ui.filters',
     clearLabel: 'ui.clearFilter',
     applyLabel: 'ui.submit',
@@ -18,19 +16,19 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   clear: []
-  'update:open': [value: boolean]
 }>()
 
 const { t } = useLocale()
+const open = defineModel<boolean>('open', { default: false })
 
 const close = () => {
-  emit('update:open', false)
+  open.value = false
 }
 </script>
 
 <template>
   <FloatingFilterPanel
-    :open="props.open"
+    :open="open"
     :close-label="t('ui.closeFilters')"
     @close="close"
   >

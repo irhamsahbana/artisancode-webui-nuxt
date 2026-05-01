@@ -2,9 +2,14 @@
 import { reactive, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import {
+  categoryStatusOptionList,
+  createCategoryPayload,
+  isCategoryStatus,
+} from './category-form'
 
 defineOptions({ name: 'CategoriesPage' })
-const { locale, t } = useLocale()
+const { t } = useLocale()
 
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
   const name = row.name
@@ -19,16 +24,12 @@ const deleteLabelFormatter = (row: Record<string, unknown>) => {
 }
 
 const columns = [
-  { key: 'name', label: 'Name' },
-  { key: 'group', label: 'Group' },
-  { key: 'status', label: 'Status' },
+  { key: 'name', label: t('common.name') },
+  { key: 'group', label: t('ui.group') },
+  { key: 'status', label: t('ui.status') },
 ]
+const statusOptionList = categoryStatusOptionList
 
-const statusOptions = ['active', 'inactive']
-const statusOptionList = statusOptions.map((status) => ({
-  value: status,
-  label: status,
-}))
 const listKey = ref(0)
 const createOpen = ref(false)
 const createLoading = ref(false)
@@ -73,32 +74,27 @@ const resetEdit = () => {
 }
 
 const submitCreate = async () => {
-  const name = createForm.name.trim()
-  if (!name) {
-    show('Name is required.', 'error')
+  const payload = createCategoryPayload(createForm)
+  if (!payload) {
+    show(t('ui.nameIsRequired'), 'error')
     return
   }
-  const payload: Record<string, unknown> = {
-    name,
-    group: createForm.group,
-  }
-  const parentId = createForm.parentId.trim()
-  if (parentId) {
-    payload.parent_id = parentId
-  } else {
-    payload.parent_id = null
-  }
-  if (statusOptions.includes(createForm.status)) {
-    payload.status = createForm.status
-  }
+
   createLoading.value = true
-  const response = await apiFetch('/categories', {
-    method: 'POST',
-    body: payload,
-  })
-  createLoading.value = false
+  let response
+
+  try {
+    response = await apiFetch('/categories', {
+      method: 'POST',
+      body: payload,
+    })
+  }
+  finally {
+    createLoading.value = false
+  }
+
   if (response.success) {
-    show('Category created.', 'success')
+    show(t('ui.categoryCreatedSuccessfully'), 'success')
     resetCreate()
     listKey.value += 1
   }
@@ -110,7 +106,7 @@ const syncEditForm = (row: Record<string, unknown> | null) => {
   }
   const id = row.id ?? row.uuid ?? row.code
   if (id === undefined || id === null) {
-    show('Edit failed: missing id.', 'error')
+    show(t('ui.editFailedMissingId'), 'error')
     return false
   }
   const idValue = String(id)
@@ -122,41 +118,36 @@ const syncEditForm = (row: Record<string, unknown> | null) => {
   editForm.group = typeof row.group === 'string' ? row.group : ''
   editForm.name = typeof row.name === 'string' ? row.name : ''
   const status = typeof row.status === 'string' ? row.status : ''
-  editForm.status = statusOptions.includes(status) ? status : 'active'
+  editForm.status = isCategoryStatus(status) ? status : 'active'
   return true
 }
 
 const submitEdit = async (refreshList: () => Promise<void>, close: () => void) => {
   if (!editId.value) {
-    show('Category id is missing.', 'error')
+    show(t('ui.categoryIdIsMissing'), 'error')
     return
   }
-  const name = editForm.name.trim()
-  if (!name) {
-    show('Name is required.', 'error')
+  const payload = createCategoryPayload(editForm)
+  if (!payload) {
+    show(t('ui.nameIsRequired'), 'error')
     return
   }
-  const payload: Record<string, unknown> = {
-    name,
-    group: editForm.group,
-  }
-  const parentId = editForm.parentId.trim()
-  if (parentId) {
-    payload.parent_id = parentId
-  } else {
-    payload.parent_id = null
-  }
-  if (statusOptions.includes(editForm.status)) {
-    payload.status = editForm.status
-  }
+
   editLoading.value = true
-  const response = await apiFetch(`/categories/${editId.value}`, {
-    method: 'PUT',
-    body: payload,
-  })
-  editLoading.value = false
+  let response
+
+  try {
+    response = await apiFetch(`/categories/${editId.value}`, {
+      method: 'PUT',
+      body: payload,
+    })
+  }
+  finally {
+    editLoading.value = false
+  }
+
   if (response.success) {
-    show('Category updated.', 'success')
+    show(t('ui.categoryUpdatedSuccessfully'), 'success')
     await refreshList()
     resetEdit()
     close()
@@ -167,7 +158,7 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
 <template>
   <ResourceList
     :key="listKey"
-    title="Categories"
+    :title="t('ui.categories')"
     endpoint="/categories"
     :columns="columns"
     loading-variant="skeleton"
@@ -190,7 +181,7 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
         <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
           <div class="flex items-center justify-between">
             <div class="text-lg font-semibold">
-              Edit category
+              {{ t('ui.editCategory') }}
             </div>
             <Button
               variant="outline"
@@ -198,7 +189,7 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
               :disabled="editLoading || loading"
               @click="close"
             >
-              Close
+              {{ t('ui.close') }}
             </Button>
           </div>
           <div class="mt-4 grid gap-4 text-sm">
@@ -213,36 +204,36 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
               class="grid gap-4"
             >
               <div class="grid gap-2">
-                <Label for="category-name">Name</Label>
+                <Label for="category-name">{{ t('common.name') }}</Label>
                 <Input
                   id="category-name"
                   v-model="editForm.name"
-                  placeholder="Category name"
+                  :placeholder="t('common.name')"
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="category-group">Group</Label>
+                <Label for="category-group">{{ t('ui.group') }}</Label>
                 <Input
                   id="category-group"
                   v-model="editForm.group"
-                  placeholder="Group"
+                  :placeholder="t('ui.group')"
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="category-parent-id">Parent ID</Label>
+                <Label for="category-parent-id">{{ t('ui.parentId') }}</Label>
                 <Input
                   id="category-parent-id"
                   v-model="editForm.parentId"
-                  placeholder="Parent id"
+                  :placeholder="t('ui.parentId')"
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="category-status">Status</Label>
+                <Label for="category-status">{{ t('ui.status') }}</Label>
                 <SearchableSelect
                   id="category-status"
                   v-model="editForm.status"
                   :options="statusOptionList"
-                  placeholder="Select status"
+                  :placeholder="t('ui.selectStatus')"
                 />
               </div>
             </div>
@@ -284,42 +275,42 @@ const submitEdit = async (refreshList: () => Promise<void>, close: () => void) =
           :disabled="createLoading"
           @click="resetCreate"
         >
-          Close
+          {{ t('ui.close') }}
         </Button>
       </div>
       <div class="mt-4 grid gap-4 text-sm">
         <div class="grid gap-4">
           <div class="grid gap-2">
-            <Label for="create-category-name">Name</Label>
+            <Label for="create-category-name">{{ t('common.name') }}</Label>
             <Input
               id="create-category-name"
               v-model="createForm.name"
-              placeholder="Category name"
+              :placeholder="t('common.name')"
             />
           </div>
           <div class="grid gap-2">
-            <Label for="create-category-group">Group</Label>
+            <Label for="create-category-group">{{ t('ui.group') }}</Label>
             <Input
               id="create-category-group"
               v-model="createForm.group"
-              placeholder="Group"
+              :placeholder="t('ui.group')"
             />
           </div>
           <div class="grid gap-2">
-            <Label for="create-category-parent-id">Parent ID</Label>
+            <Label for="create-category-parent-id">{{ t('ui.parentId') }}</Label>
             <Input
               id="create-category-parent-id"
               v-model="createForm.parentId"
-              placeholder="Parent id"
+              :placeholder="t('ui.parentId')"
             />
           </div>
           <div class="grid gap-2">
-            <Label for="create-category-status">Status</Label>
+            <Label for="create-category-status">{{ t('ui.status') }}</Label>
             <SearchableSelect
               id="create-category-status"
               v-model="createForm.status"
               :options="statusOptionList"
-              placeholder="Select status"
+              :placeholder="t('ui.selectStatus')"
             />
           </div>
         </div>

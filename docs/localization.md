@@ -64,11 +64,15 @@ Use `useLocalePath()` when:
 ## Change Rules
 
 - Do not hardcode user-facing copy when an existing locale key fits.
+- Before adding a new locale key, check whether an existing shared key already fits, especially under `common.*`, `ui.*`, or feature-local namespaces already present in `i18n/locales/*.ts`.
 - Do not send language headers manually from feature code. Use `useApi()`.
 - Do not create a second locale store.
 - Keep `i18n/locales/id.ts` and `i18n/locales/en.ts` entries in sync when adding new locale keys.
+- When removing a resource or feature, remove obsolete locale keys in the same task instead of leaving dead translations behind.
 - Keep internal routes locale-aware with `useLocalePath()`.
 - Keep shared component props clear about whether they expect translated text or locale keys.
+
+For resource tables and dialogs, prefer stable shared keys for common labels such as code, name, status, owner, created/updated timestamps, and close/save actions before creating resource-specific aliases.
 
 ## Backend Integration Notes
 

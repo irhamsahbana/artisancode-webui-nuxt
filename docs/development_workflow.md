@@ -7,6 +7,7 @@
 2. **Implement UI**:
    - Build or update Vue components.
    - Keep state local when possible; move reusable logic into composables.
+   - Keep route wrappers thin; for CRUD-style resources, prefer a page shell that wires feature-local helpers, composables, and dialog components instead of holding all logic inline.
 
 3. **Wire Data**:
    - Use `useApi().apiFetch(...)` for app API calls.
@@ -33,14 +34,22 @@
 
 Use `docs/resource_patterns.md` as the source of truth for CRUD-style resources, route patterns, shared shells, filters, actions, and list defaults.
 
+For resource refactors, prefer this split when the page starts to grow:
+
+1. page shell for route wiring and slot composition
+2. feature-local composable for async state and submit flows
+3. feature-local pure helper for payload, label, or query shaping
+4. focused tests beside the feature for both helper and composable contracts
+
 ## Verification Defaults
 
 After meaningful changes, run:
 
-1. `pnpm typecheck` or `pnpm exec nuxi typecheck`
-2. `pnpm lint`
-3. `pnpm test:unit` when helper logic, shared utilities, or workflow/agent docs changed
-4. route-level browser smoke test
+1. the smallest relevant focused test first, such as `pnpm exec vitest run --config vitest.config.ts <suite>` or `node --test <file>`
+2. `pnpm typecheck` or `pnpm exec nuxi typecheck`
+3. `pnpm lint`
+4. `pnpm test:unit` when helper logic, shared utilities, or workflow/agent docs changed
+5. route-level browser smoke test when route or interactive UI behavior changed
 
 Use `docs/playwright_testing.md` for the browser smoke-test workflow, including local dev server startup, route checks, desktop/mobile screenshots, Browser/Playwright MCP fallback behavior, and dev-server cleanup.
 

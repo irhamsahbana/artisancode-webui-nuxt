@@ -13,16 +13,12 @@ Dedicated detail/manage pages currently include:
 
 - `app/pages/resources/companies/[id].vue` -> `companies-manage-page.vue`
 - `app/pages/resources/org-units/[id].vue` -> `org-unit-detail-page.vue`
-- `app/pages/resources/students/[id].vue` -> `student-detail-page.vue`
 
 Optional-id wrappers currently include:
 
 - `app/pages/resources/users.vue` -> `/app/resources/users/:id?`
 - `app/pages/resources/roles.vue` -> `/app/resources/roles/:id?`
 - `app/pages/resources/categories.vue` -> `/app/resources/categories/:id?`
-- `app/pages/resources/teachers.vue` -> `/app/resources/teachers/:id?`
-- `app/pages/resources/programs.vue` -> `/app/resources/programs/:id?`
-- `app/pages/resources/enrollments.vue` -> `/app/resources/enrollments/:id?`
 - `app/pages/resources/invoices.vue` -> `/app/resources/invoices/:id?`
 
 Prefer matching the feature's existing route pattern rather than forcing every resource into one template.
@@ -34,8 +30,12 @@ For CRUD-style resources, prefer this stack before building a custom page:
 1. `ResourceList` for table, search, pagination, selection, and delete flow.
 2. `ResourceTable` for row rendering and actions.
 3. Feature-local modal or detail page for create, edit, and view flows.
+4. Feature-local composable for async state, submit logic, and dialog orchestration when the page grows beyond lightweight wiring.
+5. Feature-local pure helper for payload shaping, list columns, query mapping, or formatter logic that does not need Vue reactivity.
 
 Use a custom page only when behavior is significantly different, such as multi-section manage pages, nested tree editing, heavy detail views, or multi-step forms.
+
+Keep the route/module page as the composition surface. Once a resource page owns multiple async flows, dialog sections, or repeated formatting logic, move those concerns out of the page instead of letting `*-page.vue` become the feature implementation.
 
 ## Filter And Action Layout
 
@@ -53,6 +53,8 @@ When a resource page has dense filtering or async actions like export or refresh
 - Header action wrapper components must not force `w-full` unless the parent intends a full-width surface. Compact controls such as three-dot menus should be `shrink-0` so adjacent buttons stay aligned.
 - Dropdowns inside floating filter panels, including `SearchableSelect` and date pickers, must render as floating/ported overlays when needed so their option lists/calendars are not clipped by the filter panel's scroll container or footer.
 
+Internal admin resource pages should prefer the shared `InternalResourceFilterPanel` and `InternalResourceListControls` components for filter overlays, export actions, and export history instead of reimplementing those patterns per module.
+
 ## List Defaults
 
 - Default limit: 15 items per page.
@@ -60,3 +62,10 @@ When a resource page has dense filtering or async actions like export or refresh
 - Table-based lists use row skeletons while loading.
 - Checkbox lists use skeleton rows matching the current limit.
 - Initial load may use full skeleton content, but subsequent refreshes should prefer inline progress while keeping current rows visible.
+
+## Testing Expectations
+
+- Put feature tests beside the resource module instead of in a global test folder.
+- Use `*.component.vitest.ts` for Vue components, page shells, and composables that depend on Vue runtime behavior.
+- Use `*.test.ts` for pure helper modules that can run under Node test discovery.
+- Reuse shared test utilities from `app/testing/`, especially `component-test-utils.ts`, `api-response-fixtures.ts`, and `setup-component-tests.ts`, before creating one-off mount helpers or API fixture builders.

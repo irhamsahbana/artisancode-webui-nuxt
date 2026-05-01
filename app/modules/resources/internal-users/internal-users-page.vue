@@ -5,24 +5,16 @@ import InternalResourceListControls from '../internal-resource-list-controls.vue
 import { useBanner } from '~/composables/useBanner'
 import { useDateTime } from '~/composables/useDateTime'
 import { useApi } from '~/composables/useApi'
+import {
+  buildInternalUserPayload,
+  createEmptyInternalUserForm,
+  roleOptionList,
+  statusOptionList,
+  syncInternalUserForm,
+  type InternalUser,
+} from './internal-users-form'
 
 defineOptions({ name: 'InternalUsersPage' })
-
-type InternalUser = {
-  id: string
-  full_name: string
-  email: string
-  role_code: string
-  status: string
-  last_login_at: string | null
-  created_at: string
-  updated_at: string
-}
-
-const roleOptions = ['super_admin', 'operator'] as const
-const statusOptions = ['invited', 'active', 'inactive'] as const
-const roleOptionList = roleOptions.map((value) => ({ value, label: value }))
-const statusOptionList = statusOptions.map((value) => ({ value, label: value }))
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
@@ -85,24 +77,10 @@ const actionItems = computed(() => [
   },
 ])
 
-const form = ref({
-  id: '',
-  full_name: '',
-  email: '',
-  password: '',
-  role_code: 'operator',
-  status: 'active',
-})
+const form = ref(createEmptyInternalUserForm())
 
 const resetForm = () => {
-  form.value = {
-    id: '',
-    full_name: '',
-    email: '',
-    password: '',
-    role_code: 'operator',
-    status: 'active',
-  }
+  form.value = createEmptyInternalUserForm()
 }
 
 const triggerRefresh = () => {
@@ -132,24 +110,19 @@ const openEditModal = async (row: Record<string, unknown>) => {
   modalOpen.value = true
   modalLoading.value = true
 
-  const id = String(row.id ?? '')
-  const response = await apiFetch<InternalUser>(`/internal-users/${id}`, {
-    authMode: 'internal',
-  })
+  try {
+    const id = String(row.id ?? '')
+    const response = await apiFetch<InternalUser>(`/internal-users/${id}`, {
+      authMode: 'internal',
+    })
 
-  if (response.success && response.data) {
-    form.value.id = response.data.id
-    form.value.full_name = response.data.full_name
-    form.value.email = response.data.email
-    form.value.role_code = roleOptions.includes(response.data.role_code as (typeof roleOptions)[number])
-      ? response.data.role_code
-      : 'operator'
-    form.value.status = statusOptions.includes(response.data.status as (typeof statusOptions)[number])
-      ? response.data.status
-      : 'active'
+    if (response.success && response.data) {
+      syncInternalUserForm(form.value, response.data)
+    }
   }
-
-  modalLoading.value = false
+  finally {
+    modalLoading.value = false
+  }
 }
 
 const closeModal = () => {
@@ -157,22 +130,6 @@ const closeModal = () => {
   modalLoading.value = false
   submitLoading.value = false
   resetForm()
-}
-
-const buildPayload = () => {
-  const payload: Record<string, unknown> = {
-    full_name: form.value.full_name.trim(),
-    email: form.value.email.trim(),
-    role_code: form.value.role_code,
-    status: form.value.status,
-  }
-
-  const password = form.value.password.trim()
-  if (password.length > 0) {
-    payload.password = password
-  }
-
-  return payload
 }
 
 const validateForm = () => {
@@ -206,32 +163,35 @@ const submitForm = async () => {
 
   submitLoading.value = true
 
-  const response = modalMode.value === 'create'
-    ? await apiFetch('/internal-users', {
-        method: 'POST',
-        body: buildPayload(),
-        authMode: 'internal',
-      })
-    : await apiFetch(`/internal-users/${form.value.id}`, {
-        method: 'PUT',
-        body: buildPayload(),
-        authMode: 'internal',
-      })
+  try {
+    const response = modalMode.value === 'create'
+      ? await apiFetch('/internal-users', {
+          method: 'POST',
+          body: buildInternalUserPayload(form.value),
+          authMode: 'internal',
+        })
+      : await apiFetch(`/internal-users/${form.value.id}`, {
+          method: 'PUT',
+          body: buildInternalUserPayload(form.value),
+          authMode: 'internal',
+        })
 
-  submitLoading.value = false
+    if (!response.success) {
+      return
+    }
 
-  if (!response.success) {
-    return
+    show(
+      modalMode.value === 'create'
+        ? t('ui.userCreatedSuccessfully')
+        : t('ui.userUpdatedSuccessfully'),
+      'success',
+    )
+    closeModal()
+    triggerRefresh()
   }
-
-  show(
-    modalMode.value === 'create'
-      ? t('ui.userCreatedSuccessfully')
-      : t('ui.userUpdatedSuccessfully'),
-    'success',
-  )
-  closeModal()
-  triggerRefresh()
+  finally {
+    submitLoading.value = false
+  }
 }
 
 const modalTitle = computed(() => (

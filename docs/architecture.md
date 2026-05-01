@@ -115,9 +115,6 @@ Examples:
 - `app/pages/resources/users.vue` -> path `/app/resources/users/:id?`
 - `app/pages/resources/roles.vue` -> path `/app/resources/roles/:id?`
 - `app/pages/resources/categories.vue` -> path `/app/resources/categories/:id?`
-- `app/pages/resources/teachers.vue` -> path `/app/resources/teachers/:id?`
-- `app/pages/resources/programs.vue` -> path `/app/resources/programs/:id?`
-- `app/pages/resources/enrollments.vue` -> path `/app/resources/enrollments/:id?`
 - `app/pages/resources/invoices.vue` -> path `/app/resources/invoices/:id?`
 - `app/pages/resources/permissions.vue` -> path `/app/resources/permissions/:id?`
 
@@ -133,7 +130,6 @@ Examples:
 
 - `app/pages/resources/companies/[id].vue` -> `app/modules/resources/companies/companies-manage-page.vue`
 - `app/pages/resources/org-units/[id].vue` -> `app/modules/resources/org-units/org-unit-detail-page.vue`
-- `app/pages/resources/students/[id].vue` -> `app/modules/resources/students/student-detail-page.vue`
 
 ## Current Resource Modules
 
@@ -144,16 +140,14 @@ Resource modules currently active in the repository:
 - categories
 - companies
 - employees
-- enrollments
+- internal clients
 - internal products
+- internal users
 - invoices
 - job positions
 - org units
 - permissions
-- programs
 - roles
-- students
-- teachers
 - users
 - work locations
 - work shifts
@@ -216,6 +210,17 @@ Foundational shared UI components:
 - `ui/*` primitives such as `Button`, `Input`, `Card`, `Badge`, and `Table`
 
 `ResourceList` and `ResourceTable` are the main shared shells for many CRUD-style resources. Use `docs/resource_patterns.md` for when and how to apply them.
+
+Shared internal-admin resource helpers now also include:
+
+- `app/modules/resources/internal-resource-filter-panel.vue`
+- `app/modules/resources/internal-resource-list-controls.vue`
+
+Shared test infrastructure for feature work lives in:
+
+- `app/testing/component-test-utils.ts`
+- `app/testing/api-response-fixtures.ts`
+- `app/testing/setup-component-tests.ts`
 
 ## Data Flow
 

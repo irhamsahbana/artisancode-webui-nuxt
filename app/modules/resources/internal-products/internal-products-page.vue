@@ -3,6 +3,12 @@ import { computed, reactive, ref } from 'vue'
 import InternalResourceFilterPanel from '../internal-resource-filter-panel.vue'
 import InternalResourceListControls from '../internal-resource-list-controls.vue'
 import InternalProductManageDialog from './internal-product-manage-dialog.vue'
+import {
+  buildInternalProductListQuery,
+  createInternalProductActionItems,
+  createInternalProductColumns,
+  formatInternalProductDeleteLabel,
+} from './internal-product-list'
 import { useInternalProductManager } from './use-internal-product-manager'
 import { useDateTime } from '~/composables/useDateTime'
 
@@ -18,25 +24,8 @@ const filters = reactive({
   status: '',
 })
 
-const listQuery = computed(() => {
-  const query: Record<string, string> = {}
-  if (filters.status) {
-    query.status = filters.status
-  }
-  return query
-})
-const actionItems = computed(() => [
-  {
-    key: 'export-products',
-    label: 'ui.export',
-    kind: 'export' as const,
-  },
-  {
-    key: 'product-export-history',
-    label: 'ui.exportHistory',
-    kind: 'export-history' as const,
-  },
-])
+const listQuery = computed(() => buildInternalProductListQuery(filters))
+const actionItems = computed(() => createInternalProductActionItems())
 
 const triggerRefresh = () => {
   refreshKey.value += 1
@@ -80,33 +69,7 @@ const {
   submitProduct,
 } = manager
 
-const columns = computed(() => [
-  { key: 'code', label: 'Code' },
-  { key: 'name', label: 'Name' },
-  { key: 'status', label: 'Status' },
-  {
-    key: 'updated_at',
-    label: 'Updated At',
-    format: (value: unknown) => {
-      if (typeof value !== 'string' || !value) {
-        return '-'
-      }
-
-      return formatReadableDateTime(value, undefined, '-')
-    },
-  },
-])
-
-const deleteLabelFormatter = (row: Record<string, unknown>) => {
-  const name = row.name
-  const code = row.code
-
-  if (typeof name === 'string' && name.length > 0 && typeof code === 'string' && code.length > 0) {
-    return `${name} (${code})`
-  }
-
-  return typeof name === 'string' && name.length > 0 ? name : String(row.id ?? '-')
-}
+const columns = computed(() => createInternalProductColumns({ t, formatReadableDateTime }))
 
 const openEditModal = async (row: Record<string, unknown>) => {
   const id = String(row.id ?? '')
@@ -149,7 +112,7 @@ const updateActionMenuOpen = (open: boolean) => {
     :search-filter-open="filterPanelOpen"
     :can-view-detail="false"
     auth-mode="internal"
-    :delete-label-formatter="deleteLabelFormatter"
+    :delete-label-formatter="formatInternalProductDeleteLabel"
     @search-filter-trigger="toggleFilterPanel"
   >
     <template #filters>

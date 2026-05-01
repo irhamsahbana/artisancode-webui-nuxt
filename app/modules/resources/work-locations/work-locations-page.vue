@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useApi } from '~/composables/useApi'
-import { useBanner } from '~/composables/useBanner'
+import { useWorkLocationDialog } from './use-work-location-dialog'
 
 defineOptions({ name: 'WorkLocationsPage' })
 
-const { apiFetch } = useApi()
-const { show } = useBanner()
-const { t, format, locale } = useLocale()
+const { t } = useLocale()
 
 // --- List config ---
 const deleteLabelFormatter = (row: Record<string, unknown>) => {
@@ -24,115 +21,27 @@ const columns = [
   { key: 'address', label: t('company.address') },
 ]
 
-// --- Modal state ---
-const modalOpen = ref(false)
-const modalMode = ref<'create' | 'edit'>('create')
-const modalLoading = ref(false)
-
-const form = ref({
-  id: '',
-  name: '',
-  org_unit_id: null as string | null,
-  address: '',
-  latitude: '',
-  longitude: '',
-  radius_meters: '',
-})
-
-const resetForm = () => {
-  form.value = {
-    id: '',
-    name: '',
-    org_unit_id: null,
-    address: '',
-    latitude: '',
-    longitude: '',
-    radius_meters: '',
-  }
-}
-
 // --- Refresh trigger for ResourceList ---
 const refreshKey = ref(0)
 const triggerRefresh = () => {
   refreshKey.value++
 }
 
-// --- Open modal ---
-const openCreateModal = () => {
-  resetForm()
-  modalMode.value = 'create'
-  modalOpen.value = true
-}
-
-const openEditModal = async (row: Record<string, unknown>) => {
-  resetForm()
-  modalMode.value = 'edit'
-  modalOpen.value = true
-  modalLoading.value = true
-
-  const id = row.id as string
-  const resp = await apiFetch<Record<string, unknown>>(`/work-locations/${id}`)
-  if (resp.success && resp.data) {
-    const d = resp.data
-    form.value.id = String(d.id ?? '')
-    form.value.name = String(d.name ?? '')
-    form.value.org_unit_id = d.org_unit_id ? String(d.org_unit_id) : null
-    form.value.address = d.address ? String(d.address) : ''
-    form.value.latitude = d.latitude != null ? String(d.latitude) : ''
-    form.value.longitude = d.longitude != null ? String(d.longitude) : ''
-    form.value.radius_meters = d.radius_meters != null ? String(d.radius_meters) : ''
-  }
-  modalLoading.value = false
-}
-
-const closeModal = () => {
-  modalOpen.value = false
-  resetForm()
-}
-
-// --- Submit ---
-const submitLoading = ref(false)
-
-const buildPayload = () => ({
-  name: form.value.name,
-  org_unit_id: form.value.org_unit_id || null,
-  address: form.value.address || null,
-  latitude: form.value.latitude ? parseFloat(form.value.latitude) : null,
-  longitude: form.value.longitude ? parseFloat(form.value.longitude) : null,
-  radius_meters: form.value.radius_meters ? parseInt(form.value.radius_meters, 10) : null,
+const {
+  modalOpen,
+  modalMode,
+  modalLoading,
+  submitLoading,
+  form,
+  openCreateModal,
+  openEditModal,
+  closeModal,
+  handleSubmit,
+} = useWorkLocationDialog({
+  onSaved: () => {
+    triggerRefresh()
+  },
 })
-
-const handleSubmit = async () => {
-  if (!form.value.name.trim()) {
-    show(format('common.requiredField', { field: t('common.name') }), 'error')
-    return
-  }
-  submitLoading.value = true
-
-  if (modalMode.value === 'create') {
-    const resp = await apiFetch('/work-locations', {
-      method: 'POST',
-      body: buildPayload(),
-    })
-    if (resp.success) {
-      show(t('company.workLocationCreated'), 'success')
-      closeModal()
-      triggerRefresh()
-    }
-  } else {
-    const resp = await apiFetch(`/work-locations/${form.value.id}`, {
-      method: 'PUT',
-      body: buildPayload(),
-    })
-    if (resp.success) {
-      show(t('company.workLocationUpdated'), 'success')
-      closeModal()
-      triggerRefresh()
-    }
-  }
-
-  submitLoading.value = false
-}
 </script>
 
 <template>
@@ -212,7 +121,7 @@ const handleSubmit = async () => {
           <Input
             id="wl-name"
             v-model="form.name"
-            placeholder="e.g. Kantor Pusat Jakarta"
+            :placeholder="t('common.name')"
             class="mt-1"
           />
         </div>

@@ -15,6 +15,7 @@ This file is the short entry point for work in `webui/`.
 
 ## Non-Negotiables
 
+- Before using Serena symbolic tools or Serena memories for `webui`, activate the Serena project at `/Users/codebeast/Documents/src/artisancode/webui` and confirm onboarding/memory availability there. Do not operate Serena on the umbrella workspace for frontend tasks.
 - Use Nuxt 4, Vue 3 Composition API, TypeScript, and Tailwind CSS patterns already present in the repo.
 - Keep `app/pages/` thin and put non-trivial feature work under `app/modules/`.
 - Use `useApi().apiFetch(...)` for app API calls; frontend code talks to the backend through the Nuxt proxy.
@@ -22,6 +23,7 @@ This file is the short entry point for work in `webui/`.
 - Use `useDateTime()` or `app/utils/date-time.ts` helpers for dates shown to users. Do not expose raw ISO timestamps in UI.
 - Keep agent-facing documentation in English unless a user explicitly asks for another language.
 - Run the smallest meaningful verification first, normally `pnpm typecheck` then `pnpm lint`.
+- When refactoring resource helpers, composables, or shared UI wiring, add or update focused tests beside the feature using `*.component.vitest.ts` for Vue/composable coverage or `*.test.ts` for pure helper coverage.
 - Use `docs/playwright_testing.md` for local route checks, browser screenshots, Browser/Playwright MCP fallback behavior, and dev-server cleanup.
 - For browser smoke tests, start Nuxt with `pnpm dev --port <free-port> --host 127.0.0.1` unless the testing guide calls for a different setup.
 - When helper behavior changes, add or update focused unit tests and run `pnpm test:unit`.
@@ -34,5 +36,8 @@ This file is the short entry point for work in `webui/`.
 - Component auto-registration uses `pathPrefix: false`, so use filename-based PascalCase tags such as `<Button>` and `<ResourceList>`.
 - The `~` alias points to `app/`; avoid `~/app/...`.
 - Active shared UI foundations include `ResourceList`, `ResourceTable`, `FormDialogShell`, `SearchableSelect`, `SearchableTreeSelect`, and `ui/*` primitives.
+- Shared internal resource controls now include `InternalResourceFilterPanel` and `InternalResourceListControls`; prefer them over ad hoc filter drawers or export menus on internal admin pages.
+- Shared test helpers live under `app/testing/`, especially `component-test-utils.ts`, `api-response-fixtures.ts`, and `setup-component-tests.ts`.
 - Resource filters and header action menus must follow `docs/resource_patterns.md`: use shared floating/action primitives, coordinate open states, avoid inline filter layout shifts, and keep compact action controls from forcing full-width rows.
 - The default sidebar intentionally exposes only a subset of resource modules.
+- Serena startup sequence for frontend tasks is: activate project `/Users/codebeast/Documents/src/artisancode/webui`, run onboarding/memory check, read relevant memories, then begin symbol navigation or edits.

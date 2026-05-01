@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { ListResponse } from '~/types/api'
+import {
+  appendExportHistory,
+  buildCsv,
+  buildExportFilename,
+  createExportHistoryEntry,
+  parseExportHistory,
+  type ExportColumn,
+  type ExportHistoryItem,
+} from './internal-resource-list-controls'
 
 defineOptions({ name: 'InternalResourceListControls' })
-
-type ExportColumn = {
-  key: string
-  label: string
-}
-
-type ExportHistoryItem = {
-  id: string
-  filename: string
-  createdAt: string
-  rowCount: number
-}
 
 type ResourceActionItem = {
   key: string
@@ -73,10 +70,7 @@ const actionsOpen = computed({
   },
 })
 
-const buildExportFilename = () => {
-  const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
-  return `${props.filenamePrefix}-${stamp}.csv`
-}
+const getExportFilename = () => buildExportFilename(props.filenamePrefix)
 
 const getQuery = () => ({
   ...(props.query ?? {}),
@@ -84,35 +78,6 @@ const getQuery = () => ({
   limit: 100000,
   paginate: 100000,
 })
-
-const getCellValue = (row: Record<string, unknown>, key: string) => {
-  const value = row[key]
-  if (value === null || value === undefined) {
-    return ''
-  }
-  if (typeof value === 'object') {
-    return JSON.stringify(value)
-  }
-  return String(value)
-}
-
-const escapeCsvValue = (value: string) => {
-  if (!/[",\n\r]/.test(value)) {
-    return value
-  }
-  return `"${value.replace(/"/g, '""')}"`
-}
-
-const buildCsv = (rows: Record<string, unknown>[]) => {
-  const header = props.columns.map(column => escapeCsvValue(column.label)).join(',')
-  const lines = rows.map(row =>
-    props.columns
-      .map(column => escapeCsvValue(getCellValue(row, column.key)))
-      .join(','),
-  )
-
-  return [header, ...lines].join('\n')
-}
 
 const downloadCsv = (filename: string, content: string) => {
   if (!import.meta.client) {
@@ -141,50 +106,40 @@ const loadHistory = () => {
   if (!import.meta.client) {
     return
   }
-  const raw = localStorage.getItem(storageKey.value)
-  if (!raw) {
-    return
-  }
-  try {
-    const parsed = JSON.parse(raw)
-    historyItems.value = Array.isArray(parsed) ? parsed : []
-  }
-  catch {
-    historyItems.value = []
-  }
+  historyItems.value = parseExportHistory(localStorage.getItem(storageKey.value))
 }
 
 const addHistory = (filename: string, rowCount: number) => {
-  historyItems.value = [
-    {
-      id: crypto.randomUUID(),
-      filename,
-      createdAt: new Date().toISOString(),
-      rowCount,
-    },
-    ...historyItems.value,
-  ].slice(0, 8)
+  historyItems.value = appendExportHistory(
+    historyItems.value,
+    createExportHistoryEntry(filename, rowCount),
+  )
   persistHistory()
 }
 
 const exportRows = async () => {
   actionsOpen.value = false
   exporting.value = true
-  const response = await apiFetch<ListResponse<Record<string, unknown>>>(props.endpoint, {
-    query: getQuery(),
-    authMode: props.authMode,
-  })
-  exporting.value = false
 
-  if (!response.success) {
-    return
+  try {
+    const response = await apiFetch<ListResponse<Record<string, unknown>>>(props.endpoint, {
+      query: getQuery(),
+      authMode: props.authMode,
+    })
+
+    if (!response.success) {
+      return
+    }
+
+    const rows = response.data?.items ?? []
+    const filename = getExportFilename()
+    downloadCsv(filename, buildCsv(props.columns, rows))
+    addHistory(filename, rows.length)
+    show(t('ui.exportCompleted'), 'success')
   }
-
-  const rows = response.data?.items ?? []
-  const filename = buildExportFilename()
-  downloadCsv(filename, buildCsv(rows))
-  addHistory(filename, rows.length)
-  show(t('ui.exportCompleted'), 'success')
+  finally {
+    exporting.value = false
+  }
 }
 
 const openHistory = () => {
@@ -192,12 +147,12 @@ const openHistory = () => {
   historyOpen.value = true
 }
 
-const handleActionSelect = (key: string) => {
+const handleActionSelect = async (key: string) => {
   const item = props.actionItems.find(action => action.key === key)
   emit('actionSelect', key)
 
   if (item?.kind === 'export') {
-    exportRows()
+    await exportRows()
     return
   }
 
@@ -207,6 +162,13 @@ const handleActionSelect = (key: string) => {
 }
 
 onMounted(loadHistory)
+
+defineExpose({
+  exporting,
+  handleActionSelect,
+  historyItems,
+  historyOpen,
+})
 </script>
 
 <template>

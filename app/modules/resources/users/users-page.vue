@@ -2,26 +2,16 @@
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import {
+  buildUserPayload,
+  createEmptyUserForm,
+  formatUserRoles,
+  syncUserForm,
+  type RoleItem,
+  type UserDetail,
+} from './users-form'
 
 defineOptions({ name: 'UsersPage' })
-
-type RoleItem = {
-  id: string
-  name: string
-}
-
-type UserRole = {
-  id: string
-  name: string
-}
-
-type UserDetail = {
-  id: string
-  name: string
-  username: string
-  email: string
-  roles: UserRole[]
-}
 
 const { apiFetch } = useApi()
 const { show } = useBanner()
@@ -42,13 +32,7 @@ const columns = [
   {
     key: 'roles',
     label: 'Roles',
-    format: (value: unknown) => {
-      const roles = Array.isArray(value) ? value as Array<{ name?: string }> : []
-      if (roles.length === 0) {
-        return '-'
-      }
-      return roles.map(role => role.name ?? '-').join(', ')
-    },
+    format: formatUserRoles,
   },
 ]
 
@@ -60,24 +44,10 @@ const submitLoading = ref(false)
 const rolesLoading = ref(false)
 const roles = ref<RoleItem[]>([])
 
-const form = ref({
-  id: '',
-  name: '',
-  username: '',
-  email: '',
-  password: '',
-  role_ids: [] as string[],
-})
+const form = ref(createEmptyUserForm())
 
 const resetForm = () => {
-  form.value = {
-    id: '',
-    name: '',
-    username: '',
-    email: '',
-    password: '',
-    role_ids: [],
-  }
+  form.value = createEmptyUserForm()
 }
 
 const triggerRefresh = () => {
@@ -92,20 +62,25 @@ const selectedRoleNames = computed(() => {
 
 const loadRoles = async () => {
   rolesLoading.value = true
-  const response = await apiFetch<{ items: RoleItem[] }>('/role-and-permissions/roles', {
-    query: {
-      page: 1,
-      limit: 100,
-    },
-  })
-  rolesLoading.value = false
 
-  if (!response.success || !response.data) {
-    roles.value = []
-    return
+  try {
+    const response = await apiFetch<{ items: RoleItem[] }>('/role-and-permissions/roles', {
+      query: {
+        page: 1,
+        limit: 100,
+      },
+    })
+
+    if (!response.success || !response.data) {
+      roles.value = []
+      return
+    }
+
+    roles.value = response.data.items
   }
-
-  roles.value = response.data.items
+  finally {
+    rolesLoading.value = false
+  }
 }
 
 const openCreateModal = async () => {
@@ -121,19 +96,18 @@ const openEditModal = async (row: Record<string, unknown>) => {
   modalOpen.value = true
   modalLoading.value = true
 
-  await loadRoles()
+  try {
+    await loadRoles()
 
-  const id = String(row.id ?? '')
-  const response = await apiFetch<UserDetail>(`/users/${id}`)
-  if (response.success && response.data) {
-    form.value.id = response.data.id
-    form.value.name = response.data.name
-    form.value.username = response.data.username
-    form.value.email = response.data.email
-    form.value.role_ids = response.data.roles.map(role => role.id)
+    const id = String(row.id ?? '')
+    const response = await apiFetch<UserDetail>(`/users/${id}`)
+    if (response.success && response.data) {
+      syncUserForm(form.value, response.data)
+    }
   }
-
-  modalLoading.value = false
+  finally {
+    modalLoading.value = false
+  }
 }
 
 const closeModal = () => {
@@ -149,22 +123,6 @@ const toggleRole = (roleId: string) => {
     return
   }
   form.value.role_ids = [...form.value.role_ids, roleId]
-}
-
-const buildPayload = () => {
-  const payload: Record<string, unknown> = {
-    name: form.value.name.trim(),
-    username: form.value.username.trim(),
-    email: form.value.email.trim(),
-    role_ids: form.value.role_ids,
-  }
-
-  const trimmedPassword = form.value.password.trim()
-  if (trimmedPassword.length > 0) {
-    payload.password = trimmedPassword
-  }
-
-  return payload
 }
 
 const validateForm = () => {
@@ -202,30 +160,33 @@ const handleSubmit = async () => {
 
   submitLoading.value = true
 
-  if (modalMode.value === 'create') {
-    const response = await apiFetch('/users', {
-      method: 'POST',
-      body: buildPayload(),
-    })
-    if (response.success) {
-      show(t('ui.userCreatedSuccessfully'), 'success')
-      closeModal()
-      triggerRefresh()
+  try {
+    if (modalMode.value === 'create') {
+      const response = await apiFetch('/users', {
+        method: 'POST',
+        body: buildUserPayload(form.value),
+      })
+      if (response.success) {
+        show(t('ui.userCreatedSuccessfully'), 'success')
+        closeModal()
+        triggerRefresh()
+      }
+    }
+    else {
+      const response = await apiFetch(`/users/${form.value.id}`, {
+        method: 'PUT',
+        body: buildUserPayload(form.value),
+      })
+      if (response.success) {
+        show(t('ui.userUpdatedSuccessfully'), 'success')
+        closeModal()
+        triggerRefresh()
+      }
     }
   }
-  else {
-    const response = await apiFetch(`/users/${form.value.id}`, {
-      method: 'PUT',
-      body: buildPayload(),
-    })
-    if (response.success) {
-      show(t('ui.userUpdatedSuccessfully'), 'success')
-      closeModal()
-      triggerRefresh()
-    }
+  finally {
+    submitLoading.value = false
   }
-
-  submitLoading.value = false
 }
 </script>
 

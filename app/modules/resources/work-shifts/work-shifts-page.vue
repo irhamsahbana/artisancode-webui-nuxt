@@ -1,162 +1,24 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useApi } from '~/composables/useApi'
-import { useBanner } from '~/composables/useBanner'
-import { getTimezoneLabel, getTimezoneOptions } from '~/utils/timezone-options'
+import { useWorkShiftDialog } from './use-work-shift-dialog'
 
 defineOptions({ name: 'WorkShiftsPage' })
 
-const { apiFetch } = useApi()
-const { show } = useBanner()
-const { locale, t } = useLocale()
-
-const timezoneOptions = computed(() => getTimezoneOptions(locale.value))
-
-// --- List config ---
-const deleteLabelFormatter = (row: Record<string, unknown>) => {
-  const name = row.name
-  if (typeof name === 'string' && name.length > 0) {
-    return name
-  }
-  return String(row.id ?? '-')
-}
-
-const columns = [
-  { key: 'name', label: 'Name' },
-  {
-    key: 'timezone',
-    label: 'Timezone',
-    format: (value: unknown) => getTimezoneLabel(locale.value, typeof value === 'string' ? value : null),
-  },
-  { key: 'start_time', label: 'Start Time' },
-  { key: 'end_time', label: 'End Time' },
-  {
-    key: 'grace_period_minutes',
-    label: 'Grace Period',
-    format: (value: unknown) => {
-      const mins = Number(value ?? 0)
-      return `${mins} min`
-    },
-  },
-]
-
-// --- Modal state ---
-const modalOpen = ref(false)
-const modalMode = ref<'create' | 'edit'>('create')
-const modalLoading = ref(false)
-const submitLoading = ref(false)
-
-const form = ref({
-  id: '',
-  name: '',
-  timezone: 'Asia/Makassar',
-  start_time: '',
-  end_time: '',
-  grace_period_minutes: '0',
-})
-
-const resetForm = () => {
-  form.value = {
-    id: '',
-    name: '',
-    timezone: 'Asia/Makassar',
-    start_time: '',
-    end_time: '',
-    grace_period_minutes: '0',
-  }
-}
-
-// --- Refresh trigger for ResourceList ---
-const refreshKey = ref(0)
-const triggerRefresh = () => {
-  refreshKey.value++
-}
-
-// --- Open modal ---
-const openCreateModal = () => {
-  resetForm()
-  modalMode.value = 'create'
-  modalOpen.value = true
-}
-
-const openEditModal = async (row: Record<string, unknown>) => {
-  resetForm()
-  modalMode.value = 'edit'
-  modalOpen.value = true
-  modalLoading.value = true
-
-  const id = row.id as string
-  const resp = await apiFetch<Record<string, unknown>>(`/work-shifts/${id}`)
-  if (resp.success && resp.data) {
-    const d = resp.data
-    form.value.id = String(d.id ?? '')
-    form.value.name = String(d.name ?? '')
-    form.value.timezone = String(d.timezone ?? 'Asia/Makassar')
-    form.value.start_time = String(d.start_time ?? '')
-    form.value.end_time = String(d.end_time ?? '')
-    form.value.grace_period_minutes = String(d.grace_period_minutes ?? '0')
-  }
-  modalLoading.value = false
-}
-
-const closeModal = () => {
-  modalOpen.value = false
-  resetForm()
-}
-
-// --- Submit ---
-const buildPayload = () => ({
-  name: form.value.name.trim(),
-  timezone: form.value.timezone.trim(),
-  start_time: form.value.start_time,
-  end_time: form.value.end_time,
-  grace_period_minutes: parseInt(form.value.grace_period_minutes, 10) || 0,
-})
-
-const handleSubmit = async () => {
-  if (!form.value.name.trim()) {
-    show(t('ui.nameIsRequired'), 'error')
-    return
-  }
-  if (!form.value.timezone.trim()) {
-    show(t('ui.timezoneIsRequired'), 'error')
-    return
-  }
-  if (!form.value.start_time) {
-    show(t('ui.startTimeIsRequired'), 'error')
-    return
-  }
-  if (!form.value.end_time) {
-    show(t('ui.endTimeIsRequired'), 'error')
-    return
-  }
-
-  submitLoading.value = true
-
-  if (modalMode.value === 'create') {
-    const resp = await apiFetch('/work-shifts', {
-      method: 'POST',
-      body: buildPayload(),
-    })
-    if (resp.success) {
-      show(t('ui.workShiftCreatedSuccessfully'), 'success')
-      closeModal()
-      triggerRefresh()
-    }
-  } else {
-    const resp = await apiFetch(`/work-shifts/${form.value.id}`, {
-      method: 'PUT',
-      body: buildPayload(),
-    })
-    if (resp.success) {
-      show(t('ui.workShiftUpdatedSuccessfully'), 'success')
-      closeModal()
-      triggerRefresh()
-    }
-  }
-
-  submitLoading.value = false
-}
+const { t } = useLocale()
+const {
+  columns,
+  timezoneOptions,
+  deleteLabelFormatter,
+  modalOpen,
+  modalMode,
+  modalLoading,
+  submitLoading,
+  form,
+  refreshKey,
+  openCreateModal,
+  openEditModal,
+  closeModal,
+  handleSubmit,
+} = useWorkShiftDialog()
 </script>
 
 <template>

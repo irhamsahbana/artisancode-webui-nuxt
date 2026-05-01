@@ -2,6 +2,11 @@
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
+import {
+  buildEmployeePayload,
+  createEmptyEmployeeForm,
+  syncEmployeeForm,
+} from './employee-form'
 
 defineOptions({ name: 'EmployeesPage' })
 
@@ -125,34 +130,10 @@ const inviteResult = ref<InvitationResponse | null>(null)
 const inviteSummary = ref<InvitationListItem | null>(null)
 const inviteSource = ref<'manual' | 'after-create' | 'manage'>('manual')
 
-const form = ref({
-  id: '',
-  employee_no: '',
-  full_name: '',
-  email: '',
-  password: '',
-  org_unit_id: '',
-  job_position_id: '',
-  location_id: '',
-  shift_id: '',
-  status: 'active',
-  join_date: '',
-})
+const form = ref(createEmptyEmployeeForm())
 
 const resetForm = () => {
-  form.value = {
-    id: '',
-    employee_no: '',
-    full_name: '',
-    email: '',
-    password: '',
-    org_unit_id: '',
-    job_position_id: '',
-    location_id: '',
-    shift_id: '',
-    status: 'active',
-    join_date: '',
-  }
+  form.value = createEmptyEmployeeForm()
 }
 
 // --- Dropdown options ---
@@ -177,6 +158,7 @@ const loadDropdowns = async () => {
     apiFetch<{ items: Array<{ id: string; name: string }> }>('/work-locations?paginate=100'),
     apiFetch<{ items: Array<{ id: string; name: string }> }>('/work-shifts?paginate=100'),
   ])
+
   if (orgResp.success && orgResp.data) orgUnits.value = orgResp.data.items ?? []
   if (jpResp.success && jpResp.data) jobPositions.value = jpResp.data.items ?? []
   if (wlResp.success && wlResp.data) workLocations.value = wlResp.data.items ?? []
@@ -203,25 +185,18 @@ const openEditModal = async (row: Record<string, unknown>) => {
   modalOpen.value = true
   modalLoading.value = true
 
-  await loadDropdowns()
+  try {
+    await loadDropdowns()
 
-  const id = row.id as string
-  const resp = await apiFetch<Record<string, unknown>>(`/employees/${id}`)
-  if (resp.success && resp.data) {
-    const d = resp.data
-    form.value.id = String(d.id ?? '')
-    form.value.employee_no = String(d.employee_no ?? '')
-    form.value.full_name = String(d.full_name ?? '')
-    form.value.email = String(d.email ?? '')
-    form.value.password = ''
-    form.value.org_unit_id = d.org_unit_id == null ? '' : String(d.org_unit_id)
-    form.value.job_position_id = d.job_position_id == null ? '' : String(d.job_position_id)
-    form.value.location_id = d.location_id == null ? '' : String(d.location_id)
-    form.value.shift_id = d.shift_id == null ? '' : String(d.shift_id)
-    form.value.status = String(d.status ?? 'active')
-    form.value.join_date = normalizeJoinDateForInput(d.join_date)
+    const id = row.id as string
+    const response = await apiFetch<Record<string, unknown>>(`/employees/${id}`)
+    if (response.success && response.data) {
+      syncEmployeeForm(form.value, response.data, normalizeJoinDateForInput)
+    }
   }
-  modalLoading.value = false
+  finally {
+    modalLoading.value = false
+  }
 }
 
 const closeModal = () => {
@@ -335,23 +310,6 @@ const accessStatusMeta = (value: unknown): { label: string; class: string } => {
 }
 
 // --- Submit ---
-const buildPayload = () => {
-  const payload: Record<string, unknown> = {
-    employee_no: form.value.employee_no.trim(),
-    full_name: form.value.full_name.trim(),
-    email: form.value.email.trim(),
-    status: form.value.status,
-    join_date_timezone: browserTimezone,
-  }
-  if (form.value.password.trim()) payload.password = form.value.password.trim()
-  if (form.value.org_unit_id) payload.org_unit_id = form.value.org_unit_id
-  if (form.value.job_position_id) payload.job_position_id = form.value.job_position_id
-  if (form.value.location_id) payload.location_id = form.value.location_id
-  if (form.value.shift_id) payload.shift_id = form.value.shift_id
-  if (form.value.join_date) payload.join_date = form.value.join_date
-  return payload
-}
-
 const handleSubmit = async () => {
   if (!form.value.employee_no.trim()) {
     show(t('ui.employeeNumberIsRequired'), 'error')
@@ -376,39 +334,43 @@ const handleSubmit = async () => {
 
   submitLoading.value = true
 
-  if (modalMode.value === 'create') {
-    const createdEmployee = {
-      id: '',
-      full_name: form.value.full_name.trim(),
-      email: form.value.email.trim(),
-    }
-
-    const resp = await apiFetch<CreateEmployeeResponse>('/employees', {
-      method: 'POST',
-      body: buildPayload(),
-    })
-    if (resp.success) {
-      show(t('ui.employeeCreatedSuccessfully'), 'success')
-      createdEmployee.id = String(resp.data?.id ?? '')
-      closeModal()
-      if (createdEmployee.id) {
-        openInviteModalForEmployee(createdEmployee, 'after-create')
+  try {
+    if (modalMode.value === 'create') {
+      const createdEmployee = {
+        id: '',
+        full_name: form.value.full_name.trim(),
+        email: form.value.email.trim(),
       }
-      triggerRefresh()
+
+      const response = await apiFetch<CreateEmployeeResponse>('/employees', {
+        method: 'POST',
+        body: buildEmployeePayload(form.value, browserTimezone),
+      })
+      if (response.success) {
+        show(t('ui.employeeCreatedSuccessfully'), 'success')
+        createdEmployee.id = String(response.data?.id ?? '')
+        closeModal()
+        if (createdEmployee.id) {
+          openInviteModalForEmployee(createdEmployee, 'after-create')
+        }
+        triggerRefresh()
+      }
     }
-  } else {
-    const resp = await apiFetch(`/employees/${form.value.id}`, {
-      method: 'PUT',
-      body: buildPayload(),
-    })
-    if (resp.success) {
-      show(t('ui.employeeUpdatedSuccessfully'), 'success')
-      closeModal()
-      triggerRefresh()
+    else {
+      const response = await apiFetch(`/employees/${form.value.id}`, {
+        method: 'PUT',
+        body: buildEmployeePayload(form.value, browserTimezone),
+      })
+      if (response.success) {
+        show(t('ui.employeeUpdatedSuccessfully'), 'success')
+        closeModal()
+        triggerRefresh()
+      }
     }
   }
-
-  submitLoading.value = false
+  finally {
+    submitLoading.value = false
+  }
 }
 
 const handleInviteEmployee = async () => {

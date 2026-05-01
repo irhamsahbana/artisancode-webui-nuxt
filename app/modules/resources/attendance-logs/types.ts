@@ -17,6 +17,30 @@ export type AttendanceLogFilters = {
   exception_type: string
 }
 
+export type AttendanceLogRow = Record<string, unknown>
+
+export type EmployeeFilterItem = {
+  id: string
+  employee_no: string
+  full_name: string
+}
+
+export type OrgUnitFilterItem = {
+  id: string
+  name: string
+  category: string
+}
+
+export type BranchFilterItem = {
+  id: string
+  name: string
+}
+
+export type WorkLocationFilterItem = {
+  id: string
+  name: string
+}
+
 export type DatePreset = 'today' | 'yesterday' | 'this_week' | 'this_month'
 
 export type ExportJobStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'expired'
