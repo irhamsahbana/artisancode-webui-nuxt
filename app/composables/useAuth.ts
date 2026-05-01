@@ -1,77 +1,74 @@
-import { navigateTo, useCookie } from '#app'
+import { navigateTo, useCookie } from "#app";
 
-import type { ApiResponse } from '~/types/api'
-import { useApi } from './useApi'
+import type { ApiResponse } from "~/types/api";
+import { useApi } from "./useApi";
 
 type LoginPayload = {
-  email: string
-  password: string
-  tenant_code: string
-}
+  email: string;
+  password: string;
+  tenant_code: string;
+};
 
 type RegisterPayload = {
-  name: string
-  username: string
-  email: string
-  password: string
-  tenant_code?: string
-  tenant_name?: string
-  language: 'id' | 'en'
-}
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+  tenant_code?: string;
+  tenant_name?: string;
+  language: "id" | "en";
+};
 
 type GoogleLoginPayload = {
-  id_token: string
-}
+  id_token: string;
+};
 
 type GoogleRegisterInitResponse = {
-  registration_token: string
-  email: string
-  display_name: string
-  picture_url?: string | null
-}
+  registration_token: string;
+  email: string;
+  display_name: string;
+  picture_url?: string | null;
+};
 
 type GoogleRegisterPayload = {
-  id_token?: string
-  registration_token?: string
-  tenant_name: string
-  tenant_code: string
-  confirm_tenant_setup: true
-  language: 'id' | 'en'
-}
+  id_token?: string;
+  registration_token?: string;
+  tenant_name: string;
+  tenant_code: string;
+  confirm_tenant_setup: true;
+  language: "id" | "en";
+};
 
 type AuthTokenResponse = {
-  access_token: string
-  refresh_token: string
-  tenant_code?: string
-}
+  access_token: string;
+  tenant_code?: string;
+};
 
 type RegisterResponse = {
-  email: string
-  verification_required: boolean
-  access_token?: string
-  refresh_token?: string
-  tenant_code?: string
-}
+  email: string;
+  verification_required: boolean;
+  access_token?: string;
+  tenant_code?: string;
+};
 
 type TenantScopedEmailPayload = {
-  email: string
-  tenant_code: string
-}
+  email: string;
+  tenant_code: string;
+};
 
-type EmptyResponse = Record<string, never>
+type EmptyResponse = Record<string, never>;
 
 export const useAuth = () => {
-  const token = useCookie<string | null>('sb_token')
-  const refreshToken = useCookie<string | null>('sb_refresh_token')
-  const { apiFetch } = useApi()
-  const localePath = useLocalePath()
+  const token = useCookie<string | null>("sb_token");
+  const { apiFetch } = useApi();
+  const localePath = useLocalePath();
 
   // Extract user from JWT token
   const user = computed(() => {
-    if (!token.value) return null
+    if (!token.value) return null;
     try {
-      const payload = token.value.split('.')[1]
-      const decoded = JSON.parse(atob(payload || ''))
+      const payload = token.value.split(".")[1];
+      const decoded = JSON.parse(atob(payload || ""));
       return {
         id: decoded.user_id,
         tenant_id: decoded.tenant_id,
@@ -79,114 +76,118 @@ export const useAuth = () => {
         username: decoded.user_name,
         roles: decoded.roles,
         name: decoded.user_name, // fallback for UI
-      }
+      };
     } catch {
-      return null
+      return null;
     }
-  })
+  });
 
   const login = async (payload: LoginPayload) => {
-    const response = await apiFetch<AuthTokenResponse>('/users/login', {
-      method: 'POST',
+    const response = await apiFetch<AuthTokenResponse>("/users/login", {
+      method: "POST",
       body: payload,
-    })
+    });
 
     if (response.success && response.data) {
-      token.value = response.data.access_token
-      refreshToken.value = response.data.refresh_token
+      token.value = response.data.access_token;
     }
 
-    return response as ApiResponse<AuthTokenResponse>
-  }
+    return response as ApiResponse<AuthTokenResponse>;
+  };
 
   const register = async (payload: RegisterPayload) => {
-    const response = await apiFetch<RegisterResponse>('/users/register', {
-      method: 'POST',
+    const response = await apiFetch<RegisterResponse>("/users/register", {
+      method: "POST",
       body: payload,
-    })
+    });
 
-    if (response.success && response.data?.access_token && response.data.refresh_token) {
-      token.value = response.data.access_token
-      refreshToken.value = response.data.refresh_token
+    if (response.success && response.data?.access_token) {
+      token.value = response.data.access_token;
     }
 
-    return response as ApiResponse<RegisterResponse>
-  }
+    return response as ApiResponse<RegisterResponse>;
+  };
 
   const googleLogin = async (payload: GoogleLoginPayload) => {
-    const response = await apiFetch<AuthTokenResponse>('/users/google/login', {
-      method: 'POST',
+    const response = await apiFetch<AuthTokenResponse>("/users/google/login", {
+      method: "POST",
       body: payload,
-    })
+    });
 
     if (response.success && response.data) {
-      token.value = response.data.access_token
-      refreshToken.value = response.data.refresh_token
+      token.value = response.data.access_token;
     }
 
-    return response as ApiResponse<AuthTokenResponse>
-  }
+    return response as ApiResponse<AuthTokenResponse>;
+  };
 
   const googleRegisterInit = async (payload: GoogleLoginPayload) => {
-    const response = await apiFetch<GoogleRegisterInitResponse>('/users/google/register/init', {
-      method: 'POST',
-      body: payload,
-    })
+    const response = await apiFetch<GoogleRegisterInitResponse>(
+      "/users/google/register/init",
+      {
+        method: "POST",
+        body: payload,
+      }
+    );
 
-    return response as ApiResponse<GoogleRegisterInitResponse>
-  }
+    return response as ApiResponse<GoogleRegisterInitResponse>;
+  };
 
   const googleRegister = async (payload: GoogleRegisterPayload) => {
-    const response = await apiFetch<AuthTokenResponse>('/users/google/register', {
-      method: 'POST',
-      body: payload,
-    })
+    const response = await apiFetch<AuthTokenResponse>(
+      "/users/google/register",
+      {
+        method: "POST",
+        body: payload,
+      }
+    );
 
     if (response.success && response.data) {
-      token.value = response.data.access_token
-      refreshToken.value = response.data.refresh_token
+      token.value = response.data.access_token;
     }
 
-    return response as ApiResponse<AuthTokenResponse>
-  }
+    return response as ApiResponse<AuthTokenResponse>;
+  };
 
   const verifyEmail = async (tokenValue: string) => {
-    return apiFetch<EmptyResponse>('/users/verify-email', {
-      method: 'POST',
+    return apiFetch<EmptyResponse>("/users/verify-email", {
+      method: "POST",
       body: { token: tokenValue },
-    }) as Promise<ApiResponse<EmptyResponse>>
-  }
+    }) as Promise<ApiResponse<EmptyResponse>>;
+  };
 
   const resendVerificationEmail = async (payload: TenantScopedEmailPayload) => {
-    return apiFetch<EmptyResponse>('/users/resend-verification-email', {
-      method: 'POST',
+    return apiFetch<EmptyResponse>("/users/resend-verification-email", {
+      method: "POST",
       body: payload,
-    }) as Promise<ApiResponse<EmptyResponse>>
-  }
+    }) as Promise<ApiResponse<EmptyResponse>>;
+  };
 
   const forgotPassword = async (payload: TenantScopedEmailPayload) => {
-    return apiFetch<EmptyResponse>('/users/forgot-password', {
-      method: 'POST',
+    return apiFetch<EmptyResponse>("/users/forgot-password", {
+      method: "POST",
       body: payload,
-    }) as Promise<ApiResponse<EmptyResponse>>
-  }
+    }) as Promise<ApiResponse<EmptyResponse>>;
+  };
 
   const resetPassword = async (tokenValue: string, password: string) => {
-    return apiFetch<EmptyResponse>('/users/reset-password', {
-      method: 'POST',
+    return apiFetch<EmptyResponse>("/users/reset-password", {
+      method: "POST",
       body: { token: tokenValue, password },
-    }) as Promise<ApiResponse<EmptyResponse>>
-  }
+    }) as Promise<ApiResponse<EmptyResponse>>;
+  };
 
   const logout = async () => {
-    token.value = null
-    refreshToken.value = null
-    await navigateTo(localePath('/login'))
-  }
+    await apiFetch<EmptyResponse>("/users/logout", {
+      method: "POST",
+      authMode: "none",
+    });
+    token.value = null;
+    await navigateTo(localePath("/login"));
+  };
 
   return {
     token,
-    refreshToken,
     user,
     login,
     register,
@@ -198,5 +199,5 @@ export const useAuth = () => {
     forgotPassword,
     resetPassword,
     logout,
-  }
-}
+  };
+};
