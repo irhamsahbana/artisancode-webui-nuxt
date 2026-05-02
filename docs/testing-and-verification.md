@@ -34,6 +34,18 @@ Story verification is especially useful for:
 - layout primitives
 - theme-sensitive components with light and dark behavior
 
+When a Histoire story appears stuck on `Loading...`:
+
+1. open the story sandbox directly or inspect the browser console
+2. look for setup-time runtime errors before assuming the story data is wrong
+3. if the component uses app composables like `useLocale`, `useApi`, or similar shared helpers, verify the import is explicit and does not rely only on Nuxt auto-import behavior in the Histoire sandbox
+
+When a Histoire overlay appears detached from the trigger or jumps to a screen edge:
+
+1. check whether the component is teleporting to `body`
+2. for shared UI overlays, prefer exposing `teleportTo?: string | null` so stories can disable teleporting with `null`
+3. keep normal app behavior teleported by default, and only opt out inside stories or isolated tests that need the overlay anchored to the preview canvas
+
 ## Browser Smoke Flow
 
 Preferred local dev server command:

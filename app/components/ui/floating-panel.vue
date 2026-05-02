@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { X } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 defineOptions({ name: 'UiFloatingPanel' })
 
@@ -9,12 +10,14 @@ const props = withDefaults(
     title?: string
     description?: string
     widthClass?: string
+    teleportTo?: string | null
   }>(),
   {
     open: false,
     title: '',
     description: '',
     widthClass: 'w-full max-w-md',
+    teleportTo: 'body',
   },
 )
 
@@ -22,16 +25,21 @@ const emit = defineEmits<{
   'update:open': [value: boolean]
 }>()
 
+const useTeleportedPanel = computed(() => Boolean(props.teleportTo))
+
 const close = () => {
   emit('update:open', false)
 }
 </script>
 
 <template>
-  <Teleport to="body">
+  <component
+    :is="useTeleportedPanel ? 'Teleport' : 'div'"
+    v-bind="useTeleportedPanel ? { to: props.teleportTo } : {}"
+  >
     <div
       v-if="props.open"
-      class="fixed inset-0 z-50"
+      :class="useTeleportedPanel ? 'fixed inset-0 z-50' : 'absolute inset-0 z-50'"
     >
       <button
         type="button"
@@ -87,5 +95,5 @@ const close = () => {
         </div>
       </div>
     </div>
-  </Teleport>
+  </component>
 </template>

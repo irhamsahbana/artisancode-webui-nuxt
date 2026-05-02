@@ -115,5 +115,38 @@ const state = reactive({
         </Card>
       </div>
     </Variant>
+
+    <Variant title="Composable anatomy">
+      <div
+        class="rounded-3xl p-4 transition-colors"
+        :class="state.theme === 'dark' ? 'dark bg-slate-900' : 'bg-slate-100'"
+      >
+        <Card class="overflow-hidden border-dashed shadow-none">
+          <CardHeader class="border-b bg-background/70">
+            <p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+              Header slot
+            </p>
+            <CardTitle>Card title primitive</CardTitle>
+          </CardHeader>
+          <CardContent class="space-y-3">
+            <p class="text-sm leading-6 text-muted-foreground">
+              Use <code>CardContent</code> for the main body spacing so feature modules do not reimplement the same inner padding.
+            </p>
+            <div class="rounded-xl border border-dashed border-border/70 px-4 py-3 text-sm">
+              Content area
+            </div>
+          </CardContent>
+          <CardFooter class="justify-between border-t bg-muted/20">
+            <span class="text-sm text-muted-foreground">Footer actions</span>
+            <Button
+              size="sm"
+              variant="outline"
+            >
+              Inspect layout
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </Variant>
   </Story>
 </template>

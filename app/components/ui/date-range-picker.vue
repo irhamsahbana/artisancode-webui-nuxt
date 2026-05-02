@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { useLocale } from '~/composables/useLocale'
 import { formatDateOnlyValue, parseIsoDateOnlyLocal, resolveDateLocale } from '~/utils/date-time'
 
 defineOptions({ name: 'UiDateRangePicker' })
@@ -16,11 +17,13 @@ const props = withDefaults(
     from?: string
     to?: string
     placeholder?: string
+    teleportTo?: string | null
   }>(),
   {
     from: '',
     to: '',
     placeholder: 'Select date range',
+    teleportTo: 'body',
   },
 )
 
@@ -33,11 +36,13 @@ const { locale, t } = useLocale()
 
 const open = ref(false)
 const triggerRef = ref<HTMLElement | null>(null)
+const popoverId = useId()
 const popoverPosition = ref({
   top: 0,
   left: 0,
   width: 704,
 })
+const useTeleportedPopover = computed(() => Boolean(props.teleportTo))
 
 const toLocalIso = (date: Date) => {
   const timezoneOffset = date.getTimezoneOffset() * 60_000
@@ -124,6 +129,8 @@ const buildMonthCells = (monthDate: Date): CalendarCell[] => {
 const currentMonthCells = computed(() => buildMonthCells(displayMonth.value))
 const nextMonthDate = computed(() => new Date(displayMonth.value.getFullYear(), displayMonth.value.getMonth() + 1, 1))
 const nextMonthCells = computed(() => buildMonthCells(nextMonthDate.value))
+const displayMonthLabel = computed(() => monthLabel(displayMonth.value))
+const nextMonthLabel = computed(() => monthLabel(nextMonthDate.value))
 
 const startValue = computed(() => props.from || '')
 const endValue = computed(() => props.to || '')
@@ -206,6 +213,8 @@ const popoverStyle = computed(() => ({
     <Button
       variant="outline"
       class="h-9 w-full justify-start text-left font-normal"
+      :aria-expanded="open"
+      :aria-controls="popoverId"
       @click="toggleOpen"
     >
       <CalendarDays class="h-4 w-4 shrink-0" />
@@ -214,19 +223,25 @@ const popoverStyle = computed(() => ({
       </span>
     </Button>
 
-    <Teleport to="body">
+    <component
+      :is="useTeleportedPopover ? 'Teleport' : 'div'"
+      v-bind="useTeleportedPopover ? { to: props.teleportTo } : {}"
+    >
       <button
         v-if="open"
         type="button"
-        class="fixed inset-0 z-40 bg-transparent"
+        :class="useTeleportedPopover ? 'fixed inset-0 z-40 bg-transparent' : 'absolute inset-0 z-40 bg-transparent'"
         :aria-label="t('ui.close')"
         @click="open = false"
       />
 
       <div
         v-if="open"
-        class="fixed z-50 max-w-[calc(100vw-2rem)] rounded-xl border bg-background p-4 shadow-2xl"
-        :style="popoverStyle"
+        :id="popoverId"
+        :class="useTeleportedPopover
+          ? 'fixed z-50 max-w-[calc(100vw-2rem)] rounded-xl border bg-background p-4 shadow-2xl'
+          : 'absolute left-0 top-full z-50 mt-2 w-[min(704px,calc(100vw-2rem))] rounded-xl border bg-background p-4 shadow-2xl'"
+        :style="useTeleportedPopover ? popoverStyle : undefined"
       >
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
           <div>
@@ -267,7 +282,7 @@ const popoverStyle = computed(() => ({
                 <ChevronLeft class="h-4 w-4" />
               </Button>
               <div class="text-sm font-medium">
-                {{ monthLabel(displayMonth) }}
+                {{ displayMonthLabel }}
               </div>
               <div class="w-8" />
             </div>
@@ -306,7 +321,7 @@ const popoverStyle = computed(() => ({
             <div class="mb-3 flex items-center justify-between">
               <div class="w-8" />
               <div class="text-sm font-medium">
-                {{ monthLabel(nextMonthDate) }}
+                {{ nextMonthLabel }}
               </div>
               <Button
                 variant="ghost"
@@ -358,6 +373,6 @@ const popoverStyle = computed(() => ({
           </span>
         </div>
       </div>
-    </Teleport>
+    </component>
   </div>
 </template>

@@ -108,6 +108,11 @@ Practical guidance:
 - keep sample data small, explicit, and deterministic
 - choose stable ids and labels in stories so controls and screenshots stay readable
 - if a floating menu, dropdown, or panel is involved, give the story enough height and positioning context to reveal clipping or overlay bugs
+- for shared overlays that normally `Teleport` to `body`, prefer a `teleportTo?: string | null` prop so stories and tests can opt out with `null`
+- Histoire stories for teleported overlays should usually pass `teleportTo=null` when the preview needs the panel, drawer, or popover to stay visually attached to the story canvas
+- when a shared component is expected to render inside Histoire, do not assume Nuxt auto-imports are always available in the sandbox runtime
+- for app-level composables used by shared UI, prefer explicit imports such as `import { useLocale } from '~/composables/useLocale'` instead of relying only on Nuxt auto-import discovery
+- if a story stays on `Loading...` with a blank preview, check the sandbox console first; a missing composable import can fail component setup before Histoire surfaces a visible error
 
 ## Documentation Maintenance
 
