@@ -16,12 +16,18 @@ const props = withDefaults(
     placeholder?: string
     searchPlaceholder?: string
     disabled?: boolean
+    selectedLabelText?: string
+    emptyLabelText?: string
+    teleportTo?: string | null
   }>(),
   {
     modelValue: null,
     placeholder: 'Select option',
     searchPlaceholder: 'Search…',
     disabled: false,
+    selectedLabelText: undefined,
+    emptyLabelText: undefined,
+    teleportTo: 'body',
   },
 )
 
@@ -29,7 +35,14 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: string | number | null): void
 }>()
 
-const { t } = useLocale()
+let localeText: ((key: string) => string) | null = null
+
+try {
+  const { t } = useLocale()
+  localeText = (key: string) => String(t(key))
+} catch {
+  localeText = null
+}
 
 const rootRef = ref<HTMLElement | null>(null)
 const popoverRef = ref<HTMLElement | null>(null)
@@ -59,8 +72,9 @@ const filteredOptions = computed(() => {
 })
 
 const resolvedPlaceholder = computed(() => props.placeholder)
-const selectedBadgeLabel = computed(() => t('ui.selected'))
-const emptyLabel = computed(() => t('ui.noOptions'))
+const selectedBadgeLabel = computed(() => props.selectedLabelText ?? localeText?.('ui.selected') ?? 'Selected')
+const emptyLabel = computed(() => props.emptyLabelText ?? localeText?.('ui.noOptions') ?? 'No options')
+const useTeleportedPopover = computed(() => Boolean(props.teleportTo))
 const popoverStyle = computed(() => ({
   top: `${popoverPosition.value.top}px`,
   left: `${popoverPosition.value.left}px`,
@@ -194,13 +208,16 @@ onBeforeUnmount(() => {
       @input="onInput"
       @keydown="handleInputKeydown"
     >
-    <Teleport to="body">
+    <component
+      :is="useTeleportedPopover ? 'Teleport' : 'div'"
+      v-bind="useTeleportedPopover ? { to: props.teleportTo } : {}"
+    >
       <div
         v-if="isOpen"
         :id="listboxId"
         ref="popoverRef"
-        class="fixed z-[70] rounded-md border bg-popover p-1 text-sm shadow-md"
-        :style="popoverStyle"
+        :class="useTeleportedPopover ? 'fixed z-[70] rounded-md border bg-popover p-1 text-sm shadow-md' : 'absolute left-0 top-full z-[70] mt-1 w-full rounded-md border bg-popover p-1 text-sm shadow-md'"
+        :style="useTeleportedPopover ? popoverStyle : undefined"
         role="listbox"
       >
         <div class="max-h-56 overflow-auto">
@@ -229,6 +246,6 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </div>
-    </Teleport>
+    </component>
   </div>
 </template>

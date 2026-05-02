@@ -243,19 +243,12 @@ const buildLogLink = (params: Record<string, string>) =>
             </div>
             <div class="space-y-2">
               <Label for="trend-days">{{ t('ui.trendWindow') }}</Label>
-              <select
+              <UiSelect
                 id="trend-days"
-                v-model.number="trendDays"
-                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option
-                  v-for="option in trendOptions"
-                  :key="option"
-                  :value="option"
-                >
-                  {{ t('ui.lastDays', { days: option }) }}
-                </option>
-              </select>
+                :model-value="trendDays"
+                :options="trendOptions.map(option => ({ value: option, label: t('ui.lastDays', { days: option }) }))"
+                @update:model-value="trendDays = Number($event) as (typeof trendOptions)[number]"
+              />
             </div>
             <div
               v-if="showRefreshingState"

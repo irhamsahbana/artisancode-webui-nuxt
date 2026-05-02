@@ -17,12 +17,22 @@ const props = withDefaults(
     placeholder?: string
     searchPlaceholder?: string
     disabled?: boolean
+    displayValue?: string | null
+    selectedLabelText?: string
+    emptyLabelText?: string
+    clearLabelText?: string
+    teleportTo?: string | null
   }>(),
   {
     modelValue: null,
     placeholder: 'Select option',
     searchPlaceholder: 'Search…',
     disabled: false,
+    displayValue: null,
+    selectedLabelText: undefined,
+    emptyLabelText: undefined,
+    clearLabelText: undefined,
+    teleportTo: 'body',
   },
 )
 
@@ -30,14 +40,27 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: string | null): void
 }>()
 
-const { t } = useLocale()
+let localeText: ((key: string) => string) | null = null
+
+try {
+  const { t } = useLocale()
+  localeText = (key: string) => String(t(key))
+} catch {
+  localeText = null
+}
 
 const rootRef = ref<HTMLElement | null>(null)
+const popoverRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
 const query = ref('')
 const debouncedQuery = ref('')
 const listboxId = useId()
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
+const popoverPosition = ref({
+  top: 0,
+  left: 0,
+  width: 0,
+})
 
 interface TreeNode {
   id: string
@@ -50,7 +73,7 @@ const selectedItem = computed(() => {
   return props.items.find((item) => item.id === props.modelValue) ?? null
 })
 
-const selectedLabel = computed(() => selectedItem.value?.name ?? '')
+const selectedLabel = computed(() => props.displayValue ?? selectedItem.value?.name ?? '')
 
 const buildTree = (items: TreeItem[]): TreeNode[] => {
   const map = new Map<string, TreeNode>()
@@ -120,11 +143,36 @@ const filteredNodes = computed(() => {
 })
 
 const resolvedPlaceholder = computed(() => props.placeholder)
-const selectedBadgeLabel = computed(() => t('ui.selected'))
-const emptyLabel = computed(() => t('ui.noOptions'))
+const selectedBadgeLabel = computed(() => props.selectedLabelText ?? localeText?.('ui.selected') ?? 'Selected')
+const emptyLabel = computed(() => props.emptyLabelText ?? localeText?.('ui.noOptions') ?? 'No options')
+const useTeleportedPopover = computed(() => Boolean(props.teleportTo))
+const popoverStyle = computed(() => ({
+  top: `${popoverPosition.value.top}px`,
+  left: `${popoverPosition.value.left}px`,
+  width: `${popoverPosition.value.width}px`,
+}))
+
+const updatePopoverPosition = () => {
+  if (!import.meta.client || !rootRef.value) {
+    return
+  }
+
+  const rect = rootRef.value.getBoundingClientRect()
+  const padding = 8
+  const width = Math.max(160, rect.width)
+  popoverPosition.value = {
+    top: rect.bottom + 4,
+    left: Math.min(
+      Math.max(padding, rect.left),
+      Math.max(padding, window.innerWidth - width - padding),
+    ),
+    width,
+  }
+}
 
 const openList = () => {
   if (props.disabled) return
+  updatePopoverPosition()
   isOpen.value = true
 }
 
@@ -160,12 +208,18 @@ const onInput = (event: Event) => {
   debounceTimer = setTimeout(() => {
     debouncedQuery.value = query.value
   }, 200)
-  if (!isOpen.value) isOpen.value = true
+  if (!isOpen.value) {
+    updatePopoverPosition()
+    isOpen.value = true
+  }
 }
 
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as Node
-  if (rootRef.value && !rootRef.value.contains(target)) {
+  if (rootRef.value?.contains(target) || popoverRef.value?.contains(target)) {
+    return
+  }
+  if (rootRef.value) {
     closeList()
   }
 }
@@ -226,7 +280,7 @@ onBeforeUnmount(() => {
       <button
         v-if="selectedLabel && !disabled"
         type="button"
-        :aria-label="t('ui.clear')"
+        :aria-label="props.clearLabelText ?? localeText?.('ui.clear') ?? 'Clear'"
         class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
         @click="clearSelection"
       >
@@ -257,43 +311,50 @@ onBeforeUnmount(() => {
         </svg>
       </button>
     </div>
-    <div
-      v-if="isOpen"
-      :id="listboxId"
-      class="absolute z-20 mt-1 w-full rounded-md border bg-popover p-1 text-sm shadow-md"
-      role="listbox"
+    <component
+      :is="useTeleportedPopover ? 'Teleport' : 'div'"
+      v-bind="useTeleportedPopover ? { to: props.teleportTo } : {}"
     >
-      <div class="max-h-64 overflow-auto">
-        <button
-          v-for="node in filteredNodes"
-          :key="node.id"
-          type="button"
-          class="flex w-full items-center justify-between rounded px-3 py-2 text-left hover:bg-accent"
-          role="option"
-          :aria-selected="node.id === props.modelValue"
-          @click="selectOption(node)"
-        >
-          <span :style="{ paddingLeft: `${node.indent}px` }">
-            <span
-              v-if="node.depth > 0"
-              class="mr-1 text-muted-foreground"
-            >└</span>
-            {{ node.name }}
-          </span>
-          <span
-            v-if="node.id === props.modelValue"
-            class="text-xs text-muted-foreground"
+      <div
+        v-if="isOpen"
+        :id="listboxId"
+        ref="popoverRef"
+        :class="useTeleportedPopover ? 'fixed z-[70] rounded-md border bg-popover p-1 text-sm shadow-md' : 'absolute left-0 top-full z-[70] mt-1 w-full rounded-md border bg-popover p-1 text-sm shadow-md'"
+        :style="useTeleportedPopover ? popoverStyle : undefined"
+        role="listbox"
+      >
+        <div class="max-h-64 overflow-auto">
+          <button
+            v-for="node in filteredNodes"
+            :key="node.id"
+            type="button"
+            class="flex w-full items-center justify-between rounded px-3 py-2 text-left hover:bg-accent"
+            role="option"
+            :aria-selected="node.id === props.modelValue"
+            @click="selectOption(node)"
           >
-            {{ selectedBadgeLabel }}
-          </span>
-        </button>
-        <div
-          v-if="filteredNodes.length === 0"
-          class="px-3 py-2 text-muted-foreground"
-        >
-          {{ emptyLabel }}
+            <span :style="{ paddingLeft: `${node.indent}px` }">
+              <span
+                v-if="node.depth > 0"
+                class="mr-1 text-muted-foreground"
+              >└</span>
+              {{ node.name }}
+            </span>
+            <span
+              v-if="node.id === props.modelValue"
+              class="text-xs text-muted-foreground"
+            >
+              {{ selectedBadgeLabel }}
+            </span>
+          </button>
+          <div
+            v-if="filteredNodes.length === 0"
+            class="px-3 py-2 text-muted-foreground"
+          >
+            {{ emptyLabel }}
+          </div>
         </div>
       </div>
-    </div>
+    </component>
   </div>
 </template>
