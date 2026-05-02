@@ -4,11 +4,11 @@ Nuxt 4 + Vue 3 frontend for the ArtisanCode admin web application.
 
 ## Docs
 
+- [Frontend Reference](./docs/frontend-reference.md)
 - [Architecture](./docs/architecture.md)
-- [Coding Conventions](./docs/coding_conventions.md)
-- [Development Workflow](./docs/development_workflow.md)
 - [Localization](./docs/localization.md)
-- [Tech Stack](./docs/tech_stack.md)
+- [Resource Patterns](./docs/resource_patterns.md)
+- [Testing And Verification](./docs/testing-and-verification.md)
 
 ## Setup
 
@@ -70,4 +70,4 @@ Resource pages currently use a mix of:
 - optional-id routes like `/resources/roles/:id?`
 - dedicated detail pages like `/resources/companies/[id]`
 
-See [Architecture](./docs/architecture.md) for the current route map and module inventory.
+See [Architecture](./docs/architecture.md) for the current route families and module boundaries.

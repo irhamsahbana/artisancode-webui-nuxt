@@ -1,6 +1,8 @@
 # Resource Patterns
 
-## Standard List Page
+Use this guide for CRUD-style tenant-admin pages and internal-admin resource screens.
+
+## Route Shapes
 
 - Module file: `app/modules/resources/{resource-name}/{resource-name}-page.vue`
 - Route wrapper: `app/pages/resources/{resource-name}.vue`
@@ -22,6 +24,8 @@ Optional-id wrappers currently include:
 - `app/pages/resources/invoices.vue` -> `/app/resources/invoices/:id?`
 
 Prefer matching the feature's existing route pattern rather than forcing every resource into one template.
+
+Not every resource uses the exact same route shape. Prefer the feature's existing pattern when extending it.
 
 ## Shared Resource Flow
 

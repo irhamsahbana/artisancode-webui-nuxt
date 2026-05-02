@@ -1,81 +1,44 @@
 # Localization
 
-## Current State
+## Active Setup
 
-Web UI multi-language is implemented with `@nuxtjs/i18n` for Indonesian (`id`) and English (`en`).
+The frontend uses `@nuxtjs/i18n` with:
 
-Main building blocks:
+- default locale `id`
+- secondary locale `en`
+- `prefix_except_default` routing
+- locale cookie `ac_locale`
+
+Key files:
 
 - `nuxt.config.ts`
-  - Registers `@nuxtjs/i18n`.
-  - Uses `prefix_except_default`, so Indonesian keeps unprefixed URLs and English uses `/en/...`.
-  - Persists browser language selection in cookie `ac_locale`.
-- `i18n/locales/id.ts` and `i18n/locales/en.ts`
-  - Store keyed application messages.
+- `i18n/locales/id.ts`
+- `i18n/locales/en.ts`
 - `app/composables/useLocale.ts`
-  - Wraps Nuxt i18n for app code.
-  - Exposes `locale`, `setLocale`, `t`, `format`, and locale switcher options.
-  - Does not expose raw-string translation fallbacks; app copy must use keyed messages.
 - `app/composables/useApi.ts`
-  - Sends `Accept-Language` header on every API request using current UI locale.
 - `server/api/proxy/[...path].ts`
-  - Proxies the header to backend.
-  - Localizes proxy-level fallback errors when backend is unreachable.
-- `app/app.vue`
-  - Sets `<html lang>` from current locale.
-- `app/layouts/default.vue`
-  - Provides the main language switcher and locale-aware navigation.
 
-## Supported Locales
+## Rules
 
-- `id` is default.
-- `en` is supported end-to-end in the current UI flow.
+- Use keyed messages through `useLocale().t(...)` or `useLocale().format(...)`.
+- Do not add raw-string translation fallbacks or feature-local translation maps.
+- Keep `id.ts` and `en.ts` in sync when adding or removing keys.
+- Prefer existing shared namespaces before creating new keys.
+- Use `useLocalePath()` for localized navigation and route objects.
+- Let `useApi()` handle `Accept-Language`. Do not set it manually in feature code.
 
-## How Locale Flows
+## Flow
 
-1. User picks language from UI.
-2. `useLocale().setLocale(...)` delegates to Nuxt i18n, updates cookie `ac_locale`, and changes the localized route when needed.
-3. Components read translated copy through `t(...)` or `format(...)`.
-4. `useApi()` sends `Accept-Language: id|en`.
-5. Nuxt proxy forwards request to backend.
-6. Backend returns localized `message` and `errors`.
+1. UI reads and changes locale through `useLocale()`.
+2. Nuxt i18n updates the current route and `ac_locale` cookie.
+3. Feature code renders copy from locale keys.
+4. `useApi()` forwards the active locale through `Accept-Language`.
+5. Nitro proxy passes the header to the backend.
 
-## When To Use Which Helper
+## Review Checklist
 
-Use `useLocale().t(...)` when:
-
-- text is app-owned copy
-- label can be represented by a stable key
-- text should live with other shared messages
-
-Use `useLocale().format(...)` when:
-
-- message contains placeholders like `{name}` or `{selected}`
-
-Shared components should receive either translated strings from their caller or explicit locale keys that they pass to `t(...)`. Do not introduce raw-string mapping tables.
-
-Use `useLocalePath()` when:
-
-- creating `NuxtLink` destinations
-- calling `navigateTo(...)`
-- pushing app routes with `router.push(...)`
-- building route objects for resource links
-
-## Change Rules
-
-- Do not hardcode user-facing copy when an existing locale key fits.
-- Before adding a new locale key, check whether an existing shared key already fits, especially under `common.*`, `ui.*`, or feature-local namespaces already present in `i18n/locales/*.ts`.
-- Do not send language headers manually from feature code. Use `useApi()`.
-- Do not create a second locale store.
-- Keep `i18n/locales/id.ts` and `i18n/locales/en.ts` entries in sync when adding new locale keys.
-- When removing a resource or feature, remove obsolete locale keys in the same task instead of leaving dead translations behind.
-- Keep internal routes locale-aware with `useLocalePath()`.
-- Keep shared component props clear about whether they expect translated text or locale keys.
-
-For resource tables and dialogs, prefer stable shared keys for common labels such as code, name, status, owner, created/updated timestamps, and close/save actions before creating resource-specific aliases.
-
-## Backend Integration Notes
-
-- Backend language selection depends on `Accept-Language`.
-- If frontend locale changes but API errors remain Indonesian, first verify the request header is being sent through `useApi()`.
+- New user-facing copy is backed by locale keys.
+- Localized routes still resolve after navigation changes.
+- Shared components are clear about whether they accept translated strings or keys.
+- Deleted features also remove stale locale keys.
 - Proxy fallback messages are translated in `server/api/proxy/[...path].ts`, so backend-down scenarios still follow current locale.
