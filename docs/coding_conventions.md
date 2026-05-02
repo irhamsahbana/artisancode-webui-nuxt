@@ -61,7 +61,7 @@
 
 - Follow `docs/resource_patterns.md` for CRUD-style pages, resource shells, route patterns, and list defaults.
 - Follow `docs/ui_system.md` for shared UI primitives, interaction states, loading behavior, color mode, and date/time readability.
-- Reuse `UiSelect` for standard native select behavior, `SearchableSelect` for flat searchable option lists, and `SearchableTreeSelect` for hierarchical org-unit style selection.
+- Reuse `Select` for standard native select behavior, `SearchableSelect` for flat searchable option lists, and `SearchableTreeSelect` for hierarchical org-unit style selection.
 
 ## SSR And Client Rendering
 

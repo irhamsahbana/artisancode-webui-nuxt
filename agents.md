@@ -36,7 +36,7 @@ This file is the short entry point for work in `webui/`.
 
 - Component auto-registration uses `pathPrefix: false`, so use filename-based PascalCase tags such as `<Button>` and `<ResourceList>`.
 - The `~` alias points to `app/`; avoid `~/app/...`.
-- Active shared UI foundations include `ResourceList`, `ResourceTable`, `FormDialogShell`, `UiSelect`, `SearchableSelect`, `SearchableTreeSelect`, and `ui/*` primitives.
+- Active shared UI foundations include `ResourceList`, `ResourceTable`, `FormDialogShell`, `Select`, `SearchableSelect`, `SearchableTreeSelect`, and `ui/*` primitives.
 - Shared internal resource controls now include `InternalResourceFilterPanel` and `InternalResourceListControls`; prefer them over ad hoc filter drawers or export menus on internal admin pages.
 - Shared test helpers live under `app/testing/`, especially `component-test-utils.ts`, `api-response-fixtures.ts`, and `setup-component-tests.ts`.
 - Resource filters and header action menus must follow `docs/resource_patterns.md`: use shared floating/action primitives, coordinate open states, avoid inline filter layout shifts, and keep compact action controls from forcing full-width rows.

@@ -243,7 +243,7 @@ const buildLogLink = (params: Record<string, string>) =>
             </div>
             <div class="space-y-2">
               <Label for="trend-days">{{ t('ui.trendWindow') }}</Label>
-              <UiSelect
+              <Select
                 id="trend-days"
                 :model-value="trendDays"
                 :options="trendOptions.map(option => ({ value: option, label: t('ui.lastDays', { days: option }) }))"

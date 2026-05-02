@@ -204,7 +204,7 @@ Foundational shared UI components:
 - `ResourceList`
 - `ResourceTable`
 - `FormDialogShell`
-- `UiSelect`
+- `Select`
 - `SearchableSelect`
 - `SearchableTreeSelect`
 - `LocationMapPicker`
