@@ -23,6 +23,7 @@ This file is the short entry point for work in `webui/`.
 - Use `useDateTime()` or `app/utils/date-time.ts` helpers for dates shown to users. Do not expose raw ISO timestamps in UI.
 - Keep agent-facing documentation in English unless a user explicitly asks for another language.
 - Run the smallest meaningful verification first, normally `pnpm typecheck` then `pnpm lint`.
+- When Vue component or composable behavior changes, run the relevant `pnpm exec vitest run --config vitest.config.ts <suite>` or `pnpm test:component` before broader verification.
 - When refactoring resource helpers, composables, or shared UI wiring, add or update focused tests beside the feature using `*.component.vitest.ts` for Vue/composable coverage or `*.test.ts` for pure helper coverage.
 - Use `docs/playwright_testing.md` for local route checks, browser screenshots, Browser/Playwright MCP fallback behavior, and dev-server cleanup.
 - For browser smoke tests, start Nuxt with `pnpm dev --port <free-port> --host 127.0.0.1` unless the testing guide calls for a different setup.
