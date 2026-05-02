@@ -4,7 +4,7 @@ import vueParser from 'vue-eslint-parser'
 
 export default [
   {
-    ignores: ['.nuxt/**', '.output/**', 'dist/**'],
+    ignores: ['.nuxt/**', '.output/**', '.histoire/**', 'dist/**'],
   },
   ...vue.configs['flat/recommended'],
   {

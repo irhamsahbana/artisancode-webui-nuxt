@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { ChevronRight, Languages, LogOut, Settings } from 'lucide-vue-next'
+import { useLocale } from '~/composables/useLocale'
 
-defineProps<{
+const props = withDefaults(defineProps<{
   currentLocaleBadge: string
   displayName: string
   expanded: boolean
   isInternalRoute: boolean
   isSwitchingLocale: boolean
   sessionActive: boolean
+  settingsPath?: string
   tenantName: string
-}>()
+}>(), {
+  settingsPath: '/app/settings/tenant',
+})
 
 defineEmits<{
   logout: []
@@ -18,7 +22,6 @@ defineEmits<{
 }>()
 
 const { t } = useLocale()
-const localePath = useLocalePath()
 </script>
 
 <template>
@@ -36,7 +39,7 @@ const localePath = useLocalePath()
     >
       <div
         v-if="expanded"
-        class="absolute inset-x-0 bottom-full z-20 mb-2 origin-bottom rounded-[28px] border border-sidebar-border/60 bg-[linear-gradient(180deg,hsl(var(--sidebar-accent)/0.92),hsl(var(--sidebar)))] p-2 shadow-[0_28px_60px_-38px_rgba(2,6,23,0.98)] backdrop-blur-xl"
+        class="absolute inset-x-0 bottom-full z-20 mb-2 origin-bottom rounded-[28px] border border-sidebar-border/60 bg-[linear-gradient(180deg,hsl(var(--sidebar-accent)/0.92),hsl(var(--sidebar-background)))] p-2 shadow-[0_28px_60px_-38px_rgba(2,6,23,0.98)] backdrop-blur-xl"
       >
         <div class="space-y-1.5">
           <button
@@ -52,8 +55,8 @@ const localePath = useLocalePath()
             <span class="text-xs text-sidebar-foreground/55">{{ currentLocaleBadge }}</span>
           </button>
           <NuxtLink
-            v-if="!isInternalRoute"
-            :to="localePath('/app/settings/tenant')"
+            v-if="!props.isInternalRoute"
+            :to="props.settingsPath"
             class="flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/84 transition hover:bg-sidebar hover:text-sidebar-foreground"
           >
             <span class="flex items-center gap-3">

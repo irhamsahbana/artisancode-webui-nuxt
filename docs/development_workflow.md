@@ -8,6 +8,7 @@
    - Build or update Vue components.
    - Keep state local when possible; move reusable logic into composables.
    - Keep route wrappers thin; for CRUD-style resources, prefer a page shell that wires feature-local helpers, composables, and dialog components instead of holding all logic inline.
+   - When working on shared primitives or layout building blocks, add or update colocated Histoire stories under `app/components/ui/` or `app/components/layout/` so visual states stay easy to review in isolation.
 
 3. **Wire Data**:
    - Use `useApi().apiFetch(...)` for app API calls.
@@ -50,6 +51,7 @@ After meaningful changes, run:
 3. `pnpm lint`
 4. `pnpm test:unit` when helper logic, shared utilities, or workflow/agent docs changed
 5. route-level browser smoke test when route or interactive UI behavior changed
+6. `pnpm histoire:build` when you add or change shared Histoire stories or their supporting config
 
 Use `docs/playwright_testing.md` for the browser smoke-test workflow, including local dev server startup, route checks, desktop/mobile screenshots, Browser/Playwright MCP fallback behavior, and dev-server cleanup.
 

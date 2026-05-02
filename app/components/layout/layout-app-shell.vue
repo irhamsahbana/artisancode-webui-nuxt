@@ -49,7 +49,7 @@ const { t } = useLocale()
   <div class="h-screen overflow-hidden">
     <div class="flex h-screen w-full items-stretch overflow-hidden bg-[linear-gradient(180deg,hsl(var(--background)),hsl(var(--background))_72%,hsl(var(--muted)/0.4))] text-foreground">
       <aside
-        class="hidden h-screen w-80 shrink-0 flex-col self-stretch overflow-hidden border-r border-sidebar-border/70 bg-[linear-gradient(180deg,hsl(var(--sidebar))_0%,hsl(var(--sidebar))_62%,hsl(var(--sidebar-accent)/0.42)_100%)] text-sidebar-foreground md:flex"
+        class="hidden h-screen w-80 shrink-0 flex-col self-stretch overflow-hidden border-r border-sidebar-border/70 bg-[linear-gradient(180deg,hsl(var(--sidebar-background))_0%,hsl(var(--sidebar-background))_62%,hsl(var(--sidebar-accent)/0.42)_100%)] text-sidebar-foreground md:flex"
       >
         <div class="border-b border-sidebar-border/70 px-5 pb-5 pt-6">
           <div class="rounded-3xl border border-sidebar-border/60 bg-sidebar-accent/50 p-4 shadow-[0_20px_50px_-40px_rgba(15,23,42,0.9)]">
@@ -168,7 +168,7 @@ const { t } = useLocale()
         v-if="mobileNavOpen"
         class="fixed inset-y-0 left-0 z-[95] flex w-[min(92vw,22rem)] max-w-sm flex-col overflow-hidden border-r border-sidebar-border/80 bg-sidebar text-sidebar-foreground shadow-[0_32px_90px_-48px_rgba(2,6,23,0.95)] md:hidden"
       >
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--sidebar-primary)/0.18),transparent_34%),linear-gradient(180deg,hsl(var(--sidebar))_0%,hsl(var(--sidebar))_58%,hsl(var(--sidebar-accent)/0.82)_100%)]" />
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--sidebar-primary)/0.18),transparent_34%),linear-gradient(180deg,hsl(var(--sidebar-background))_0%,hsl(var(--sidebar-background))_58%,hsl(var(--sidebar-accent)/0.82)_100%)]" />
         <div class="relative flex h-full flex-col">
           <div class="flex items-center justify-between border-b border-sidebar-border/70 px-4 pb-5 pt-[calc(env(safe-area-inset-top)+1rem)]">
             <div class="flex items-center gap-3">
