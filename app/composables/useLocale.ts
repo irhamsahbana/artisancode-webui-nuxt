@@ -1,5 +1,4 @@
 import { computed } from 'vue'
-import { useI18n } from '#imports'
 
 export type AppLocale = 'id' | 'en'
 
