@@ -17,12 +17,15 @@ Common commands:
 
 ```bash
 pnpm dev
+pnpm dev --port <free-port> --host 127.0.0.1
 pnpm build
 pnpm preview
 pnpm typecheck
 pnpm lint
 pnpm test:component
 pnpm test:unit
+pnpm histoire:dev
+pnpm histoire:build
 ```
 
 ## Project Shape
