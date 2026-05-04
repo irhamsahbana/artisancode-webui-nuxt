@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useDateTime } from '~/composables/useDateTime'
 import {
-  currencyCodes,
   formatMoneyAmount,
   formatPriceAmountInput,
   isPriceAmountDraftValid,
@@ -23,6 +22,7 @@ const props = defineProps<{
   formMode: 'create' | 'edit'
   selectedPriceId: string
   selectedPricing: InternalProductPricing | null
+  currencyOptions: Array<{ value: string, label: string }>
 }>()
 
 const emit = defineEmits<{
@@ -63,19 +63,7 @@ const selectedPrice = computed(() => (
   props.items.find((item) => item.id === props.selectedPriceId) ?? null
 ))
 
-const currencyOptions = computed(() => {
-  const selectedCurrency = model.value.currency_code.trim().toUpperCase()
-  const values = selectedCurrency && !currencyCodes.includes(selectedCurrency as typeof currencyCodes[number])
-    ? [selectedCurrency, ...currencyCodes]
-    : [...currencyCodes]
-
-  return values.map((value) => ({
-    value,
-    label: currencyCodes.includes(value as typeof currencyCodes[number])
-      ? t(`internalProducts.prices.currencyOptions.${value}`)
-      : value,
-  }))
-})
+const currencyOptions = computed(() => props.currencyOptions)
 
 const amountInput = computed({
   get: () => formatPriceAmountInput(model.value.amount, locale.value),
@@ -371,14 +359,21 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
               <div class="grid gap-4 md:grid-cols-2">
                 <div class="space-y-2">
                   <Label for="internal-price-currency">{{ t('ui.currency') }}</Label>
-                  <SearchableSelect
-                    id="internal-price-currency"
-                    v-model="model.currency_code"
-                    :options="currencyOptions"
-                    :placeholder="t('internalProducts.prices.currencyPlaceholder')"
-                    :search-placeholder="t('internalProducts.prices.currencySearchPlaceholder')"
-                  />
-                </div>
+                <SearchableSelect
+                  id="internal-price-currency"
+                  v-model="model.currency_code"
+                  :options="currencyOptions"
+                  :disabled="currencyOptions.length === 0"
+                  :placeholder="t('internalProducts.prices.currencyPlaceholder')"
+                  :search-placeholder="t('internalProducts.prices.currencySearchPlaceholder')"
+                />
+                <p
+                  v-if="currencyOptions.length === 0"
+                  class="text-xs text-destructive"
+                >
+                  {{ t('billingSettings.currencies.noActiveCurrency') }}
+                </p>
+              </div>
 
                 <div class="space-y-2">
                   <Label for="internal-price-amount">{{ t('internalProducts.prices.amountLabel') }}</Label>

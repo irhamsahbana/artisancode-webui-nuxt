@@ -3,6 +3,7 @@ import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import { normalizePriceAmountInput } from '~/utils/price-format'
 import type {
+  InternalCurrencyOption,
   InternalProduct,
   InternalProductForm,
   InternalProductPrice,
@@ -114,11 +115,16 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
 
   const pricings = ref<InternalProductPricing[]>([])
   const prices = ref<InternalProductPrice[]>([])
+  const activeCurrencies = ref<InternalCurrencyOption[]>([])
 
   const statusOptionList = statusOptions.map((value) => ({
     value,
     label: value,
   }))
+  const activeCurrencyOptions = computed(() => activeCurrencies.value.map(currency => ({
+    value: currency.code,
+    label: `${currency.code} - ${currency.name}`,
+  })))
 
   const hasSavedProduct = computed(() => productForm.id.length > 0)
   const selectedPricing = computed(() => (
@@ -278,11 +284,30 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
     }
   }
 
+  const loadActiveCurrencies = async () => {
+    const response = await apiFetch<ListResponse<InternalCurrencyOption>>('/internal-currencies', {
+      authMode: 'internal',
+      query: {
+        is_active: true,
+        page: 1,
+        paginate: 100,
+      },
+    })
+
+    if (!response.success || !response.data) {
+      activeCurrencies.value = []
+      return
+    }
+
+    activeCurrencies.value = response.data.items ?? []
+  }
+
   const openCreateDialog = () => {
     closeDialog()
     dialogMode.value = 'create'
     dialogOpen.value = true
     pricingForm.internal_product_id = ''
+    void loadActiveCurrencies()
   }
 
   const openEditDialog = async (id: string) => {
@@ -293,6 +318,7 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
 
     const loaded = await loadProduct(id)
     if (loaded) {
+      await loadActiveCurrencies()
       await loadPricings(id)
     }
 
@@ -574,6 +600,10 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
     if (!validatePriceForm()) {
       return
     }
+    if (!activeCurrencies.value.length) {
+      show(t('billingSettings.currencies.noActiveCurrency'), 'error')
+      return
+    }
 
     const startedAtIso = toIsoDateTime(priceForm.started_at)
     const endedAtIso = priceForm.ended_at.trim() ? toIsoDateTime(priceForm.ended_at) : ''
@@ -664,6 +694,7 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
     dialogLoading,
     dialogMode,
     dialogOpen,
+    activeCurrencyOptions,
     hasSavedProduct,
     openCreateDialog,
     openEditDialog,

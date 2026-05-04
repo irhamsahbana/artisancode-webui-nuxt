@@ -41,6 +41,7 @@ const {
   dialogLoading,
   dialogMode,
   dialogOpen,
+  activeCurrencyOptions,
   hasSavedProduct,
   openCreateDialog,
   priceEditorMode,
@@ -191,6 +192,7 @@ const updateActionMenuOpen = (open: boolean) => {
     :price-deleting-id="deletingPriceId"
     :price-form-mode="priceEditorMode"
     :selected-price-id="selectedPriceId"
+    :active-currency-options="activeCurrencyOptions"
     @close="closeDialog"
     @delete-price="deletePrice"
     @delete-pricing="deletePricing"

@@ -3,6 +3,7 @@ import {
   Building2,
   ClipboardList,
   Clock3,
+  CreditCard,
   FileText,
   LayoutGrid,
   MapPin,
@@ -75,6 +76,7 @@ export const useDefaultLayout = () => {
             { label: t('ui.clients'), to: '/app/internal/clients', icon: Building2 },
             { label: t('ui.users'), to: '/app/internal/users', icon: ShieldCheck },
             { label: t('ui.products'), to: '/app/internal/products', icon: Building2 },
+            { label: t('billingSettings.currencies.nav'), to: '/app/internal/currencies', icon: CreditCard },
           ],
         },
         {
@@ -92,6 +94,12 @@ export const useDefaultLayout = () => {
       {
         title: t('layout.main'),
         items: [{ label: t('layout.dashboard'), to: '/app', icon: LayoutGrid }],
+      },
+      {
+        title: t('layout.billing'),
+        items: [
+          { label: t('billing.nav.payments'), to: '/app/billing/payments', icon: CreditCard },
+        ],
       },
       {
         title: t('layout.resources'),

@@ -64,7 +64,8 @@ export default {
     language: "Language",
     logout: "Log out",
     themeLight: "Light",
-    themeDark: "Dark"
+    themeDark: "Dark",
+    billing: "Billing"
   },
   auth: {
     welcomeBack: "Welcome back",
@@ -199,6 +200,138 @@ export default {
       changeUnavailable: "Code changes are not available in the current Google SSO version.",
       refreshAction: "Refresh data",
       loadFailed: "Failed to load tenant profile."
+    }
+  },
+  billing: {
+    nav: {
+      payments: "Payments",
+      plans: "Plans",
+      checkout: "Checkout",
+      paymentStatus: "Payment status",
+      subscription: "Subscription",
+      invoices: "Invoices",
+      addOns: "Add-ons"
+    },
+    common: {
+      amount: "Amount",
+      billingCycle: "Billing cycle",
+      paymentRail: "Payment rail",
+      doku: "DOKU",
+      managePermissionHint: "Billing changes are limited to owners and admins with billing permission. Read-only data can still load when your account is allowed."
+    },
+    payments: {
+      title: "Payments",
+      description: "Manage payments, choose a plan, and review invoice history.",
+      refresh: "Refresh",
+      choosePlan: "Choose plan",
+      currentBalance: "Current credits",
+      history: "Payment history",
+      historyHint: "Checkout invoices will appear here after they are created.",
+      date: "Date",
+      invoice: "Invoice",
+      pay: "Pay",
+      invoiceAction: "Invoice",
+      empty: "No payment invoices yet."
+    },
+    planModal: {
+      title: "Choose plan",
+      description: "Choose an available plan, then continue payment through DOKU.",
+      checkoutHint: "The invoice will be created and shown in Payments after checkout is created."
+    },
+    cycles: {
+      monthly: "Monthly",
+      annual: "Annual"
+    },
+    plans: {
+      title: "Billing plans",
+      description: "Compare available tenant plans and choose the pricing cycle before checkout.",
+      currency: "Currency",
+      defaultDescription: "Plan details come from the billing API.",
+      selectPlan: "Select",
+      empty: "No billing plans are available yet."
+    },
+    checkout: {
+      title: "Checkout",
+      description: "Review the selected plan before creating a DOKU checkout.",
+      noPlanTitle: "No plan selected",
+      summaryHint: "Backend remains the source of truth for final invoice and payment state.",
+      confirm: "Continue to DOKU",
+      redirecting: "Redirecting…"
+    },
+    paymentStatus: {
+      title: "Payment status",
+      description: "Refresh backend invoice and attempt state after returning from DOKU.",
+      latestInvoice: "Latest invoice",
+      attempts: "Payment attempts"
+    },
+    subscription: {
+      title: "Subscription",
+      description: "Review current plan, lifecycle state, renewal timing, and entitlement snapshot.",
+      freePlan: "Free plan",
+      renewalAt: "Renewal",
+      features: "Features",
+      usageLimits: "Usage limits"
+    },
+    invoices: {
+      title: "Invoice history",
+      description: "Review tenant invoices and distinguish open, paid, expired, and cancelled states.",
+      recent: "Recent invoices",
+      empty: "No invoices are available yet."
+    },
+    addOns: {
+      title: "Add-ons",
+      description: "Review active add-ons and entitlement impact. Add-on mutation actions will use the tenant billing API.",
+      current: "Current add-ons",
+      empty: "No add-ons active."
+    },
+    status: {
+      unknown: "Unknown",
+      invoice: {
+        draft: "Draft",
+        open: "Open",
+        partiallyPaid: "Partially paid",
+        paid: "Paid",
+        expired: "Expired",
+        cancelled: "Cancelled"
+      },
+      payment: {
+        initiated: "Initiated",
+        pending: "Pending",
+        succeeded: "Succeeded",
+        failed: "Failed",
+        expired: "Expired",
+        cancelled: "Cancelled"
+      },
+      subscription: {
+        free: "Free",
+        pendingActivation: "Pending activation",
+        active: "Active",
+        gracePeriod: "Grace period",
+        suspended: "Suspended",
+        cancelled: "Cancelled",
+        expired: "Expired"
+      },
+      receipt: {
+        pendingVerification: "Pending verification",
+        accepted: "Accepted",
+        rejected: "Rejected"
+      }
+    },
+    errors: {
+      generic: "Billing request failed.",
+      forbiddenBillingAction: "You do not have permission to perform this billing action.",
+      planNotAvailable: "This plan is not available.",
+      addOnNotCompatible: "This add-on is not compatible with the selected plan.",
+      checkoutAlreadyInProgress: "A checkout is already in progress.",
+      checkoutReplacementNotAllowed: "This checkout cannot replace the active checkout.",
+      invoiceNotPayable: "This invoice is not payable.",
+      paymentAttemptNotRetryable: "This payment attempt cannot be retried.",
+      webhookSignatureInvalid: "The payment provider signature is invalid.",
+      webhookEventDuplicate: "This payment event was already processed.",
+      paymentReceiptAlreadyVerified: "This payment receipt has already been verified.",
+      subscriptionChangeNotAllowed: "This subscription change is not allowed.",
+      dokuStatusUnmapped: "The DOKU status is not mapped yet.",
+      dokuEventNotTerminal: "The DOKU event is not final yet."
     }
   },
   marketing: {
@@ -596,6 +729,46 @@ export default {
       effectiveEndLabel: "Effective Until",
       effectiveStartHint: "Choose the date and time when this price becomes active.",
       effectiveEndHint: "Leave empty if this price has no end date."
+    }
+  },
+  billingSettings: {
+    currencies: {
+      nav: "Currencies",
+      title: "Currencies",
+      description: "Manage platform currencies that can be used for SaaS billing.",
+      add: "Add currency",
+      search: "Search by code or name",
+      empty: "No currencies found.",
+      defaultBadge: "Default",
+      activate: "Activate",
+      deactivate: "Deactivate",
+      setDefault: "Set default",
+      manageProviders: "Manage providers",
+      noActiveCurrency: "No active currency is available. Activate a currency in Billing Settings first.",
+      saveFailed: "Failed to save currency.",
+      deleteFailed: "Failed to delete currency.",
+      deleteConfirm: "Delete currency {code}?",
+      invalidJson: "Metadata JSON is invalid.",
+      providerTitle: "Provider support for {code}",
+      providerHint: "DOKU checkout is currently configured for IDR. Enable other currencies only after DOKU account and integration support are confirmed.",
+      providerSaveFailed: "Failed to save provider currency.",
+      providerActive: "Active for provider",
+      providerMinAmount: "Min amount",
+      providerMaxAmount: "Max amount",
+      filters: {
+        all: "All",
+        active: "Active",
+        inactive: "Inactive"
+      },
+      columns: {
+        code: "Code",
+        name: "Name",
+        symbol: "Symbol",
+        decimalPlaces: "Decimal places",
+        status: "Status",
+        default: "Default",
+        sortOrder: "Sort order"
+      }
     }
   },
   internalCommerce: {

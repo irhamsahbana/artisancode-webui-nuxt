@@ -60,3 +60,8 @@ export type InternalProductPriceForm = {
   started_at: string
   ended_at: string
 }
+
+export type InternalCurrencyOption = {
+  code: string
+  name: string
+}

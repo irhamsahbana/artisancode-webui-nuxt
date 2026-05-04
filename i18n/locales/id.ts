@@ -64,7 +64,8 @@ export default {
     language: "Bahasa",
     logout: "Keluar",
     themeLight: "Terang",
-    themeDark: "Gelap"
+    themeDark: "Gelap",
+    billing: "Billing"
   },
   auth: {
     welcomeBack: "Selamat datang kembali",
@@ -199,6 +200,138 @@ export default {
       changeUnavailable: "Perubahan kode belum tersedia di versi Google SSO saat ini.",
       refreshAction: "Muat ulang data",
       loadFailed: "Gagal memuat profil tenant."
+    }
+  },
+  billing: {
+    nav: {
+      payments: "Payments",
+      plans: "Paket",
+      checkout: "Checkout",
+      paymentStatus: "Status pembayaran",
+      subscription: "Subscription",
+      invoices: "Invoice",
+      addOns: "Add-on"
+    },
+    common: {
+      amount: "Nominal",
+      billingCycle: "Siklus billing",
+      paymentRail: "Jalur pembayaran",
+      doku: "DOKU",
+      managePermissionHint: "Perubahan billing dibatasi untuk owner dan admin dengan izin billing. Data read-only tetap dapat dimuat bila akun Anda diizinkan."
+    },
+    payments: {
+      title: "Payments",
+      description: "Kelola pembayaran, pilih paket, dan lihat histori invoice.",
+      refresh: "Muat ulang",
+      choosePlan: "Pilih paket",
+      currentBalance: "Current credits",
+      history: "Payment history",
+      historyHint: "Invoice checkout akan muncul di sini setelah dibuat.",
+      date: "Tanggal",
+      invoice: "Invoice",
+      pay: "Bayar",
+      invoiceAction: "Invoice",
+      empty: "Belum ada invoice pembayaran."
+    },
+    planModal: {
+      title: "Pilih paket",
+      description: "Pilih paket yang tersedia, lalu lanjutkan pembayaran lewat DOKU.",
+      checkoutHint: "Invoice akan dibuat dan tampil di Payments setelah checkout berhasil dibuat."
+    },
+    cycles: {
+      monthly: "Bulanan",
+      annual: "Tahunan"
+    },
+    plans: {
+      title: "Paket billing",
+      description: "Bandingkan paket tenant yang tersedia dan pilih siklus harga sebelum checkout.",
+      currency: "Mata uang",
+      defaultDescription: "Detail paket berasal dari API billing.",
+      selectPlan: "Pilih",
+      empty: "Belum ada paket billing yang tersedia."
+    },
+    checkout: {
+      title: "Checkout",
+      description: "Tinjau paket yang dipilih sebelum membuat checkout DOKU.",
+      noPlanTitle: "Belum ada paket dipilih",
+      summaryHint: "Backend tetap menjadi source of truth untuk invoice final dan status pembayaran.",
+      confirm: "Lanjut ke DOKU",
+      redirecting: "Mengalihkan…"
+    },
+    paymentStatus: {
+      title: "Status pembayaran",
+      description: "Muat ulang status invoice dan payment attempt dari backend setelah kembali dari DOKU.",
+      latestInvoice: "Invoice terbaru",
+      attempts: "Payment attempt"
+    },
+    subscription: {
+      title: "Subscription",
+      description: "Tinjau paket aktif, status lifecycle, waktu renewal, dan snapshot entitlement.",
+      freePlan: "Paket gratis",
+      renewalAt: "Renewal",
+      features: "Fitur",
+      usageLimits: "Limit penggunaan"
+    },
+    invoices: {
+      title: "Histori invoice",
+      description: "Tinjau invoice tenant dan bedakan status open, paid, expired, dan cancelled.",
+      recent: "Invoice terbaru",
+      empty: "Belum ada invoice."
+    },
+    addOns: {
+      title: "Add-on",
+      description: "Tinjau add-on aktif dan dampak entitlement. Aksi perubahan add-on akan memakai API tenant billing.",
+      current: "Add-on aktif",
+      empty: "Belum ada add-on aktif."
+    },
+    status: {
+      unknown: "Tidak diketahui",
+      invoice: {
+        draft: "Draft",
+        open: "Open",
+        partiallyPaid: "Terbayar sebagian",
+        paid: "Paid",
+        expired: "Expired",
+        cancelled: "Cancelled"
+      },
+      payment: {
+        initiated: "Initiated",
+        pending: "Pending",
+        succeeded: "Succeeded",
+        failed: "Failed",
+        expired: "Expired",
+        cancelled: "Cancelled"
+      },
+      subscription: {
+        free: "Free",
+        pendingActivation: "Menunggu aktivasi",
+        active: "Active",
+        gracePeriod: "Grace period",
+        suspended: "Suspended",
+        cancelled: "Cancelled",
+        expired: "Expired"
+      },
+      receipt: {
+        pendingVerification: "Menunggu verifikasi",
+        accepted: "Accepted",
+        rejected: "Rejected"
+      }
+    },
+    errors: {
+      generic: "Request billing gagal.",
+      forbiddenBillingAction: "Anda tidak punya izin untuk aksi billing ini.",
+      planNotAvailable: "Paket ini tidak tersedia.",
+      addOnNotCompatible: "Add-on ini tidak kompatibel dengan paket yang dipilih.",
+      checkoutAlreadyInProgress: "Checkout sedang berjalan.",
+      checkoutReplacementNotAllowed: "Checkout ini tidak bisa menggantikan checkout aktif.",
+      invoiceNotPayable: "Invoice ini tidak dapat dibayar.",
+      paymentAttemptNotRetryable: "Payment attempt ini tidak bisa dicoba ulang.",
+      webhookSignatureInvalid: "Signature payment provider tidak valid.",
+      webhookEventDuplicate: "Event pembayaran ini sudah diproses.",
+      paymentReceiptAlreadyVerified: "Receipt pembayaran ini sudah diverifikasi.",
+      subscriptionChangeNotAllowed: "Perubahan subscription ini tidak diizinkan.",
+      dokuStatusUnmapped: "Status DOKU belum dipetakan.",
+      dokuEventNotTerminal: "Event DOKU belum final."
     }
   },
   marketing: {
@@ -596,6 +729,46 @@ export default {
       effectiveEndLabel: "Berakhir Pada",
       effectiveStartHint: "Pilih tanggal dan jam saat harga mulai berlaku.",
       effectiveEndHint: "Kosongkan jika harga berlaku tanpa batas waktu."
+    }
+  },
+  billingSettings: {
+    currencies: {
+      nav: "Mata uang",
+      title: "Mata uang",
+      description: "Kelola mata uang platform yang dapat digunakan untuk SaaS billing.",
+      add: "Tambah mata uang",
+      search: "Cari berdasarkan kode atau nama",
+      empty: "Belum ada mata uang.",
+      defaultBadge: "Default",
+      activate: "Aktifkan",
+      deactivate: "Nonaktifkan",
+      setDefault: "Jadikan default",
+      manageProviders: "Kelola provider",
+      noActiveCurrency: "Belum ada mata uang aktif. Aktifkan mata uang di Billing Settings terlebih dahulu.",
+      saveFailed: "Gagal menyimpan mata uang.",
+      deleteFailed: "Gagal menghapus mata uang.",
+      deleteConfirm: "Hapus mata uang {code}?",
+      invalidJson: "JSON metadata tidak valid.",
+      providerTitle: "Dukungan provider untuk {code}",
+      providerHint: "Checkout DOKU saat ini dikonfigurasi untuk IDR. Aktifkan mata uang lain hanya setelah dukungan akun dan integrasi DOKU dipastikan.",
+      providerSaveFailed: "Gagal menyimpan mata uang provider.",
+      providerActive: "Aktif untuk provider",
+      providerMinAmount: "Jumlah minimum",
+      providerMaxAmount: "Jumlah maksimum",
+      filters: {
+        all: "Semua",
+        active: "Aktif",
+        inactive: "Nonaktif"
+      },
+      columns: {
+        code: "Kode",
+        name: "Nama",
+        symbol: "Simbol",
+        decimalPlaces: "Digit desimal",
+        status: "Status",
+        default: "Default",
+        sortOrder: "Urutan"
+      }
     }
   },
   internalCommerce: {

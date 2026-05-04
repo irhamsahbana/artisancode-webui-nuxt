@@ -39,6 +39,7 @@ const props = defineProps<{
   priceDeletingId: string
   priceFormMode: 'create' | 'edit'
   selectedPriceId: string
+  activeCurrencyOptions: Array<{ value: string, label: string }>
 }>()
 
 const emit = defineEmits<{
@@ -207,6 +208,7 @@ watch(() => props.hasSavedProduct, (next, previous) => {
           :form-mode="priceFormMode"
           :selected-price-id="selectedPriceId"
           :selected-pricing="selectedPricing"
+          :currency-options="activeCurrencyOptions"
           @delete="emit('deletePrice', $event)"
           @select="emit('selectPrice', $event)"
           @start-create="emit('startCreatePrice')"
