@@ -1,4 +1,5 @@
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useIntervalFn } from '@vueuse/core'
 import type { ListResponse } from '~/types/api'
 import type { ApiFetch } from '../roles/types'
 import type { AttendanceLogFilters, ExportJob } from './types'
@@ -27,7 +28,6 @@ export const useAttendanceLogExports = ({
   const listLoading = ref(false)
   const items = ref<ExportJob[]>([])
   const menuOpen = ref(false)
-  let pollingTimer: ReturnType<typeof globalThis.setInterval> | null = null
 
   const completedCount = computed(() => countCompletedExports(items.value))
   const pendingCount = computed(() => countPendingExports(items.value))
@@ -36,14 +36,13 @@ export const useAttendanceLogExports = ({
     export: t('ui.export'),
   }))
 
-  const stopPolling = () => {
-    if (!pollingTimer || !import.meta.client) {
-      return
-    }
-
-    globalThis.clearInterval(pollingTimer)
-    pollingTimer = null
-  }
+  const { pause: stopPolling, resume: startPolling, isActive: isPolling } = useIntervalFn(
+    async () => {
+      await load()
+    },
+    5000,
+    { immediate: false },
+  )
 
   const load = async () => {
     listLoading.value = true
@@ -56,7 +55,9 @@ export const useAttendanceLogExports = ({
       items.value = response.data?.items ?? []
 
       if (shouldPollExports(items.value)) {
-        startPolling()
+        if (!isPolling.value) {
+          startPolling()
+        }
         return
       }
 
@@ -65,16 +66,6 @@ export const useAttendanceLogExports = ({
     finally {
       listLoading.value = false
     }
-  }
-
-  const startPolling = () => {
-    if (pollingTimer || !import.meta.client) {
-      return
-    }
-
-    pollingTimer = globalThis.setInterval(() => {
-      load()
-    }, 5000)
   }
 
   const create = async () => {
@@ -112,8 +103,6 @@ export const useAttendanceLogExports = ({
 
     window.open(item.download_url, '_blank', 'noopener,noreferrer')
   }
-
-  onBeforeUnmount(stopPolling)
 
   return {
     loading,

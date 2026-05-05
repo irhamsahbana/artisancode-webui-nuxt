@@ -270,7 +270,21 @@ export default {
       freePlan: "Paket gratis",
       renewalAt: "Renewal",
       features: "Fitur",
-      usageLimits: "Limit penggunaan"
+      usageLimits: "Limit penggunaan",
+      currentPeriodStart: "Awal periode",
+      currentPeriodEnd: "Akhir periode",
+      nextRenewalAt: "Renewal berikutnya",
+      statusActive: "Aktif",
+      statusGracePeriod: "Grace period",
+      statusSuspended: "Ditangguhkan",
+      statusCancelled: "Dibatalkan",
+      statusExpired: "Kedaluwarsa",
+      statusFree: "Gratis",
+      freeTierTitle: "Paket gratis aktif",
+      freeTierHint: "Anda sedang menggunakan paket gratis. Upgrade ke paket berbayar untuk membuka lebih banyak fitur dan limit yang lebih tinggi.",
+      gracePeriodTitle: "Grace period pembayaran",
+      gracePeriodHint: "Pembayaran terakhir Anda gagal. Perbarui metode pembayaran untuk memulihkan akses penuh.",
+      empty: "Belum ada data subscription."
     },
     invoices: {
       title: "Histori invoice",
@@ -735,26 +749,16 @@ export default {
     currencies: {
       nav: "Mata uang",
       title: "Mata uang",
-      description: "Kelola mata uang platform yang dapat digunakan untuk SaaS billing.",
       add: "Tambah mata uang",
-      search: "Cari berdasarkan kode atau nama",
       empty: "Belum ada mata uang.",
       defaultBadge: "Default",
       activate: "Aktifkan",
       deactivate: "Nonaktifkan",
       setDefault: "Jadikan default",
-      manageProviders: "Kelola provider",
       noActiveCurrency: "Belum ada mata uang aktif. Aktifkan mata uang di Billing Settings terlebih dahulu.",
       saveFailed: "Gagal menyimpan mata uang.",
       deleteFailed: "Gagal menghapus mata uang.",
       deleteConfirm: "Hapus mata uang {code}?",
-      invalidJson: "JSON metadata tidak valid.",
-      providerTitle: "Dukungan provider untuk {code}",
-      providerHint: "Checkout DOKU saat ini dikonfigurasi untuk IDR. Aktifkan mata uang lain hanya setelah dukungan akun dan integrasi DOKU dipastikan.",
-      providerSaveFailed: "Gagal menyimpan mata uang provider.",
-      providerActive: "Aktif untuk provider",
-      providerMinAmount: "Jumlah minimum",
-      providerMaxAmount: "Jumlah maksimum",
       filters: {
         all: "Semua",
         active: "Aktif",
@@ -766,8 +770,7 @@ export default {
         symbol: "Simbol",
         decimalPlaces: "Digit desimal",
         status: "Status",
-        default: "Default",
-        sortOrder: "Urutan"
+        default: "Default"
       }
     }
   },

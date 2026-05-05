@@ -270,7 +270,21 @@ export default {
       freePlan: "Free plan",
       renewalAt: "Renewal",
       features: "Features",
-      usageLimits: "Usage limits"
+      usageLimits: "Usage limits",
+      currentPeriodStart: "Current period start",
+      currentPeriodEnd: "Current period end",
+      nextRenewalAt: "Next renewal",
+      statusActive: "Active",
+      statusGracePeriod: "Grace period",
+      statusSuspended: "Suspended",
+      statusCancelled: "Cancelled",
+      statusExpired: "Expired",
+      statusFree: "Free",
+      freeTierTitle: "Free tier active",
+      freeTierHint: "You're currently on the free tier. Upgrade to a paid plan to unlock more features and higher limits.",
+      gracePeriodTitle: "Payment grace period",
+      gracePeriodHint: "Your last payment didn't go through. Update your payment method to restore full access.",
+      empty: "No subscription data available yet."
     },
     invoices: {
       title: "Invoice history",
@@ -735,26 +749,16 @@ export default {
     currencies: {
       nav: "Currencies",
       title: "Currencies",
-      description: "Manage platform currencies that can be used for SaaS billing.",
       add: "Add currency",
-      search: "Search by code or name",
       empty: "No currencies found.",
       defaultBadge: "Default",
       activate: "Activate",
       deactivate: "Deactivate",
       setDefault: "Set default",
-      manageProviders: "Manage providers",
       noActiveCurrency: "No active currency is available. Activate a currency in Billing Settings first.",
       saveFailed: "Failed to save currency.",
       deleteFailed: "Failed to delete currency.",
       deleteConfirm: "Delete currency {code}?",
-      invalidJson: "Metadata JSON is invalid.",
-      providerTitle: "Provider support for {code}",
-      providerHint: "DOKU checkout is currently configured for IDR. Enable other currencies only after DOKU account and integration support are confirmed.",
-      providerSaveFailed: "Failed to save provider currency.",
-      providerActive: "Active for provider",
-      providerMinAmount: "Min amount",
-      providerMaxAmount: "Max amount",
       filters: {
         all: "All",
         active: "Active",
@@ -766,8 +770,7 @@ export default {
         symbol: "Symbol",
         decimalPlaces: "Decimal places",
         status: "Status",
-        default: "Default",
-        sortOrder: "Sort order"
+        default: "Default"
       }
     }
   },

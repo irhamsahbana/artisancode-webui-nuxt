@@ -1,4 +1,4 @@
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useBanner } from '~/composables/useBanner'
 import { normalizePriceAmountInput } from '~/utils/price-format'
@@ -113,9 +113,9 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
   const pricingForm = reactive<InternalProductPricingForm>(createEmptyPricingForm())
   const priceForm = reactive<InternalProductPriceForm>(createEmptyPriceForm())
 
-  const pricings = ref<InternalProductPricing[]>([])
-  const prices = ref<InternalProductPrice[]>([])
-  const activeCurrencies = ref<InternalCurrencyOption[]>([])
+  const pricings = shallowRef<InternalProductPricing[]>([])
+  const prices = shallowRef<InternalProductPrice[]>([])
+  const activeCurrencies = shallowRef<InternalCurrencyOption[]>([])
 
   const statusOptionList = statusOptions.map((value) => ({
     value,
@@ -124,6 +124,7 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
   const activeCurrencyOptions = computed(() => activeCurrencies.value.map(currency => ({
     value: currency.code,
     label: `${currency.code} - ${currency.name}`,
+    decimalPlaces: currency.decimal_places,
   })))
 
   const hasSavedProduct = computed(() => productForm.id.length > 0)
@@ -607,7 +608,8 @@ export const useInternalProductManager = (onProductSaved: () => void) => {
 
     const startedAtIso = toIsoDateTime(priceForm.started_at)
     const endedAtIso = priceForm.ended_at.trim() ? toIsoDateTime(priceForm.ended_at) : ''
-    const normalizedAmount = normalizePriceAmountInput(priceForm.amount)
+    const selectedCurrency = activeCurrencies.value.find(c => c.code === priceForm.currency_code)
+    const normalizedAmount = normalizePriceAmountInput(priceForm.amount, selectedCurrency?.decimal_places ?? 0)
 
     priceSaving.value = true
 

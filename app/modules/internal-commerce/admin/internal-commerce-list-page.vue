@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, reactive, shallowRef, watch } from 'vue'
-import { Play, X } from 'lucide-vue-next'
+import { computed, shallowRef } from 'vue'
+import { Play } from 'lucide-vue-next'
 import {
   buildCommerceActionPayload,
   normalizeCommerceActionPath,
@@ -8,18 +8,8 @@ import {
 } from '../commerce-format'
 import type { CommerceAction } from '../types'
 import { useDateTime } from '~/composables/useDateTime'
-import {
-  currencyCodes,
-  formatMoneyAmount,
-  formatPriceAmountInput,
-  normalizeLocalizedPriceAmountInput,
-  normalizePriceAmountInput,
-} from '~/utils/price-format'
-import type { ListResponse } from '~/types/api'
-import type {
-  InternalProduct,
-  InternalProductPricing,
-} from '~/modules/resources/internal-products/types'
+import { formatMoneyAmount } from '~/utils/price-format'
+import CommerceCreateDialog from './commerce-create-dialog.vue'
 
 defineOptions({ name: 'InternalCommerceListPage' })
 
@@ -29,43 +19,11 @@ const props = defineProps<{
 
 const { locale, t } = useLocale()
 const { formatReadableDateTime } = useDateTime()
-const { apiFetch } = useApi()
-const { show } = useBanner()
 
 const endpoint = computed(() => `/internal-commerce/${props.resource}`)
 const refreshToken = shallowRef(0)
-const createOpen = shallowRef(false)
-const createMode = shallowRef<'quotation' | 'order'>('order')
-const createSaving = shallowRef(false)
-const clientLoading = shallowRef(false)
-const productLoading = shallowRef(false)
-const pricingLoading = shallowRef(false)
 const actionLoadingKey = shallowRef('')
-const clients = shallowRef<InternalClientOption[]>([])
-const products = shallowRef<InternalProduct[]>([])
-const pricings = shallowRef<InternalProductPricing[]>([])
-
-const createForm = reactive({
-  tenantId: '',
-  internalProductId: '',
-  internalProductPricingId: '',
-  currencyCode: 'IDR',
-  subtotalAmount: '',
-  discountAmount: '0',
-  taxAmount: '0',
-  totalAmount: '',
-  expiresAt: '',
-  invoiceDueAt: '',
-  note: '',
-})
-
-type InternalClientOption = {
-  id: string
-  name: string
-  code: string
-}
-
-type AmountField = 'subtotalAmount' | 'discountAmount' | 'taxAmount' | 'totalAmount'
+const createDialogRef = shallowRef<InstanceType<typeof CommerceCreateDialog> | null>(null)
 
 const pageTitle = computed(() => {
   const titles = {
@@ -73,7 +31,6 @@ const pageTitle = computed(() => {
     orders: 'ui.orders',
     invoices: 'ui.invoices',
   }
-
   return t(titles[props.resource])
 })
 
@@ -81,11 +38,9 @@ const createButtonMode = computed<'quotation' | 'order' | null>(() => {
   if (props.resource === 'quotations') {
     return 'quotation'
   }
-
   if (props.resource === 'orders') {
     return 'order'
   }
-
   return null
 })
 
@@ -93,7 +48,6 @@ const formatDate = (value: unknown) => {
   if (typeof value !== 'string' || !value) {
     return '-'
   }
-
   return formatReadableDateTime(value, undefined, '-')
 }
 
@@ -102,7 +56,6 @@ const formatMoney = (amount: unknown, row: Record<string, unknown>) => {
   if (typeof amount !== 'string' && typeof amount !== 'number') {
     return '-'
   }
-
   return formatMoneyAmount(amount, currencyCode, locale.value)
 }
 
@@ -123,58 +76,6 @@ const formatStatus = (
     label: t(descriptor.labelKey),
     class: statusToneClass[descriptor.tone],
   }
-}
-
-const productOptions = computed(() => products.value.map(product => ({
-  value: product.id,
-  label: `${product.code} - ${product.name}`,
-})))
-
-const pricingOptions = computed(() => pricings.value.map(pricing => ({
-  value: pricing.id,
-  label: `${pricing.code} - ${pricing.name}`,
-})))
-
-const clientOptions = computed(() => clients.value.map(client => ({
-  value: client.id,
-  label: `${client.code} - ${client.name}`,
-})))
-
-const currencyOptions = computed(() => currencyCodes.map(code => ({
-  value: code,
-  label: t(`internalProducts.prices.currencyOptions.${code}`),
-})))
-
-const createTitle = computed(() => (
-  createMode.value === 'quotation'
-    ? t('ui.createQuotation')
-    : t('ui.createOrder')
-))
-
-const createAmountModel = (field: AmountField) => computed({
-  get: () => formatPriceAmountInput(createForm[field], locale.value),
-  set: (value: string) => {
-    createForm[field] = normalizeLocalizedPriceAmountInput(value, locale.value)
-  },
-})
-
-const subtotalAmountInput = createAmountModel('subtotalAmount')
-const discountAmountInput = createAmountModel('discountAmount')
-const taxAmountInput = createAmountModel('taxAmount')
-const totalAmountInput = createAmountModel('totalAmount')
-
-const resetCreateForm = () => {
-  createForm.tenantId = ''
-  createForm.internalProductId = ''
-  createForm.internalProductPricingId = ''
-  createForm.currencyCode = 'IDR'
-  createForm.subtotalAmount = ''
-  createForm.discountAmount = '0'
-  createForm.taxAmount = '0'
-  createForm.totalAmount = ''
-  createForm.expiresAt = ''
-  createForm.invoiceDueAt = ''
-  createForm.note = ''
 }
 
 const parseActions = (row: Record<string, unknown> | null | undefined) => {
@@ -213,206 +114,15 @@ const formatDetailLabel = (key: unknown) => {
   if (typeof key !== 'string') {
     return ''
   }
-
   return detailLabelKeys[key] ? t(detailLabelKeys[key]) : key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())
-}
-
-const toOptionalIso = (value: string) => {
-  const trimmed = value.trim()
-  if (!trimmed) {
-    return undefined
-  }
-
-  const parsed = new Date(trimmed)
-  return Number.isNaN(parsed.getTime()) ? trimmed : parsed.toISOString()
-}
-
-const loadProducts = async () => {
-  if (products.value.length > 0 || productLoading.value) {
-    return
-  }
-
-  productLoading.value = true
-  const response = await apiFetch<ListResponse<InternalProduct>>('/internal-products', {
-    authMode: 'internal',
-    query: {
-      paginate: 100,
-    },
-  })
-  productLoading.value = false
-
-  if (response.success && response.data) {
-    products.value = response.data.items ?? []
-  }
-}
-
-const loadClients = async () => {
-  if (clients.value.length > 0) {
-    if (clients.value.length === 1) {
-      createForm.tenantId = clients.value[0]?.id ?? ''
-    }
-    return
-  }
-
-  if (clientLoading.value) {
-    return
-  }
-
-  clientLoading.value = true
-  const response = await apiFetch<ListResponse<InternalClientOption>>('/internal-clients', {
-    authMode: 'internal',
-    query: {
-      paginate: 100,
-    },
-  })
-  clientLoading.value = false
-
-  if (response.success && response.data) {
-    clients.value = response.data.items ?? []
-    if (clients.value.length === 1) {
-      createForm.tenantId = clients.value[0]?.id ?? ''
-    }
-  }
-}
-
-const loadPricings = async (productId: string) => {
-  if (!productId) {
-    pricings.value = []
-    createForm.internalProductPricingId = ''
-    return
-  }
-
-  pricingLoading.value = true
-  const response = await apiFetch<ListResponse<InternalProductPricing>>(
-    `/internal-products/${productId}/pricings`,
-    {
-      authMode: 'internal',
-      query: {
-        paginate: 100,
-      },
-    },
-  )
-  pricingLoading.value = false
-
-  if (!response.success || !response.data) {
-    pricings.value = []
-    createForm.internalProductPricingId = ''
-    return
-  }
-
-  pricings.value = response.data.items ?? []
-  if (!pricings.value.some(pricing => pricing.id === createForm.internalProductPricingId)) {
-    createForm.internalProductPricingId = pricings.value[0]?.id ?? ''
-  }
-}
-
-watch(
-  () => createForm.internalProductId,
-  productId => loadPricings(productId),
-)
-
-const openCreateDialog = async (mode: 'quotation' | 'order') => {
-  createMode.value = mode
-  resetCreateForm()
-  createOpen.value = true
-  await Promise.all([
-    loadClients(),
-    loadProducts(),
-  ])
-}
-
-const openCreateDialogFromHeader = () => {
-  if (!createButtonMode.value) {
-    return
-  }
-
-  void openCreateDialog(createButtonMode.value)
-}
-
-const closeCreateDialog = () => {
-  if (createSaving.value) {
-    return
-  }
-  createOpen.value = false
-  resetCreateForm()
 }
 
 const touchList = () => {
   refreshToken.value += 1
 }
 
-const submitCreate = async () => {
-  const tenantId = createForm.tenantId.trim()
-  const productId = createForm.internalProductId.trim()
-  const pricingId = createForm.internalProductPricingId.trim()
-  const currencyCode = createForm.currencyCode.trim().toUpperCase()
-
-  if (!tenantId || !productId || !pricingId || !currencyCode) {
-    show(t('ui.tenantProductPricingAndCurrencyAreRequired'), 'error')
-    return
-  }
-
-  const body: Record<string, unknown> = {
-    tenant_id: tenantId,
-    internal_product_id: productId,
-    internal_product_pricing_id: pricingId,
-    currency_code: currencyCode,
-  }
-
-  const invoiceDueAt = toOptionalIso(createForm.invoiceDueAt)
-  if (invoiceDueAt) {
-    body.invoice_due_at = invoiceDueAt
-  }
-
-  if (createMode.value === 'quotation') {
-    const subtotalAmount = normalizePriceAmountInput(createForm.subtotalAmount)
-    const discountAmount = normalizePriceAmountInput(createForm.discountAmount) || '0'
-    const taxAmount = normalizePriceAmountInput(createForm.taxAmount) || '0'
-    const totalAmount = normalizePriceAmountInput(createForm.totalAmount)
-    if (!subtotalAmount || !totalAmount) {
-      show(t('ui.subtotalAndTotalAmountAreRequired'), 'error')
-      return
-    }
-    body.subtotal_amount = subtotalAmount
-    body.discount_amount = discountAmount
-    body.tax_amount = taxAmount
-    body.total_amount = totalAmount
-    body.quote_snapshot = {
-      note: createForm.note.trim(),
-    }
-    const expiresAt = toOptionalIso(createForm.expiresAt)
-    if (expiresAt) {
-      body.expires_at = expiresAt
-    }
-  }
-
-  createSaving.value = true
-  const response = await apiFetch(
-    createMode.value === 'quotation'
-      ? '/internal-commerce/quotations'
-      : '/internal-commerce/orders',
-    {
-      method: 'POST',
-      authMode: 'internal',
-      body,
-    },
-  )
-  createSaving.value = false
-
-  if (!response.success) {
-    return
-  }
-
-  show(
-    createMode.value === 'quotation'
-      ? t('ui.quotationCreatedSuccessfully')
-      : t('ui.orderAndInvoiceCreatedSuccessfully'),
-    'success',
-  )
-  createOpen.value = false
-  resetCreateForm()
-  touchList()
-}
+const { apiFetch } = useApi()
+const { show } = useBanner()
 
 const executeAction = async (
   action: CommerceAction,
@@ -504,6 +214,17 @@ const columns = computed(() => {
     },
   ]
 })
+
+const openCreateDialog = (mode: 'quotation' | 'order') => {
+  createDialogRef.value?.open()
+}
+
+const openCreateDialogFromHeader = () => {
+  if (!createButtonMode.value) {
+    return
+  }
+  openCreateDialog(createButtonMode.value)
+}
 </script>
 
 <template>
@@ -599,192 +320,10 @@ const columns = computed(() => {
     </template>
   </ResourceList>
 
-  <FormDialogShell
-    v-if="createOpen"
-    :title="createTitle"
-    max-width-class="max-w-3xl"
-    @close="closeCreateDialog"
-  >
-    <form
-      class="grid gap-5"
-      autocomplete="off"
-      @submit.prevent="submitCreate"
-    >
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="relative z-10 grid gap-2 sm:col-span-2">
-          <Label for="commerce-tenant">
-            {{ t('ui.tenant') }}
-          </Label>
-          <SearchableSelect
-            id="commerce-tenant"
-            v-model="createForm.tenantId"
-            :options="clientOptions"
-            :placeholder="clientLoading ? t('ui.loadingClients') : t('ui.selectTenant')"
-            :search-placeholder="t('ui.searchClients')"
-            :disabled="clientLoading || createSaving"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="relative z-0 grid gap-2">
-          <Label for="commerce-product">
-            {{ t('ui.product') }}
-          </Label>
-          <SearchableSelect
-            id="commerce-product"
-            v-model="createForm.internalProductId"
-            :options="productOptions"
-            :placeholder="productLoading ? t('ui.loadingProducts') : t('ui.selectProduct')"
-            :search-placeholder="t('ui.searchProduct')"
-            :disabled="productLoading || createSaving"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="relative z-0 grid gap-2">
-          <Label for="commerce-pricing">
-            {{ t('ui.pricing') }}
-          </Label>
-          <SearchableSelect
-            id="commerce-pricing"
-            v-model="createForm.internalProductPricingId"
-            :options="pricingOptions"
-            :placeholder="pricingLoading ? t('ui.loadingPricings') : t('ui.selectPricing')"
-            :search-placeholder="t('ui.searchPricing')"
-            :disabled="pricingLoading || createSaving || !createForm.internalProductId"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="relative z-0 grid gap-2">
-          <Label for="commerce-currency">
-            {{ t('ui.currency') }}
-          </Label>
-          <SearchableSelect
-            id="commerce-currency"
-            v-model="createForm.currencyCode"
-            :options="currencyOptions"
-            :placeholder="t('internalProducts.prices.currencyPlaceholder')"
-            :search-placeholder="t('internalProducts.prices.currencySearchPlaceholder')"
-            :disabled="createSaving"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="relative z-0 grid gap-2">
-          <Label for="commerce-invoice-due">
-            {{ t('ui.invoiceDueAt') }}
-          </Label>
-          <Input
-            id="commerce-invoice-due"
-            v-model="createForm.invoiceDueAt"
-            type="datetime-local"
-            :disabled="createSaving"
-            autocomplete="off"
-          />
-        </div>
-      </div>
-
-      <div
-        v-if="createMode === 'quotation'"
-        class="grid gap-4 sm:grid-cols-2"
-      >
-        <div class="grid gap-2">
-          <Label for="commerce-subtotal">
-            {{ t('ui.subtotalAmount') }}
-          </Label>
-          <Input
-            id="commerce-subtotal"
-            v-model="subtotalAmountInput"
-            inputmode="decimal"
-            :disabled="createSaving"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="commerce-discount">
-            {{ t('ui.discountAmount') }}
-          </Label>
-          <Input
-            id="commerce-discount"
-            v-model="discountAmountInput"
-            inputmode="decimal"
-            :disabled="createSaving"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="commerce-tax">
-            {{ t('ui.taxAmount') }}
-          </Label>
-          <Input
-            id="commerce-tax"
-            v-model="taxAmountInput"
-            inputmode="decimal"
-            :disabled="createSaving"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="commerce-total">
-            {{ t('ui.totalAmount') }}
-          </Label>
-          <Input
-            id="commerce-total"
-            v-model="totalAmountInput"
-            inputmode="decimal"
-            :disabled="createSaving"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="commerce-expires">
-            {{ t('ui.expiresAt') }}
-          </Label>
-          <Input
-            id="commerce-expires"
-            v-model="createForm.expiresAt"
-            type="datetime-local"
-            :disabled="createSaving"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="grid gap-2 sm:col-span-2">
-          <Label for="commerce-note">
-            {{ t('ui.note') }}
-          </Label>
-          <textarea
-            id="commerce-note"
-            v-model="createForm.note"
-            class="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            :disabled="createSaving"
-            autocomplete="off"
-          />
-        </div>
-      </div>
-
-      <div class="flex flex-wrap justify-end gap-2 border-t border-border/70 pt-4">
-        <Button
-          type="button"
-          variant="outline"
-          :disabled="createSaving"
-          @click="closeCreateDialog"
-        >
-          <X class="h-4 w-4" />
-          {{ t('ui.cancel') }}
-        </Button>
-        <Button
-          type="submit"
-          :disabled="createSaving"
-        >
-          {{ createSaving ? t('ui.saving') : t('ui.save') }}
-        </Button>
-      </div>
-    </form>
-  </FormDialogShell>
+  <CommerceCreateDialog
+    v-if="createButtonMode"
+    ref="createDialogRef"
+    :mode="createButtonMode"
+    @created="touchList"
+  />
 </template>

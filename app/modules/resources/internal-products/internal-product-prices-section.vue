@@ -22,7 +22,7 @@ const props = defineProps<{
   formMode: 'create' | 'edit'
   selectedPriceId: string
   selectedPricing: InternalProductPricing | null
-  currencyOptions: Array<{ value: string, label: string }>
+  currencyOptions: Array<{ value: string, label: string, decimalPlaces?: number }>
 }>()
 
 const emit = defineEmits<{
@@ -65,10 +65,15 @@ const selectedPrice = computed(() => (
 
 const currencyOptions = computed(() => props.currencyOptions)
 
+const selectedCurrencyDecimalPlaces = computed(() => {
+  const found = props.currencyOptions.find(c => c.value === model.value.currency_code)
+  return found?.decimalPlaces ?? 0
+})
+
 const amountInput = computed({
   get: () => formatPriceAmountInput(model.value.amount, locale.value),
   set: (value: string) => {
-    model.value.amount = normalizeLocalizedPriceAmountInput(value, locale.value)
+    model.value.amount = normalizeLocalizedPriceAmountInput(value, locale.value, selectedCurrencyDecimalPlaces.value)
   },
 })
 
@@ -95,7 +100,7 @@ const handleAmountBeforeInput = (event: InputEvent) => {
   }
 
   const nextValue = buildAmountInputValue(target, event.data ?? '')
-  if (!isPriceAmountDraftValid(nextValue, locale.value)) {
+  if (!isPriceAmountDraftValid(nextValue, locale.value, selectedCurrencyDecimalPlaces.value)) {
     event.preventDefault()
   }
 }
@@ -114,7 +119,7 @@ const handleAmountPaste = (event: ClipboardEvent) => {
   const pastedValue = event.clipboardData?.getData('text') ?? ''
   const nextValue = buildAmountInputValue(target, pastedValue)
 
-  if (isPriceAmountDraftValid(nextValue, locale.value)) {
+  if (isPriceAmountDraftValid(nextValue, locale.value, selectedCurrencyDecimalPlaces.value)) {
     return
   }
 

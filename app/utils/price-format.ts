@@ -1,8 +1,4 @@
-export const currencyCodes = ['IDR', 'USD', 'SGD', 'EUR'] as const
-
-export type SupportedCurrencyCode = typeof currencyCodes[number]
-
-export const normalizePriceAmountInput = (value: string) => {
+export const normalizePriceAmountInput = (value: string, maxDecimalPlaces: number = 6) => {
   const cleaned = value.replace(/[^\d.,]/g, '')
   if (!cleaned) {
     return ''
@@ -11,7 +7,7 @@ export const normalizePriceAmountInput = (value: string) => {
   const lastSeparatorIndex = Math.max(cleaned.lastIndexOf('.'), cleaned.lastIndexOf(','))
   const integerPart = (lastSeparatorIndex >= 0 ? cleaned.slice(0, lastSeparatorIndex) : cleaned).replace(/[^\d]/g, '')
   const decimalPart = lastSeparatorIndex >= 0
-    ? cleaned.slice(lastSeparatorIndex + 1).replace(/[^\d]/g, '').slice(0, 6)
+    ? cleaned.slice(lastSeparatorIndex + 1).replace(/[^\d]/g, '').slice(0, maxDecimalPlaces)
     : ''
 
   const normalizedInteger = integerPart.replace(/^0+(?=\d)/, '') || '0'
@@ -31,7 +27,7 @@ const resolveDecimalSeparatorForInput = (cleaned: string, locale: string) => {
   return decimal
 }
 
-export const normalizeLocalizedPriceAmountInput = (value: string, locale: string) => {
+export const normalizeLocalizedPriceAmountInput = (value: string, locale: string, maxDecimalPlaces: number = 6) => {
   const { group } = resolveAmountSeparators(locale)
   const cleaned = value.replace(/[^\d.,]/g, '')
 
@@ -47,7 +43,7 @@ export const normalizeLocalizedPriceAmountInput = (value: string, locale: string
   const [integerRaw = '', ...decimalRawParts] = cleaned.split(decimal)
   const integerPart = integerRaw.replace(effectiveGroupPattern, '').replace(/[^\d]/g, '')
   const decimalPart = decimalMatches.length > 0
-    ? decimalRawParts.join('').replace(effectiveGroupPattern, '').replace(/[^\d]/g, '').slice(0, 6)
+    ? decimalRawParts.join('').replace(effectiveGroupPattern, '').replace(/[^\d]/g, '').slice(0, maxDecimalPlaces)
     : ''
 
   const normalizedInteger = integerPart.replace(/^0+(?=\d)/, '') || '0'
@@ -58,7 +54,7 @@ export const normalizeLocalizedPriceAmountInput = (value: string, locale: string
   return decimalPart ? `${normalizedInteger}.${decimalPart}` : normalizedInteger
 }
 
-export const isPriceAmountDraftValid = (value: string, locale: string) => {
+export const isPriceAmountDraftValid = (value: string, locale: string, maxDecimalPlaces: number = 6) => {
   if (!/^[\d.,]*$/.test(value)) {
     return false
   }
@@ -66,7 +62,19 @@ export const isPriceAmountDraftValid = (value: string, locale: string) => {
   const cleaned = value.replace(/[^\d.,]/g, '')
   const decimal = resolveDecimalSeparatorForInput(cleaned, locale)
   const decimalCount = value.split(decimal).length - 1
-  return decimalCount <= 1
+  if (decimalCount > 1) {
+    return false
+  }
+
+  const decimalIndex = value.lastIndexOf(decimal)
+  if (decimalIndex >= 0 && maxDecimalPlaces >= 0) {
+    const decimalPart = value.slice(decimalIndex + 1).replace(/[^\d]/g, '')
+    if (decimalPart.length > maxDecimalPlaces) {
+      return false
+    }
+  }
+
+  return true
 }
 
 export const formatPriceAmountInput = (value: string, locale: string) => {

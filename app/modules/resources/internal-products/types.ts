@@ -64,4 +64,5 @@ export type InternalProductPriceForm = {
 export type InternalCurrencyOption = {
   code: string
   name: string
+  decimal_places: number
 }

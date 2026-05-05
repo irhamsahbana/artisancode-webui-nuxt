@@ -4,6 +4,7 @@ import {
   onBeforeUnmount,
   onMounted,
   ref,
+  shallowRef,
   useSlots,
   watch,
   type ComponentPublicInstance,
@@ -50,8 +51,8 @@ const slots = useSlots();
 const hasCustomActions = computed(() => Boolean(slots["row-actions"]));
 const openMenuKey = ref<string | number | null>(null);
 const menuPosition = ref<{ top: number; left: number } | null>(null);
-const menuRefs = ref<Record<string, HTMLElement | null>>({});
-const menuAnchorRefs = ref<Record<string, HTMLElement | null>>({});
+const menuRefs = shallowRef<Record<string, HTMLElement | null>>({});
+const menuAnchorRefs = shallowRef<Record<string, HTMLElement | null>>({});
 const hasActions = computed(
   () => props.canViewDetail || props.canDelete || hasCustomActions.value
 );

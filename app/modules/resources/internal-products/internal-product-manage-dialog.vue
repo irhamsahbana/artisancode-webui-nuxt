@@ -39,7 +39,7 @@ const props = defineProps<{
   priceDeletingId: string
   priceFormMode: 'create' | 'edit'
   selectedPriceId: string
-  activeCurrencyOptions: Array<{ value: string, label: string }>
+  activeCurrencyOptions: Array<{ value: string, label: string, decimalPlaces?: number }>
 }>()
 
 const emit = defineEmits<{

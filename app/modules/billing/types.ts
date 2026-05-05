@@ -91,6 +91,7 @@ export type TenantBillingPlan = {
   features?: string[]
   prices?: TenantBillingPlanPrice[]
   add_ons?: TenantBillingAddOn[]
+  is_current_plan?: boolean
 }
 
 export type TenantBillingSubscription = {
