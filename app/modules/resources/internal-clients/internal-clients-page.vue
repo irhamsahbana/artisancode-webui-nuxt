@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import InternalResourceFilterPanel from '../internal-resource-filter-panel.vue'
-import InternalResourceListControls from '../internal-resource-list-controls.vue'
 import { useDateTime } from '~/composables/useDateTime'
 import InternalClientOwnerPermissionsDialog from './internal-client-owner-permissions-dialog.vue'
 import { useInternalClientOwnerPermissions } from './use-internal-client-owner-permissions'
@@ -14,7 +13,6 @@ const { apiFetch } = useApi()
 const { show } = useBanner()
 
 const filterPanelOpen = ref(false)
-const actionMenuOpen = ref(false)
 const filters = reactive({
   owner: '',
 })
@@ -47,18 +45,6 @@ const columns = computed(() => [
     },
   },
 ])
-const actionItems = computed(() => [
-  {
-    key: 'export-clients',
-    label: 'ui.export',
-    kind: 'export' as const,
-  },
-  {
-    key: 'client-export-history',
-    label: 'ui.exportHistory',
-    kind: 'export-history' as const,
-  },
-])
 
 const {
   permissionDialogOpen,
@@ -79,16 +65,6 @@ const clearFilters = () => {
 
 const toggleFilterPanel = () => {
   filterPanelOpen.value = !filterPanelOpen.value
-  if (filterPanelOpen.value) {
-    actionMenuOpen.value = false
-  }
-}
-
-const updateActionMenuOpen = (open: boolean) => {
-  actionMenuOpen.value = open
-  if (open) {
-    filterPanelOpen.value = false
-  }
 }
 </script>
 
@@ -125,19 +101,6 @@ const updateActionMenuOpen = (open: boolean) => {
             </div>
           </div>
         </InternalResourceFilterPanel>
-      </template>
-
-      <template #header-actions>
-        <InternalResourceListControls
-          :actions-open="actionMenuOpen"
-          endpoint="/internal-clients"
-          resource-key="internal-clients"
-          filename-prefix="internal-clients"
-          :columns="columns"
-          :query="listQuery"
-          :action-items="actionItems"
-          @update:actions-open="updateActionMenuOpen"
-        />
       </template>
 
       <template #row-actions="{ row, close }">

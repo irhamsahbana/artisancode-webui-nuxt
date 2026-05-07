@@ -9,6 +9,7 @@ This file is the entry point for work in `webui/`. Keep it lean. Put durable det
 - `docs/resource_patterns.md` when changing CRUD-style or internal-admin resource screens.
 - `docs/localization.md` before changing translated copy, locale routing, or language headers.
 - `docs/testing-and-verification.md` before running browser checks or changing verification expectations.
+- `docs/commit_guidelines.md` when the user explicitly asks for a git commit in `webui/`.
 
 ## Working Rules
 

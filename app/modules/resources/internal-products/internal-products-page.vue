@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import InternalResourceFilterPanel from '../internal-resource-filter-panel.vue'
-import InternalResourceListControls from '../internal-resource-list-controls.vue'
 import InternalProductManageDialog from './internal-product-manage-dialog.vue'
 import {
   buildInternalProductListQuery,
-  createInternalProductActionItems,
   createInternalProductColumns,
   formatInternalProductDeleteLabel,
 } from './internal-product-list'
@@ -19,13 +17,11 @@ const { formatReadableDateTime } = useDateTime()
 
 const refreshKey = ref(0)
 const filterPanelOpen = ref(false)
-const actionMenuOpen = ref(false)
 const filters = reactive({
   status: '',
 })
 
 const listQuery = computed(() => buildInternalProductListQuery(filters))
-const actionItems = computed(() => createInternalProductActionItems())
 
 const triggerRefresh = () => {
   refreshKey.value += 1
@@ -87,16 +83,6 @@ const clearFilters = () => {
 
 const toggleFilterPanel = () => {
   filterPanelOpen.value = !filterPanelOpen.value
-  if (filterPanelOpen.value) {
-    actionMenuOpen.value = false
-  }
-}
-
-const updateActionMenuOpen = (open: boolean) => {
-  actionMenuOpen.value = open
-  if (open) {
-    filterPanelOpen.value = false
-  }
 }
 </script>
 
@@ -145,17 +131,6 @@ const updateActionMenuOpen = (open: boolean) => {
         >
           {{ t('ui.addNew') }}
         </Button>
-
-        <InternalResourceListControls
-          :actions-open="actionMenuOpen"
-          endpoint="/internal-products"
-          resource-key="internal-products"
-          filename-prefix="internal-products"
-          :columns="columns"
-          :query="listQuery"
-          :action-items="actionItems"
-          @update:actions-open="updateActionMenuOpen"
-        />
       </div>
     </template>
 

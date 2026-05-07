@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import InternalResourceFilterPanel from '../internal-resource-filter-panel.vue'
-import InternalResourceListControls from '../internal-resource-list-controls.vue'
 import { useBanner } from '~/composables/useBanner'
 import { useDateTime } from '~/composables/useDateTime'
 import { useApi } from '~/composables/useApi'
@@ -48,7 +47,6 @@ const modalMode = ref<'create' | 'edit'>('create')
 const modalLoading = ref(false)
 const submitLoading = ref(false)
 const filterPanelOpen = ref(false)
-const actionMenuOpen = ref(false)
 const filters = reactive({
   role_code: '',
   status: '',
@@ -64,18 +62,6 @@ const listQuery = computed(() => {
   }
   return query
 })
-const actionItems = computed(() => [
-  {
-    key: 'export-users',
-    label: 'ui.export',
-    kind: 'export' as const,
-  },
-  {
-    key: 'user-export-history',
-    label: 'ui.exportHistory',
-    kind: 'export-history' as const,
-  },
-])
 
 const form = ref(createEmptyInternalUserForm())
 
@@ -207,16 +193,6 @@ const clearFilters = () => {
 
 const toggleFilterPanel = () => {
   filterPanelOpen.value = !filterPanelOpen.value
-  if (filterPanelOpen.value) {
-    actionMenuOpen.value = false
-  }
-}
-
-const updateActionMenuOpen = (open: boolean) => {
-  actionMenuOpen.value = open
-  if (open) {
-    filterPanelOpen.value = false
-  }
 }
 </script>
 
@@ -265,29 +241,6 @@ const updateActionMenuOpen = (open: boolean) => {
           </div>
         </div>
       </InternalResourceFilterPanel>
-    </template>
-
-    <template #header-actions>
-      <div class="flex w-full flex-wrap items-center justify-end gap-2">
-        <Button
-          size="sm"
-          class="rounded-xl"
-          @click="openCreateModal"
-        >
-          {{ t('ui.addNew') }}
-        </Button>
-
-        <InternalResourceListControls
-          :actions-open="actionMenuOpen"
-          endpoint="/internal-users"
-          resource-key="internal-users"
-          filename-prefix="internal-users"
-          :columns="columns"
-          :query="listQuery"
-          :action-items="actionItems"
-          @update:actions-open="updateActionMenuOpen"
-        />
-      </div>
     </template>
 
     <template #row-actions="{ row, close }">
