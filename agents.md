@@ -21,7 +21,8 @@ This file is the entry point for work in `webui/`. Keep it lean. Put durable det
 - Use keyed localization through `useLocale().t(...)` or `useLocale().format(...)`. Do not add raw-string fallback maps.
 - Use `useDateTime()` or `app/utils/date-time.ts` for user-facing dates and times.
 - Follow the verification order and command details in `docs/testing-and-verification.md` instead of duplicating them here.
+- When `agents.md` or frontend workflow docs change, run `pnpm test:unit` and mention the documentation update in the final response.
 - Add or update focused tests when helper, composable, or shared UI behavior changes.
-- Use backend seed data in `../artisancode-backend-go/db/seeds/data/` when local frontend testing needs credentials.
+- Use backend seed data in `../backend/db/seeds/data/` when local frontend testing needs credentials.
 - After local frontend testing, stop any dev server or browser-support process started for the task, especially `pnpm dev` on ports such as `3055`; verify the port is no longer listening when practical.
 - Never commit unless the user explicitly asks.
