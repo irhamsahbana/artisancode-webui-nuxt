@@ -1,19 +1,15 @@
 import {
-  BriefcaseBusiness,
   Building2,
-  ClipboardList,
-  Clock3,
   CreditCard,
   FileText,
-  LayoutGrid,
-  MapPin,
   ReceiptText,
   ShieldCheck,
   ShoppingCart,
   MoonStar,
   SunMedium,
-  Users,
 } from 'lucide-vue-next'
+import type { Product } from '~/utils/product-mode'
+import { isProductRouteAllowed } from '~/utils/product-mode'
 
 type LayoutLocale = 'id' | 'en'
 
@@ -26,6 +22,11 @@ type LayoutNavItem = {
 type LayoutNavGroup = {
   title: string
   items: LayoutNavItem[]
+}
+
+type ProductOption = {
+  value: Product
+  label: string
 }
 
 const AUTH_SHELL_PATHS = [
@@ -50,6 +51,8 @@ export const useDefaultLayout = () => {
   const runtimeConfig = useRuntimeConfig()
   const { user, token, logout } = useAuth()
   const { user: internalUser, token: internalToken, logout: internalLogout } = useInternalAuth()
+  const { navGroups: productNavGroups, productAppName } = useProductConfig()
+  const { activeProduct, productOptions, setActiveProduct, showProductSwitcher } = useActiveProduct()
   const { locale, setLocale, t } = useLocale()
   const { visible, message, variant, hide } = useBanner()
   const colorMode = useColorMode()
@@ -65,7 +68,13 @@ export const useDefaultLayout = () => {
   const mobileAccountMenuOpen = ref(false)
   const isSwitchingLocale = ref(false)
 
-  const appName = computed(() => runtimeConfig.public.appName || 'ArtisanCode')
+  const appName = computed(() => {
+    if (isInternalRoute.value) {
+      return runtimeConfig.public.appName || 'ArtisanCode'
+    }
+
+    return productAppName.value
+  })
 
   const navGroups = computed<LayoutNavGroup[]>(() => {
     if (isInternalRoute.value) {
@@ -90,30 +99,7 @@ export const useDefaultLayout = () => {
       ]
     }
 
-    return [
-      {
-        title: t('layout.main'),
-        items: [{ label: t('layout.dashboard'), to: '/app', icon: LayoutGrid }],
-      },
-      {
-        title: t('layout.billing'),
-        items: [
-          { label: t('billing.nav.payments'), to: '/app/billing/payments', icon: CreditCard },
-        ],
-      },
-      {
-        title: t('layout.resources'),
-        items: [
-          { label: t('layout.companies'), to: '/app/resources/companies', icon: Building2 },
-          { label: t('layout.employees'), to: '/app/resources/employees', icon: Users },
-          { label: t('layout.attendanceLogs'), to: '/app/resources/attendance-logs', icon: ClipboardList },
-          { label: t('layout.jobPositions'), to: '/app/resources/job-positions', icon: BriefcaseBusiness },
-          { label: t('layout.workLocations'), to: '/app/resources/work-locations', icon: MapPin },
-          { label: t('layout.workShifts'), to: '/app/resources/work-shifts', icon: Clock3 },
-          { label: t('layout.rolesPermissions'), to: '/app/resources/roles', icon: ShieldCheck },
-        ],
-      },
-    ]
+    return productNavGroups.value
   })
 
   const isActive = (path: string) => {
@@ -220,6 +206,19 @@ export const useDefaultLayout = () => {
     mobileAccountMenuOpen.value = !mobileAccountMenuOpen.value
   }
 
+  const switchProduct = async (value: Product) => {
+    if (isInternalRoute.value || activeProduct.value === value) {
+      return
+    }
+
+    setActiveProduct(value)
+
+    if (!isProductRouteAllowed([value], normalizedPath.value)) {
+      const target = locale.value === 'en' ? '/en/app' : '/app'
+      await navigateTo(target)
+    }
+  }
+
   watch(
     () => route.fullPath,
     () => {
@@ -249,7 +248,11 @@ export const useDefaultLayout = () => {
     mobileAccountMenuOpen,
     mobileNavOpen,
     navGroups,
+    activeProduct,
+    productOptions: productOptions as ComputedRef<ProductOption[]>,
+    showProductSwitcher,
     switchLocale,
+    switchProduct,
     t,
     toggleDesktopAccountMenu,
     toggleMobileAccountMenu,

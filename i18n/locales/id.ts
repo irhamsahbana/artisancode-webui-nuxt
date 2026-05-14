@@ -40,7 +40,7 @@ export default {
     location: "Lokasi",
     latitude: "Lintang",
     longitude: "Bujur",
-    myLocation: "Lokasi Saya"
+    myLocation: "Lokasi Saya",
   },
   layout: {
     main: "Utama",
@@ -65,7 +65,11 @@ export default {
     logout: "Keluar",
     themeLight: "Terang",
     themeDark: "Gelap",
-    billing: "Billing"
+    productSwitch: "Pilih produk",
+    productHr: "Human Resource",
+    productCrm: "CRM",
+    billing: "Billing",
+    crm: "CRM",
   },
   auth: {
     welcomeBack: "Selamat datang kembali",
@@ -74,7 +78,8 @@ export default {
     password: "Kata sandi",
     tenantCode: "Kode Organisasi",
     tenantCodeHint: "Maksimal 5 karakter, tidak sensitif huruf besar kecil",
-    tenantCodeRegisterHint: "Buat kode pendek 3-5 huruf/angka. Karyawan pakai kode ini saat login.",
+    tenantCodeRegisterHint:
+      "Buat kode pendek 3-5 huruf/angka. Karyawan pakai kode ini saat login.",
     tenantCodeLoginPlaceholder: "kode tenant",
     tenantCodePlaceholder: "TKS2A",
     tenantNamePlaceholder: "PT Contoh Presense",
@@ -89,28 +94,44 @@ export default {
     googleSigningIn: "Masuk dengan Google…",
     googleSigningUp: "Mendaftar dengan Google…",
     googleUnavailable: "Google belum tersedia",
-    googleUnavailableDescription: "Google Sign-In belum bisa digunakan. Coba lagi nanti atau gunakan email dan kata sandi.",
-    googleLoginFailed: "Login Google gagal. Coba lagi atau gunakan email dan kata sandi.",
-    googleRegisterFailed: "Pendaftaran Google gagal. Coba lagi atau gunakan pendaftaran email.",
-    googleAccountNotConnected: "Akun Google ini belum terhubung ke user Presense. Lanjutkan dengan membuat organisasi baru atau masuk pakai email jika akun Anda sudah ada.",
+    googleUnavailableDescription:
+      "Google Sign-In belum bisa digunakan. Coba lagi nanti atau gunakan email dan kata sandi.",
+    googleLoginFailed:
+      "Login Google gagal. Coba lagi atau gunakan email dan kata sandi.",
+    googleRegisterFailed:
+      "Pendaftaran Google gagal. Coba lagi atau gunakan pendaftaran email.",
+    googleAccountNotConnected:
+      "Akun Google ini belum terhubung ke user Presense. Lanjutkan dengan membuat organisasi baru atau masuk pakai email jika akun Anda sudah ada.",
     continueGoogleRegister: "Lanjut daftar dengan Google",
-    googleEmailAmbiguous: "Email Google ini ada di lebih dari satu tenant. Untuk saat ini, masuk dengan email, kata sandi, dan kode tenant.",
-    googleEmailAlreadyRegistered: "Email Google ini sudah terdaftar. Silakan masuk dengan Google atau gunakan akun Google lain.",
-    googleIdentityAlreadyLinked: "Akun Google ini sudah terhubung ke user lain. Silakan masuk dengan Google.",
-    googleTokenInvalid: "Token Google tidak valid atau sudah kedaluwarsa. Coba masuk dengan Google lagi.",
-    googleRegisterRetryRequired: "Sesi Google untuk lanjut daftar sudah hilang atau kedaluwarsa. Klik Daftar dengan Google lagi.",
-    googleRegistrationSessionInvalid: "Sesi registrasi Google tidak valid atau sudah kedaluwarsa. Klik Masuk dengan Google atau Daftar dengan Google lagi.",
+    googleEmailAmbiguous:
+      "Email Google ini ada di lebih dari satu tenant. Untuk saat ini, masuk dengan email, kata sandi, dan kode tenant.",
+    googleEmailAlreadyRegistered:
+      "Email Google ini sudah terdaftar. Silakan masuk dengan Google atau gunakan akun Google lain.",
+    googleIdentityAlreadyLinked:
+      "Akun Google ini sudah terhubung ke user lain. Silakan masuk dengan Google.",
+    googleTokenInvalid:
+      "Token Google tidak valid atau sudah kedaluwarsa. Coba masuk dengan Google lagi.",
+    googleRegisterRetryRequired:
+      "Sesi Google untuk lanjut daftar sudah hilang atau kedaluwarsa. Klik Daftar dengan Google lagi.",
+    googleRegistrationSessionInvalid:
+      "Sesi registrasi Google tidak valid atau sudah kedaluwarsa. Klik Masuk dengan Google atau Daftar dengan Google lagi.",
     tenantCodeInvalid: "Kode tenant harus 3-5 karakter, huruf besar dan angka.",
-    tenantCodeReserved: "Kode tenant ini tidak bisa digunakan. Pilih kode lain.",
+    tenantCodeReserved:
+      "Kode tenant ini tidak bisa digunakan. Pilih kode lain.",
     tenantCodeAlreadyUsed: "Kode tenant ini sudah dipakai. Pilih kode lain.",
-    tenantSetupConfirmationRequired: "Centang dulu konfirmasi organisasi sebelum lanjut.",
+    tenantSetupConfirmationRequired:
+      "Centang dulu konfirmasi organisasi sebelum lanjut.",
     googleTenantSetup: "Buat organisasi",
-    googleTenantSetupDescription: "Akun Google Anda belum punya organisasi. Isi nama organisasi dan kode login pendek sebelum masuk ke aplikasi.",
+    googleTenantSetupDescription:
+      "Akun Google Anda belum punya organisasi. Isi nama organisasi dan kode login pendek sebelum masuk ke aplikasi.",
     tenantSetupTitle: "Lengkapi organisasi",
-    tenantSetupDescription: "Akun Anda sudah disiapkan. Lengkapi nama organisasi dan kode tenant sebelum masuk ke halaman lain.",
-    tenantSetupLockedNotice: "Anda perlu menyelesaikan langkah ini sebelum bisa menggunakan aplikasi.",
+    tenantSetupDescription:
+      "Akun Anda sudah disiapkan. Lengkapi nama organisasi dan kode tenant sebelum masuk ke halaman lain.",
+    tenantSetupLockedNotice:
+      "Anda perlu menyelesaikan langkah ini sebelum bisa menggunakan aplikasi.",
     tenantSetupOwner: "{email} akan menjadi pemilik organisasi di {appName}.",
-    confirmTenantSetup: "Saya sudah cek nama dan kode di atas. Kode ini akan dipakai karyawan untuk login.",
+    confirmTenantSetup:
+      "Saya sudah cek nama dan kode di atas. Kode ini akan dipakai karyawan untuk login.",
     createWorkspace: "Buat organisasi",
     creatingWorkspace: "Membuat organisasi…",
     orContinueWithEmail: "atau masuk dengan email",
@@ -125,7 +146,8 @@ export default {
     fullName: "Nama Lengkap",
     username: "Username",
     businessEmail: "Email Bisnis",
-    businessEmailHint: "Penyedia email gratis seperti Gmail atau Yahoo tidak diperbolehkan.",
+    businessEmailHint:
+      "Penyedia email gratis seperti Gmail atau Yahoo tidak diperbolehkan.",
     passwordWeak: "Lemah",
     passwordFair: "Cukup",
     passwordGood: "Baik",
@@ -138,7 +160,8 @@ export default {
     alreadyHaveAccount: "Sudah punya akun?",
     registrationFailed: "Pendaftaran gagal",
     forgotPassword: "Lupa kata sandi?",
-    forgotPasswordDescription: "Masukkan email Anda dan kami akan mengirim tautan reset password.",
+    forgotPasswordDescription:
+      "Masukkan email Anda dan kami akan mengirim tautan reset password.",
     sendResetLink: "Kirim tautan reset",
     sendingResetLink: "Mengirim tautan reset…",
     resetPassword: "Reset kata sandi",
@@ -149,31 +172,40 @@ export default {
     passwordMismatch: "Konfirmasi kata sandi tidak cocok",
     backToLogin: "Kembali ke login",
     checkEmail: "Verifikasi email",
-    checkEmailDescription: "Selesaikan langkah verifikasi atau kembali ke login.",
+    checkEmailDescription:
+      "Selesaikan langkah verifikasi atau kembali ke login.",
     verifyingEmail: "Sedang memverifikasi email Anda…",
     emailVerificationFailed: "Verifikasi email gagal",
     resendVerificationEmail: "Kirim ulang email verifikasi",
     resendingVerificationEmail: "Mengirim ulang email verifikasi…",
-    verificationRequiredNotice: "Pendaftaran berhasil. Silakan cek email Anda untuk verifikasi akun.",
+    verificationRequiredNotice:
+      "Pendaftaran berhasil. Silakan cek email Anda untuk verifikasi akun.",
     passwordResetFailed: "Reset kata sandi gagal",
     checkEmailBadge: "Langkah terakhir",
     checkEmailHero: "Cek email Anda untuk mengaktifkan akun",
-    checkEmailHelp: "Kami sudah mengirim tautan verifikasi ke inbox Anda. Buka email tersebut, klik tautannya, lalu kembali masuk ke ArtisanCode.",
+    checkEmailHelp:
+      "Kami sudah mengirim tautan verifikasi ke inbox Anda. Buka email tersebut, klik tautannya, lalu kembali masuk ke ArtisanCode.",
     emailSentTo: "Email dikirim ke",
     emailUnavailable: "Email tidak tersedia",
     checkInboxStep: "Buka inbox",
-    checkInboxHint: "Cari email verifikasi dari ArtisanCode di inbox utama atau folder promosi.",
+    checkInboxHint:
+      "Cari email verifikasi dari ArtisanCode di inbox utama atau folder promosi.",
     openVerificationLinkStep: "Klik tautan verifikasi",
-    openVerificationLinkHint: "Tautan verifikasi akan mengaktifkan akun Anda dan mengonfirmasi alamat email tersebut.",
+    openVerificationLinkHint:
+      "Tautan verifikasi akan mengaktifkan akun Anda dan mengonfirmasi alamat email tersebut.",
     returnToSignInStep: "Masuk kembali",
-    returnToSignInHint: "Setelah verifikasi selesai, kembali ke halaman login dan masuk seperti biasa.",
+    returnToSignInHint:
+      "Setelah verifikasi selesai, kembali ke halaman login dan masuk seperti biasa.",
     didNotReceiveEmail: "Belum menerima email?",
-    didNotReceiveEmailHint: "Anda bisa kirim ulang email verifikasi atau langsung buka aplikasi email Anda.",
+    didNotReceiveEmailHint:
+      "Anda bisa kirim ulang email verifikasi atau langsung buka aplikasi email Anda.",
     openEmailApp: "Buka aplikasi email",
-    spamFolderHint: "Tip: periksa folder spam, update, atau promotion jika email belum terlihat dalam beberapa menit.",
+    spamFolderHint:
+      "Tip: periksa folder spam, update, atau promotion jika email belum terlihat dalam beberapa menit.",
     resendInCountdown: "Kirim ulang dalam {seconds} detik",
     invitationTitle: "Aktifkan akses undangan",
-    invitationDescription: "Lengkapi password Anda untuk menerima undangan akses ke ArtisanCode.",
+    invitationDescription:
+      "Lengkapi password Anda untuk menerima undangan akses ke ArtisanCode.",
     loadingInvitation: "Memuat detail undangan…",
     acceptInvitation: "Terima undangan",
     acceptingInvitation: "Menerima undangan…",
@@ -181,26 +213,78 @@ export default {
     invitationMissingToken: "Token undangan tidak ditemukan",
     invitationPreviewFailed: "Gagal memuat detail undangan",
     invitationAcceptFailed: "Gagal menerima undangan",
-    fullNameRequired: "Nama lengkap wajib diisi"
+    fullNameRequired: "Nama lengkap wajib diisi",
   },
   settings: {
     tenant: {
       title: "Identitas Organisasi",
-      description: "Bagian ini menampilkan nama organisasi dan kode singkat yang dipakai saat login atau menerima undangan. Ini hanya informasi, jadi Anda tidak perlu mengubah apa pun.",
+      description:
+        "Bagian ini menampilkan identitas organisasi sekaligus konfigurasi produk tenant yang mengatur area aplikasi mana saja yang aktif.",
       cardTitle: "Ringkasan organisasi",
-      cardDescription: "Gunakan informasi ini saat admin atau karyawan bertanya kode apa yang harus dipakai untuk masuk.",
+      cardDescription:
+        "Gunakan informasi ini saat admin atau karyawan bertanya kode apa yang harus dipakai untuk masuk.",
       readOnlyBadge: "Hanya lihat",
       organizationNameLabel: "Nama organisasi",
       organizationNameHint: "Nama yang tampil di akun dan menu aplikasi.",
       loginCodeLabel: "Kode untuk login",
       loginCodeHint: "Kode singkat yang membedakan organisasi Anda.",
       lockedTitle: "Kenapa tidak bisa diedit?",
-      lockedDescription: "Kode ini sudah dipakai oleh sistem login dan undangan. Mengubahnya dari web bisa membuat pengguna lama bingung saat masuk.",
+      lockedDescription:
+        "Kode ini sudah dipakai oleh sistem login dan undangan. Mengubahnya dari web bisa membuat pengguna lama bingung saat masuk.",
       finalCode: "Kode ini sudah menjadi kode tetap organisasi Anda.",
-      changeUnavailable: "Perubahan kode belum tersedia di versi Google SSO saat ini.",
+      changeUnavailable:
+        "Perubahan kode belum tersedia di versi Google SSO saat ini.",
+      configTitle: "Konfigurasi tenant",
+      configDescription:
+        "Pilih produk utama tenant dan aktifkan produk tambahan yang boleh diakses dari shell aplikasi.",
+      editableBadge: "Bisa diubah",
+      primaryProductLabel: "Produk utama",
+      primaryProductHint:
+        "Produk ini menjadi mode utama tenant saat session baru dibuat.",
+      enabledProductsLabel: "Produk yang aktif",
+      enabledProductsHint:
+        "Pilih produk yang boleh muncul di navigasi dan product switcher tenant ini.",
+      primaryPinnedHint: "Produk utama selalu aktif dan tidak bisa dilepas.",
+      productHrTitle: "HR",
+      productHrDescription:
+        "Fitur operasional HR seperti perusahaan, karyawan, absensi, shift, dan role.",
+      productCrmTitle: "CRM",
+      productCrmDescription:
+        "Fitur CRM seperti customer type, segment, area, dan relationship status.",
+      primaryBadge: "Utama",
+      enabledBadge: "Aktif",
+      saveAction: "Simpan config tenant",
+      savingAction: "Menyimpan config tenant…",
+      saveSuccess:
+        "Config tenant berhasil diperbarui. Session produk juga sudah disegarkan.",
       refreshAction: "Muat ulang data",
-      loadFailed: "Gagal memuat profil tenant."
-    }
+      loadFailed: "Gagal memuat profil tenant.",
+    },
+  },
+  crm: {
+    dashboard: {
+      badge: "Mode CRM",
+      title: "Fondasi CRM aktif",
+      description:
+        "Tenant ini berjalan dalam mode CRM. Shell utama sudah dipisahkan dari area HR agar navigasi, dashboard, dan akses route bisa berkembang sebagai produk CRM yang terfokus.",
+      customerDatabaseTitle: "Database pelanggan",
+      customerDatabaseDescription:
+        "Area ini akan menjadi rumah untuk daftar pelanggan, detail customer, kontak utama, dan histori kontrak ringkas.",
+      importExportTitle: "Import dan export",
+      importExportDescription:
+        "Pola import preview dan export berbasis filter dapat dibangun di atas fondasi resource dan async job yang sudah ada di codebase ini.",
+      masterDataTitle: "Master data tenant",
+      masterDataDescription:
+        "Jenis customer, segmentasi, area, dan status relasi sebaiknya menjadi resource tenant yang terpisah dari domain HR.",
+      nextStepTitle: "Langkah berikutnya",
+      nextStepDescription:
+        "Fondasi product mode sudah siap. Langkah berikutnya adalah menambahkan route dan module CRM secara bertahap.",
+      nextStepCustomer: "1. Tambah route pelanggan dan list customer utama.",
+      nextStepImport:
+        "2. Tambah alur import Excel dengan preview dan validasi.",
+      nextStepIsolation:
+        "3. Pastikan tenant CRM tidak bisa mengakses route HR meski URL diketik manual.",
+    },
   },
   billing: {
     nav: {
@@ -210,14 +294,15 @@ export default {
       paymentStatus: "Status pembayaran",
       subscription: "Subscription",
       invoices: "Invoice",
-      addOns: "Add-on"
+      addOns: "Add-on",
     },
     common: {
       amount: "Nominal",
       billingCycle: "Siklus billing",
       paymentRail: "Jalur pembayaran",
       doku: "DOKU",
-      managePermissionHint: "Perubahan billing dibatasi untuk owner dan admin dengan izin billing. Data read-only tetap dapat dimuat bila akun Anda diizinkan."
+      managePermissionHint:
+        "Perubahan billing dibatasi untuk owner dan admin dengan izin billing. Data read-only tetap dapat dimuat bila akun Anda diizinkan.",
     },
     payments: {
       title: "Payments",
@@ -231,42 +316,48 @@ export default {
       invoice: "Invoice",
       pay: "Bayar",
       invoiceAction: "Invoice",
-      empty: "Belum ada invoice pembayaran."
+      empty: "Belum ada invoice pembayaran.",
     },
     planModal: {
       title: "Pilih paket",
-      description: "Pilih paket yang tersedia, lalu lanjutkan pembayaran lewat DOKU.",
-      checkoutHint: "Invoice akan dibuat dan tampil di Payments setelah checkout berhasil dibuat."
+      description:
+        "Pilih paket yang tersedia, lalu lanjutkan pembayaran lewat DOKU.",
+      checkoutHint:
+        "Invoice akan dibuat dan tampil di Payments setelah checkout berhasil dibuat.",
     },
     cycles: {
       monthly: "Bulanan",
-      annual: "Tahunan"
+      annual: "Tahunan",
     },
     plans: {
       title: "Paket billing",
-      description: "Bandingkan paket tenant yang tersedia dan pilih siklus harga sebelum checkout.",
+      description:
+        "Bandingkan paket tenant yang tersedia dan pilih siklus harga sebelum checkout.",
       currency: "Mata uang",
       defaultDescription: "Detail paket berasal dari API billing.",
       selectPlan: "Pilih",
-      empty: "Belum ada paket billing yang tersedia."
+      empty: "Belum ada paket billing yang tersedia.",
     },
     checkout: {
       title: "Checkout",
       description: "Tinjau paket yang dipilih sebelum membuat checkout DOKU.",
       noPlanTitle: "Belum ada paket dipilih",
-      summaryHint: "Backend tetap menjadi source of truth untuk invoice final dan status pembayaran.",
+      summaryHint:
+        "Backend tetap menjadi source of truth untuk invoice final dan status pembayaran.",
       confirm: "Lanjut ke DOKU",
-      redirecting: "Mengalihkan…"
+      redirecting: "Mengalihkan…",
     },
     paymentStatus: {
       title: "Status pembayaran",
-      description: "Muat ulang status invoice dan payment attempt dari backend setelah kembali dari DOKU.",
+      description:
+        "Muat ulang status invoice dan payment attempt dari backend setelah kembali dari DOKU.",
       latestInvoice: "Invoice terbaru",
-      attempts: "Payment attempt"
+      attempts: "Payment attempt",
     },
     subscription: {
       title: "Subscription",
-      description: "Tinjau paket aktif, status lifecycle, waktu renewal, dan snapshot entitlement.",
+      description:
+        "Tinjau paket aktif, status lifecycle, waktu renewal, dan snapshot entitlement.",
       freePlan: "Paket gratis",
       renewalAt: "Renewal",
       features: "Fitur",
@@ -281,22 +372,26 @@ export default {
       statusExpired: "Kedaluwarsa",
       statusFree: "Gratis",
       freeTierTitle: "Paket gratis aktif",
-      freeTierHint: "Anda sedang menggunakan paket gratis. Upgrade ke paket berbayar untuk membuka lebih banyak fitur dan limit yang lebih tinggi.",
+      freeTierHint:
+        "Anda sedang menggunakan paket gratis. Upgrade ke paket berbayar untuk membuka lebih banyak fitur dan limit yang lebih tinggi.",
       gracePeriodTitle: "Grace period pembayaran",
-      gracePeriodHint: "Pembayaran terakhir Anda gagal. Perbarui metode pembayaran untuk memulihkan akses penuh.",
-      empty: "Belum ada data subscription."
+      gracePeriodHint:
+        "Pembayaran terakhir Anda gagal. Perbarui metode pembayaran untuk memulihkan akses penuh.",
+      empty: "Belum ada data subscription.",
     },
     invoices: {
       title: "Histori invoice",
-      description: "Tinjau invoice tenant dan bedakan status open, paid, expired, dan cancelled.",
+      description:
+        "Tinjau invoice tenant dan bedakan status open, paid, expired, dan cancelled.",
       recent: "Invoice terbaru",
-      empty: "Belum ada invoice."
+      empty: "Belum ada invoice.",
     },
     addOns: {
       title: "Add-on",
-      description: "Tinjau add-on aktif dan dampak entitlement. Aksi perubahan add-on akan memakai API tenant billing.",
+      description:
+        "Tinjau add-on aktif dan dampak entitlement. Aksi perubahan add-on akan memakai API tenant billing.",
       current: "Add-on aktif",
-      empty: "Belum ada add-on aktif."
+      empty: "Belum ada add-on aktif.",
     },
     status: {
       unknown: "Tidak diketahui",
@@ -306,7 +401,7 @@ export default {
         partiallyPaid: "Terbayar sebagian",
         paid: "Paid",
         expired: "Expired",
-        cancelled: "Cancelled"
+        cancelled: "Cancelled",
       },
       payment: {
         initiated: "Initiated",
@@ -314,7 +409,7 @@ export default {
         succeeded: "Succeeded",
         failed: "Failed",
         expired: "Expired",
-        cancelled: "Cancelled"
+        cancelled: "Cancelled",
       },
       subscription: {
         free: "Free",
@@ -323,30 +418,35 @@ export default {
         gracePeriod: "Grace period",
         suspended: "Suspended",
         cancelled: "Cancelled",
-        expired: "Expired"
+        expired: "Expired",
       },
       receipt: {
         pendingVerification: "Menunggu verifikasi",
         accepted: "Accepted",
-        rejected: "Rejected"
-      }
+        rejected: "Rejected",
+      },
     },
     errors: {
       generic: "Request billing gagal.",
       forbiddenBillingAction: "Anda tidak punya izin untuk aksi billing ini.",
       planNotAvailable: "Paket ini tidak tersedia.",
-      addOnNotCompatible: "Add-on ini tidak kompatibel dengan paket yang dipilih.",
+      addOnNotCompatible:
+        "Add-on ini tidak kompatibel dengan paket yang dipilih.",
       checkoutAlreadyInProgress: "Checkout sedang berjalan.",
-      checkoutReplacementNotAllowed: "Checkout ini tidak bisa menggantikan checkout aktif.",
+      checkoutReplacementNotAllowed:
+        "Checkout ini tidak bisa menggantikan checkout aktif.",
       invoiceNotPayable: "Invoice ini tidak dapat dibayar.",
-      paymentAttemptNotRetryable: "Payment attempt ini tidak bisa dicoba ulang.",
+      paymentAttemptNotRetryable:
+        "Payment attempt ini tidak bisa dicoba ulang.",
       webhookSignatureInvalid: "Signature payment provider tidak valid.",
       webhookEventDuplicate: "Event pembayaran ini sudah diproses.",
-      paymentReceiptAlreadyVerified: "Receipt pembayaran ini sudah diverifikasi.",
-      subscriptionChangeNotAllowed: "Perubahan subscription ini tidak diizinkan.",
+      paymentReceiptAlreadyVerified:
+        "Receipt pembayaran ini sudah diverifikasi.",
+      subscriptionChangeNotAllowed:
+        "Perubahan subscription ini tidak diizinkan.",
       dokuStatusUnmapped: "Status DOKU belum dipetakan.",
-      dokuEventNotTerminal: "Event DOKU belum final."
-    }
+      dokuEventNotTerminal: "Event DOKU belum final.",
+    },
   },
   marketing: {
     site: {
@@ -355,190 +455,226 @@ export default {
         home: "Beranda",
         templates: "Template",
         pricing: "Harga",
-        features: "Fitur"
+        features: "Fitur",
       },
       cta: {
         dashboard: "Buka Dasbor",
-        getStarted: "Mulai Sekarang"
+        getStarted: "Mulai Sekarang",
       },
       footer: {
-        copy: "Sistem absensi web dan mobile untuk tim operasional."
+        copy: "Sistem absensi web dan mobile untuk tim operasional.",
       },
       home: {
         seo: {
           title: "Presense - Absensi karyawan yang lebih rapi",
-          description: "Landing page baru Presense dengan alur marketing yang lebih ringan, langsung ke login atau mulai setup organisasi."
+          description:
+            "Landing page baru Presense dengan alur marketing yang lebih ringan, langsung ke login atau mulai setup organisasi.",
         },
         badge: "Platform absensi untuk tim operasional modern",
-        title: "Halaman awal yang lebih ringan, fokus ke login dan mulai setup.",
-        description: "Presense membantu tim HR dan operasional menjalankan absensi web dan mobile tanpa perlu landing page satu scroll panjang. Pengunjung bisa langsung masuk ke flow yang mereka butuhkan.",
-        highlight1: "Masuk ke akun yang sudah aktif tanpa melewati demo panjang.",
-        highlight2: "Buka route khusus untuk fitur, template, dan pricing sesuai kebutuhan.",
-        highlight3: "Tetap jelas untuk HR, owner, dan tim lapangan yang butuh orientasi cepat.",
+        title:
+          "Halaman awal yang lebih ringan, fokus ke login dan mulai setup.",
+        description:
+          "Presense membantu tim HR dan operasional menjalankan absensi web dan mobile tanpa perlu landing page satu scroll panjang. Pengunjung bisa langsung masuk ke flow yang mereka butuhkan.",
+        highlight1:
+          "Masuk ke akun yang sudah aktif tanpa melewati demo panjang.",
+        highlight2:
+          "Buka route khusus untuk fitur, template, dan pricing sesuai kebutuhan.",
+        highlight3:
+          "Tetap jelas untuk HR, owner, dan tim lapangan yang butuh orientasi cepat.",
         stats: {
           companies: "Organisasi",
           employees: "Karyawan aktif",
-          locations: "Lokasi kerja"
+          locations: "Lokasi kerja",
         },
         panel: {
           label: "Ringkasan produk",
           title: "Kontrol absensi dari web admin sampai aplikasi mobile.",
           live: "Active",
           subTitle: "Operasional hari ini",
-          subDescription: "Arahkan pengguna ke page yang tepat tanpa memaksa mereka scroll semua konten.",
+          subDescription:
+            "Arahkan pengguna ke page yang tepat tanpa memaksa mereka scroll semua konten.",
           status: "Ready",
           item1Label: "Flow utama",
           item1Value: "Login untuk user lama, register untuk tenant baru.",
           item2Label: "Route marketing",
-          item2Value: "Features, Templates, dan Pricing dipisah agar lebih mudah dieksplor."
+          item2Value:
+            "Features, Templates, dan Pricing dipisah agar lebih mudah dieksplor.",
         },
         products: {
           admin: {
             title: "Web admin untuk HR",
-            description: "Dashboard, audit, dan pengaturan master data tetap jadi pusat kontrol operasional."
+            description:
+              "Dashboard, audit, dan pengaturan master data tetap jadi pusat kontrol operasional.",
           },
           mobile: {
             title: "Mobile app untuk karyawan",
-            description: "Check-in, check-out, selfie proof, dan status kehadiran harian tetap mudah diakses dari perangkat lapangan."
+            description:
+              "Check-in, check-out, selfie proof, dan status kehadiran harian tetap mudah diakses dari perangkat lapangan.",
           },
           compliance: {
             title: "Jejak audit lebih siap",
-            description: "Lokasi, shift, dan histori aktivitas tetap terbaca jelas saat tim perlu meninjau exception."
-          }
-        }
+            description:
+              "Lokasi, shift, dan histori aktivitas tetap terbaca jelas saat tim perlu meninjau exception.",
+          },
+        },
       },
       features: {
         seo: {
           title: "Presense Features",
-          description: "Lihat kemampuan utama Presense untuk absensi mobile, kontrol operasional, dan audit."
+          description:
+            "Lihat kemampuan utama Presense untuk absensi mobile, kontrol operasional, dan audit.",
         },
         eyebrow: "Features",
         title: "Kapabilitas inti dipisah dalam halaman khusus.",
-        description: "Alih-alih menaruh semua detail di homepage, halaman ini merangkum kemampuan inti yang paling sering dicari calon pengguna.",
+        description:
+          "Alih-alih menaruh semua detail di homepage, halaman ini merangkum kemampuan inti yang paling sering dicari calon pengguna.",
         sideNote: {
           label: "Kenapa dipisah?",
-          title: "Pengunjung bisa langsung fokus ke hal yang ingin mereka evaluasi.",
-          description: "Tim yang sudah siap beli biasanya ingin lihat capability, pricing, atau workflow tertentu tanpa harus scroll satu halaman penuh."
+          title:
+            "Pengunjung bisa langsung fokus ke hal yang ingin mereka evaluasi.",
+          description:
+            "Tim yang sudah siap beli biasanya ingin lihat capability, pricing, atau workflow tertentu tanpa harus scroll satu halaman penuh.",
         },
         groups: {
           mobile: {
             title: "Absensi mobile",
-            description: "Pengalaman karyawan dibuat singkat dan jelas sejak buka aplikasi sampai check-out selesai.",
+            description:
+              "Pengalaman karyawan dibuat singkat dan jelas sejak buka aplikasi sampai check-out selesai.",
             item1: "Check-in dan check-out dengan selfie proof.",
             item2: "Status shift dan kehadiran hari ini langsung terlihat.",
-            item3: "Catatan dan konteks perangkat tercatat rapi."
+            item3: "Catatan dan konteks perangkat tercatat rapi.",
           },
           operations: {
             title: "Kontrol operasional",
-            description: "Tim HR dan owner bisa membaca ringkasan penting tanpa menggali terlalu dalam.",
+            description:
+              "Tim HR dan owner bisa membaca ringkasan penting tanpa menggali terlalu dalam.",
             item1: "Dashboard kehadiran harian.",
             item2: "Pemantauan exception dan keterlambatan.",
-            item3: "Pengelolaan karyawan, shift, dan lokasi kerja."
+            item3: "Pengelolaan karyawan, shift, dan lokasi kerja.",
           },
           compliance: {
             title: "Audit dan kepatuhan",
-            description: "Data yang dibutuhkan untuk review dan pelacakan tetap tersedia dalam alur yang rapi.",
+            description:
+              "Data yang dibutuhkan untuk review dan pelacakan tetap tersedia dalam alur yang rapi.",
             item1: "Log absensi yang bisa difilter.",
             item2: "Riwayat selfie dan lokasi lebih mudah ditelusuri.",
-            item3: "Ekspor laporan untuk kebutuhan admin."
+            item3: "Ekspor laporan untuk kebutuhan admin.",
           },
           deployment: {
             title: "Penerapan bertahap",
-            description: "Cocok untuk tim yang ingin mulai kecil lalu menambah workflow seiring operasional tumbuh.",
+            description:
+              "Cocok untuk tim yang ingin mulai kecil lalu menambah workflow seiring operasional tumbuh.",
             item1: "Bisa mulai dari satu tenant lebih dulu.",
             item2: "Pisahkan page marketing dari flow login.",
-            item3: "Perjelas onboarding antara user baru dan user lama."
-          }
+            item3: "Perjelas onboarding antara user baru dan user lama.",
+          },
         },
         request: {
           eyebrow: "Butuh workflow khusus?",
-          title: "Kalau ada fitur yang ingin direquest, kita bisa diskusikan dari kebutuhan operasionalnya dulu.",
-          description: "Mulai dari shift kompleks, approval khusus, aturan lokasi, sampai audit requirement. Arah pembahasannya dibuat jelas supaya permintaan fitur tidak berhenti di daftar wish list saja.",
+          title:
+            "Kalau ada fitur yang ingin direquest, kita bisa diskusikan dari kebutuhan operasionalnya dulu.",
+          description:
+            "Mulai dari shift kompleks, approval khusus, aturan lokasi, sampai audit requirement. Arah pembahasannya dibuat jelas supaya permintaan fitur tidak berhenti di daftar wish list saja.",
           primaryCta: "Diskusikan Kebutuhan Saya",
           secondaryCta: "Lihat struktur pricing",
-          point1: "Cocok untuk tim yang punya aturan absensi berbeda antar lokasi atau unit.",
-          point2: "Permintaan fitur bisa dipetakan ke proses HR yang benar-benar dipakai harian.",
-          point3: "Saat sudah login, CTA langsung berubah ke Dashboard supaya alurnya tetap singkat."
-        }
+          point1:
+            "Cocok untuk tim yang punya aturan absensi berbeda antar lokasi atau unit.",
+          point2:
+            "Permintaan fitur bisa dipetakan ke proses HR yang benar-benar dipakai harian.",
+          point3:
+            "Saat sudah login, CTA langsung berubah ke Dashboard supaya alurnya tetap singkat.",
+        },
       },
       templates: {
         seo: {
           title: "Presense Templates",
-          description: "Contoh paket setup dan workflow Presense untuk membantu tim lebih cepat mulai."
+          description:
+            "Contoh paket setup dan workflow Presense untuk membantu tim lebih cepat mulai.",
         },
         eyebrow: "Templates",
         title: "Template alur kerja untuk mempercepat implementasi.",
-        description: "Halaman ini menampilkan struktur setup yang bisa dipakai sebagai acuan saat tenant baru mulai menggunakan Presense.",
+        description:
+          "Halaman ini menampilkan struktur setup yang bisa dipakai sebagai acuan saat tenant baru mulai menggunakan Presense.",
         callout: {
           label: "Quick Start",
           title: "Mulai dari setup yang paling dekat dengan operasional Anda.",
-          description: "Buka akun baru lalu sesuaikan data karyawan, shift, dan lokasi kerja tanpa perlu menebak alur awal."
+          description:
+            "Buka akun baru lalu sesuaikan data karyawan, shift, dan lokasi kerja tanpa perlu menebak alur awal.",
         },
         cards: {
           onboarding: {
             title: "Template onboarding tenant",
-            description: "Urutan setup dasar untuk organisasi yang baru pertama kali masuk ke sistem.",
+            description:
+              "Urutan setup dasar untuk organisasi yang baru pertama kali masuk ke sistem.",
             item1: "Buat tenant, admin utama, dan identitas organisasi.",
             item2: "Isi struktur karyawan dan peran akses.",
-            item3: "Aktifkan workflow login untuk tim internal."
+            item3: "Aktifkan workflow login untuk tim internal.",
           },
           shift: {
             title: "Template shift dan lokasi",
-            description: "Mulai dari kombinasi shift kerja dan lokasi yang umum dipakai tim lapangan.",
+            description:
+              "Mulai dari kombinasi shift kerja dan lokasi yang umum dipakai tim lapangan.",
             item1: "Atur shift tetap atau bergilir.",
             item2: "Tetapkan radius dan kebijakan lokasi kerja.",
-            item3: "Hubungkan ke status kehadiran harian."
+            item3: "Hubungkan ke status kehadiran harian.",
           },
           audit: {
             title: "Template audit kehadiran",
-            description: "Panduan struktur review agar tim HR cepat menemukan exception penting.",
+            description:
+              "Panduan struktur review agar tim HR cepat menemukan exception penting.",
             item1: "Pisahkan telat, belum check-in, dan belum check-out.",
             item2: "Tinjau bukti foto dan lokasi dalam satu alur.",
-            item3: "Ekspor laporan saat rekap diperlukan."
-          }
-        }
+            item3: "Ekspor laporan saat rekap diperlukan.",
+          },
+        },
       },
       pricing: {
         seo: {
           title: "Presense Pricing",
-          description: "Ringkasan paket harga Presense untuk onboarding, pertumbuhan, dan kebutuhan enterprise."
+          description:
+            "Ringkasan paket harga Presense untuk onboarding, pertumbuhan, dan kebutuhan enterprise.",
         },
         eyebrow: "Pricing",
         title: "Struktur harga yang mudah dibaca dari halaman sendiri.",
-        description: "Pricing dipisah dari homepage supaya calon pengguna bisa langsung membandingkan paket tanpa tenggelam di konten lain.",
+        description:
+          "Pricing dipisah dari homepage supaya calon pengguna bisa langsung membandingkan paket tanpa tenggelam di konten lain.",
         highlight: "Most popular",
         plans: {
           starter: {
             name: "Starter",
             price: "Mulai onboarding",
-            description: "Untuk tim kecil yang butuh flow absensi dasar dan setup cepat.",
+            description:
+              "Untuk tim kecil yang butuh flow absensi dasar dan setup cepat.",
             item1: "Flow login dan register tenant.",
             item2: "Absensi mobile dasar.",
-            item3: "Dashboard dan log operasional inti."
+            item3: "Dashboard dan log operasional inti.",
           },
           growth: {
             name: "Growth",
             price: "Untuk operasional aktif",
-            description: "Untuk perusahaan yang mulai mengelola banyak karyawan dan lokasi kerja.",
+            description:
+              "Untuk perusahaan yang mulai mengelola banyak karyawan dan lokasi kerja.",
             item1: "Monitoring exception yang lebih rapi.",
             item2: "Kontrol shift, lokasi, dan role admin.",
-            item3: "Audit dan ekspor yang lebih siap dipakai."
+            item3: "Audit dan ekspor yang lebih siap dipakai.",
           },
           enterprise: {
             name: "Enterprise",
             price: "Custom setup",
-            description: "Untuk organisasi dengan kebutuhan integrasi, governance, atau rollout multi-unit.",
+            description:
+              "Untuk organisasi dengan kebutuhan integrasi, governance, atau rollout multi-unit.",
             item1: "Konsultasi struktur implementasi.",
             item2: "Pendampingan rollout bertahap.",
-            item3: "Penyesuaian workflow operasional."
-          }
-        }
-      }
+            item3: "Penyesuaian workflow operasional.",
+          },
+        },
+      },
     },
     presense: {
       seo: {
         title: "Presense - Absensi karyawan web dan mobile",
-        description: "Presense membantu HR memantau kehadiran, shift, lokasi, bukti selfie, dan riwayat absensi dari satu sistem web dan mobile."
+        description:
+          "Presense membantu HR memantau kehadiran, shift, lokasi, bukti selfie, dan riwayat absensi dari satu sistem web dan mobile.",
       },
       logoAlt: "Logo Presense",
       languageSwitch: "Ganti bahasa",
@@ -546,20 +682,22 @@ export default {
         label: "Navigasi utama",
         features: "Fitur",
         flow: "Alur",
-        platform: "Produk"
+        platform: "Produk",
       },
       cta: {
         demo: "Minta Demo",
         flow: "Lihat alur absensi",
-        adminLogin: "Masuk admin"
+        adminLogin: "Masuk admin",
       },
       hero: {
         badge: "Sistem absensi web dan aplikasi mobile",
-        title: "Absensi karyawan yang jelas untuk tim yang bergerak setiap hari.",
-        description: "Presense membantu HR memantau kehadiran, shift, lokasi, bukti selfie, dan riwayat absensi dari satu sistem web dan mobile.",
+        title:
+          "Absensi karyawan yang jelas untuk tim yang bergerak setiap hari.",
+        description:
+          "Presense membantu HR memantau kehadiran, shift, lokasi, bukti selfie, dan riwayat absensi dari satu sistem web dan mobile.",
         proof1: "Check-in dan check-out mobile dengan bukti selfie",
         proof2: "Dashboard harian untuk pemilik dan HR",
-        proof3: "Log dan ekspor untuk audit kehadiran"
+        proof3: "Log dan ekspor untuk audit kehadiran",
       },
       mock: {
         aria: "Mock tampilan dashboard web dan aplikasi mobile Presense",
@@ -577,102 +715,116 @@ export default {
         shift: "Shift pagi - 08:00 sampai 17:00",
         todayStatus: "Status hari ini",
         readyCheckIn: "Siap untuk check-in",
-        permissionHint: "Kamera dan lokasi dipakai saat check-in atau check-out.",
+        permissionHint:
+          "Kamera dan lokasi dipakai saat check-in atau check-out.",
         metric: {
           activeEmployees: "Karyawan aktif",
           checkedIn: "Sudah check-in",
           checkedOut: "Sudah check-out",
           pendingIn: "Belum check-in",
           pendingOut: "Belum check-out",
-          lateCheckIn: "Terlambat masuk"
-        }
+          lateCheckIn: "Terlambat masuk",
+        },
       },
       pain: {
         eyebrow: "Masalah yang sering muncul",
-        title: "HR butuh melihat masalah absensi sebelum rekap menjadi pekerjaan panjang.",
+        title:
+          "HR butuh melihat masalah absensi sebelum rekap menjadi pekerjaan panjang.",
         point1: "Belum tahu siapa yang belum check-in hari ini.",
         point2: "Keterlambatan dan belum check-out baru terlihat saat rekap.",
         point3: "Bukti foto dan lokasi tidak rapi untuk kebutuhan audit.",
-        point4: "Laporan kehadiran masih butuh banyak pekerjaan manual."
+        point4: "Laporan kehadiran masih butuh banyak pekerjaan manual.",
       },
       capability: {
         eyebrow: "Kemampuan utama",
         title: "Dari check-in mobile sampai log audit di web admin.",
-        description: "Presense menyatukan pengalaman karyawan dan kebutuhan HR dalam satu alur absensi yang jelas.",
+        description:
+          "Presense menyatukan pengalaman karyawan dan kebutuhan HR dalam satu alur absensi yang jelas.",
         mobile: {
           title: "Absensi mobile untuk karyawan",
-          description: "Karyawan check-in dan check-out dari mobile dengan bukti selfie, lokasi, catatan, dan konteks perangkat."
+          description:
+            "Karyawan check-in dan check-out dari mobile dengan bukti selfie, lokasi, catatan, dan konteks perangkat.",
         },
         dashboard: {
           title: "Dashboard harian untuk Pemilik/HR",
-          description: "Pemilik dan HR melihat ringkasan kehadiran hari ini, pengecualian, dan tren singkat untuk tindak lanjut."
+          description:
+            "Pemilik dan HR melihat ringkasan kehadiran hari ini, pengecualian, dan tren singkat untuk tindak lanjut.",
         },
         policy: {
           title: "Kebijakan, shift, dan lokasi kerja",
-          description: "Admin mengelola karyawan, shift kerja, lokasi kerja, radius, zona waktu, dan window check-in/check-out."
+          description:
+            "Admin mengelola karyawan, shift kerja, lokasi kerja, radius, zona waktu, dan window check-in/check-out.",
         },
         audit: {
           title: "Log dan laporan yang bisa diaudit",
-          description: "Log kehadiran dapat difilter berdasarkan karyawan, sumber, status, lokasi, tanggal, dan exception lalu diekspor."
-        }
+          description:
+            "Log kehadiran dapat difilter berdasarkan karyawan, sumber, status, lokasi, tanggal, dan exception lalu diekspor.",
+        },
       },
       workflow: {
         eyebrow: "Cara kerja",
         title: "Satu alur dari pengaturan HR sampai laporan kehadiran.",
         step1: {
           title: "Atur data operasional",
-          description: "HR menyiapkan perusahaan, karyawan, jabatan, lokasi kerja, shift kerja, dan peran akses."
+          description:
+            "HR menyiapkan perusahaan, karyawan, jabatan, lokasi kerja, shift kerja, dan peran akses.",
         },
         step2: {
           title: "Tetapkan kebijakan absensi",
-          description: "Sistem membaca zona waktu, radius, dan window check-in/check-out yang berlaku untuk tim."
+          description:
+            "Sistem membaca zona waktu, radius, dan window check-in/check-out yang berlaku untuk tim.",
         },
         step3: {
           title: "Karyawan mencatat kehadiran",
-          description: "Karyawan check-in atau check-out dari mobile dengan bukti selfie dan lokasi."
+          description:
+            "Karyawan check-in atau check-out dari mobile dengan bukti selfie dan lokasi.",
         },
         step4: {
           title: "HR meninjau dan mengekspor",
-          description: "Pemilik/HR membuka dashboard, memfilter pengecualian, meninjau log, dan mengunduh laporan."
-        }
+          description:
+            "Pemilik/HR membuka dashboard, memfilter pengecualian, meninjau log, dan mengunduh laporan.",
+        },
       },
       platform: {
         eyebrow: "Dua sisi produk",
         title: "Konsol web untuk HR, aplikasi mobile untuk karyawan.",
         admin: {
           title: "Konsol Web untuk Pemilik/HR",
-          description: "Kontrol operasional, audit, data master, filter, dan ekspor laporan berada di satu konsol admin.",
+          description:
+            "Kontrol operasional, audit, data master, filter, dan ekspor laporan berada di satu konsol admin.",
           feature1: "Dashboard kehadiran untuk pemilik",
           feature2: "Log kehadiran dengan filter lengkap",
           feature3: "Data karyawan, shift, dan lokasi kerja",
           feature4: "Ekspor laporan kehadiran",
-          feature5: "Peran akses untuk kebutuhan admin"
+          feature5: "Peran akses untuk kebutuhan admin",
         },
         mobile: {
           title: "Aplikasi Mobile untuk Karyawan",
-          description: "Karyawan melihat status hari ini, shift, kebijakan, check-in/check-out, bukti selfie, dan riwayat pribadi.",
+          description:
+            "Karyawan melihat status hari ini, shift, kebijakan, check-in/check-out, bukti selfie, dan riwayat pribadi.",
           feature1: "Status kehadiran hari ini",
           feature2: "Shift dan kebijakan yang berlaku",
           feature3: "Check-in/check-out dengan bukti selfie",
           feature4: "Lokasi, catatan, dan konteks perangkat",
-          feature5: "Riwayat kehadiran karyawan"
-        }
+          feature5: "Riwayat kehadiran karyawan",
+        },
       },
       final: {
         title: "Siapkan absensi yang lebih mudah diaudit.",
-        description: "Lihat bagaimana Presense membantu HR memantau kehadiran dari web admin dan aplikasi mobile karyawan."
-      }
-    }
+        description:
+          "Lihat bagaimana Presense membantu HR memantau kehadiran dari web admin dan aplikasi mobile karyawan.",
+      },
+    },
   },
   api: {
     requestFailed: "Permintaan gagal",
     networkError: "Terjadi gangguan jaringan",
     sessionExpired: "Sesi berakhir. Silakan masuk kembali.",
     backendUnavailable: "Data belum bisa dimuat. Silakan coba lagi nanti.",
-    backendUnexpected: "Terjadi gangguan saat memuat data. Silakan coba lagi."
+    backendUnexpected: "Terjadi gangguan saat memuat data. Silakan coba lagi.",
   },
   company: {
-    deleteOrgUnitConfirm: "Hapus \"{name}\"? Tindakan ini tidak bisa dibatalkan.",
+    deleteOrgUnitConfirm: 'Hapus "{name}"? Tindakan ini tidak bisa dibatalkan.',
     orgUnitDeleted: "Unit organisasi berhasil dihapus.",
     orgUnitCreated: "Unit organisasi berhasil dibuat.",
     orgUnitUpdated: "Unit organisasi berhasil diperbarui.",
@@ -687,7 +839,8 @@ export default {
     companyCode: "Kode Perusahaan",
     companyName: "Nama Perusahaan",
     organizationStructureLoading: "Memuat struktur organisasi…",
-    organizationStructureEmpty: "Belum ada unit organisasi untuk perusahaan ini.",
+    organizationStructureEmpty:
+      "Belum ada unit organisasi untuk perusahaan ini.",
     createOrganizationUnit: "Buat Unit Organisasi",
     editOrganizationUnit: "Edit Unit Organisasi",
     organizationUnitCode: "Kode Unit Organisasi",
@@ -706,35 +859,41 @@ export default {
     selectOrganizationUnit: "Pilih unit organisasi",
     address: "Alamat",
     radiusMeters: "Radius (meter)",
-    locationAndAddress: "Lokasi & Alamat"
+    locationAndAddress: "Lokasi & Alamat",
   },
   resource: {
     detailEmpty: "Tidak ada detail tersedia.",
     confirmDelete: "Konfirmasi hapus",
-    deleteConfirmDescription: "Hapus {label}? Tindakan ini tidak dapat dibatalkan.",
+    deleteConfirmDescription:
+      "Hapus {label}? Tindakan ini tidak dapat dibatalkan.",
     failedLoadData: "Gagal memuat data.",
     detailNotAvailable: "Detail tidak tersedia.",
     deleteFailedMissingId: "Gagal menghapus: ID tidak ditemukan.",
     selectedRows: "{selected} dari {total} baris dipilih",
     searchLocation: "Cari lokasi…",
-    mapPickerHint: "Klik pada peta, geser penanda, atau gunakan \"Lokasi Saya\" untuk menentukan lokasi.",
+    mapPickerHint:
+      'Klik pada peta, geser penanda, atau gunakan "Lokasi Saya" untuk menentukan lokasi.',
     geolocationUnsupported: "Geolokasi tidak didukung oleh browser Anda.",
-    geolocationDenied: "Izin lokasi ditolak. Silakan aktifkan di pengaturan browser Anda.",
+    geolocationDenied:
+      "Izin lokasi ditolak. Silakan aktifkan di pengaturan browser Anda.",
     geolocationUnavailable: "Informasi lokasi tidak tersedia.",
-    geolocationTimeout: "Permintaan lokasi melebihi batas waktu. Silakan coba lagi.",
-    geolocationUnknown: "Terjadi kesalahan yang tidak diketahui saat mengambil lokasi.",
-    noOrganizationUnits: "Unit organisasi belum tersedia."
+    geolocationTimeout:
+      "Permintaan lokasi melebihi batas waktu. Silakan coba lagi.",
+    geolocationUnknown:
+      "Terjadi kesalahan yang tidak diketahui saat mengambil lokasi.",
+    noOrganizationUnits: "Unit organisasi belum tersedia.",
   },
   internalProducts: {
     prices: {
       currencyPlaceholder: "Pilih mata uang",
       currencySearchPlaceholder: "Cari mata uang…",
-      currencyHint: "Gunakan pilihan mata uang yang tersedia agar tidak terjadi salah input.",
+      currencyHint:
+        "Gunakan pilihan mata uang yang tersedia agar tidak terjadi salah input.",
       currencyOptions: {
         IDR: "IDR - Rupiah Indonesia",
         USD: "USD - Dolar Amerika Serikat",
         SGD: "SGD - Dolar Singapura",
-        EUR: "EUR - Euro"
+        EUR: "EUR - Euro",
       },
       amountLabel: "Nominal",
       amountPlaceholder: "Contoh: 199.000",
@@ -742,8 +901,8 @@ export default {
       effectiveStartLabel: "Mulai Berlaku",
       effectiveEndLabel: "Berakhir Pada",
       effectiveStartHint: "Pilih tanggal dan jam saat harga mulai berlaku.",
-      effectiveEndHint: "Kosongkan jika harga berlaku tanpa batas waktu."
-    }
+      effectiveEndHint: "Kosongkan jika harga berlaku tanpa batas waktu.",
+    },
   },
   billingSettings: {
     currencies: {
@@ -755,14 +914,15 @@ export default {
       activate: "Aktifkan",
       deactivate: "Nonaktifkan",
       setDefault: "Jadikan default",
-      noActiveCurrency: "Belum ada mata uang aktif. Aktifkan mata uang di Billing Settings terlebih dahulu.",
+      noActiveCurrency:
+        "Belum ada mata uang aktif. Aktifkan mata uang di Billing Settings terlebih dahulu.",
       saveFailed: "Gagal menyimpan mata uang.",
       deleteFailed: "Gagal menghapus mata uang.",
       deleteConfirm: "Hapus mata uang {code}?",
       filters: {
         all: "Semua",
         active: "Aktif",
-        inactive: "Nonaktif"
+        inactive: "Nonaktif",
       },
       columns: {
         code: "Kode",
@@ -770,15 +930,15 @@ export default {
         symbol: "Simbol",
         decimalPlaces: "Digit desimal",
         status: "Status",
-        default: "Default"
-      }
-    }
+        default: "Default",
+      },
+    },
   },
   internalCommerce: {
     states: {
       loadingTitle: "Memuat commerce",
       loadingDescription: "Kami mengambil status terbaru dari backend.",
-      emptyTitle: "Data belum tersedia"
+      emptyTitle: "Data belum tersedia",
     },
     errors: {
       loadQuotation: "Gagal memuat quotation.",
@@ -786,7 +946,7 @@ export default {
       createOrder: "Gagal membuat order.",
       loadInvoice: "Gagal memuat invoice.",
       startPayment: "Gagal memulai pembayaran.",
-      retryPayment: "Gagal mencoba ulang pembayaran."
+      retryPayment: "Gagal mencoba ulang pembayaran.",
     },
     actions: {
       approveQuotation: "Setujui quotation",
@@ -799,7 +959,7 @@ export default {
       continuePayment: "Lanjutkan pembayaran",
       retryPayment: "Coba ulang pembayaran",
       retrying: "Mencoba ulang…",
-      refreshStatus: "Refresh status"
+      refreshStatus: "Refresh status",
     },
     money: {
       subtotal: "Subtotal",
@@ -808,7 +968,7 @@ export default {
       total: "Total",
       invoiceAmount: "Nominal invoice",
       amountPaid: "Sudah dibayar",
-      amountOutstanding: "Sisa tagihan"
+      amountOutstanding: "Sisa tagihan",
     },
     status: {
       unknown: "Status tidak dikenal",
@@ -818,7 +978,7 @@ export default {
         approved: "Disetujui",
         rejected: "Ditolak",
         expired: "Kedaluwarsa",
-        converted: "Menjadi order"
+        converted: "Menjadi order",
       },
       order: {
         draft: "Draft",
@@ -826,13 +986,13 @@ export default {
         pendingPayment: "Menunggu pembayaran",
         paid: "Dibayar",
         cancelled: "Dibatalkan",
-        expired: "Kedaluwarsa"
+        expired: "Kedaluwarsa",
       },
       invoice: {
         open: "Menunggu dibayar",
         paid: "Dibayar",
         expired: "Kedaluwarsa",
-        cancelled: "Dibatalkan"
+        cancelled: "Dibatalkan",
       },
       payment: {
         initiated: "Dimulai",
@@ -840,21 +1000,23 @@ export default {
         succeeded: "Berhasil",
         failed: "Gagal",
         expired: "Kedaluwarsa",
-        awaitingVerification: "Menunggu verifikasi"
-      }
+        awaitingVerification: "Menunggu verifikasi",
+      },
     },
     quotation: {
       eyebrow: "Quotation",
       title: "Detail quotation",
-      description: "Tinjau harga final sebelum quotation dikonversi menjadi order dan invoice.",
+      description:
+        "Tinjau harga final sebelum quotation dikonversi menjadi order dan invoice.",
       priceSummary: "Ringkasan harga",
       nextStep: "Langkah berikutnya",
-      expiresAt: "Berlaku sampai"
+      expiresAt: "Berlaku sampai",
     },
     checkout: {
       eyebrow: "Checkout",
       title: "Buat order commerce",
-      description: "Mulai purchase flow dari pricing standar atau quotation yang sudah final.",
+      description:
+        "Mulai purchase flow dari pricing standar atau quotation yang sudah final.",
       orderInput: "Input order",
       productId: "ID produk",
       productIdPlaceholder: "UUID produk internal",
@@ -862,18 +1024,22 @@ export default {
       pricingIdPlaceholder: "UUID pricing internal",
       quotationId: "ID quotation",
       quotationIdPlaceholder: "Opsional untuk flow quotation",
-      quotationHint: "Isi quotation ID bila harga berasal dari quotation custom. Untuk pricing standar, isi product dan pricing ID.",
+      quotationHint:
+        "Isi quotation ID bila harga berasal dari quotation custom. Untuk pricing standar, isi product dan pricing ID.",
       currency: "Currency",
       invoiceDueAt: "Jatuh tempo invoice",
       nextStep: "Langkah berikutnya",
-      nextStepHint: "Setelah order dibuat, lanjutkan ke invoice untuk memilih metode pembayaran."
+      nextStepHint:
+        "Setelah order dibuat, lanjutkan ke invoice untuk memilih metode pembayaran.",
     },
     invoice: {
       eyebrow: "Invoice",
       returnEyebrow: "Status pembayaran",
       title: "Detail invoice",
-      description: "Status invoice dan payment attempt dibaca dari backend sebagai source of truth.",
-      returnDescription: "Kami tidak menganggap redirect berhasil sebagai bukti pembayaran. Refresh status untuk melihat hasil final backend.",
+      description:
+        "Status invoice dan payment attempt dibaca dari backend sebagai source of truth.",
+      returnDescription:
+        "Kami tidak menganggap redirect berhasil sebagai bukti pembayaran. Refresh status untuk melihat hasil final backend.",
       amountSummary: "Ringkasan invoice",
       dueAt: "Jatuh tempo",
       order: "Order",
@@ -882,23 +1048,25 @@ export default {
       requestedAmount: "Nominal diminta",
       paymentType: "Tipe pembayaran",
       expiresAt: "Kedaluwarsa",
-      paymentHistory: "Histori percobaan pembayaran"
+      paymentHistory: "Histori percobaan pembayaran",
     },
     payment: {
       title: "Metode pembayaran",
       noMethods: "Belum ada metode pembayaran yang tersedia untuk invoice ini.",
-      sourceOfTruthHint: "Status final pembayaran selalu ditentukan backend, bukan redirect sukses dari gateway."
+      sourceOfTruthHint:
+        "Status final pembayaran selalu ditentukan backend, bukan redirect sukses dari gateway.",
     },
     manual: {
       title: "Transfer manual",
-      description: "Gunakan detail berikut untuk membayar, lalu tunggu verifikasi finance.",
+      description:
+        "Gunakan detail berikut untuk membayar, lalu tunggu verifikasi finance.",
       amount: "Nominal transfer",
       reference: "Referensi",
       bankName: "Bank",
       accountNumber: "Nomor rekening",
       accountName: "Nama rekening",
-      emptyInstruction: "Instruksi pembayaran belum tersedia dari backend."
-    }
+      emptyInstruction: "Instruksi pembayaran belum tersedia dari backend.",
+    },
   },
   ui: {
     accessActive: "Akses Aktif",
@@ -911,7 +1079,8 @@ export default {
     addPrice: "Tambah Harga",
     addPricing: "Tambah Paket Harga",
     addProduct: "Tambah Produk",
-    addressAndCoordinatesCapturedWhenTheLogWasCreated: "Alamat dan koordinat yang terekam saat log dibuat.",
+    addressAndCoordinatesCapturedWhenTheLogWasCreated:
+      "Alamat dan koordinat yang terekam saat log dibuat.",
     addUser: "Tambah Pengguna",
     addWorkShift: "Tambah Shift Kerja",
     adminEmail: "Email Admin",
@@ -945,8 +1114,10 @@ export default {
     back: "Kembali",
     browserTimezone: "Zona waktu browser",
     cancel: "Batal",
-    changesAreAppliedToTheSelectedPriceEntry: "Perubahan akan diterapkan ke entri harga yang sedang dipilih.",
-    changesAreAppliedToTheSelectedPricingPackage: "Perubahan akan diterapkan ke paket harga yang sedang dipilih.",
+    changesAreAppliedToTheSelectedPriceEntry:
+      "Perubahan akan diterapkan ke entri harga yang sedang dipilih.",
+    changesAreAppliedToTheSelectedPricingPackage:
+      "Perubahan akan diterapkan ke paket harga yang sedang dipilih.",
     checkedIn: "Sudah Check-in",
     checkedIn2: "Check-in",
     checkedOut: "Sudah Check-out",
@@ -954,8 +1125,10 @@ export default {
     checkIn: "Check-in",
     checkInRecords: "Catatan Check-in",
     checkOut: "Check-out",
-    chooseAPriceEntryFromTheListItsDetailsWillOpenInTheEditorOnTheRight: "Pilih entri harga dari daftar. Detailnya akan terbuka di panel editor sebelah kanan.",
-    chooseAPricingPackageFromTheListItsDetailsWillOpenInTheEditorOnTheRight: "Pilih paket harga dari daftar. Detailnya akan terbuka di panel editor sebelah kanan.",
+    chooseAPriceEntryFromTheListItsDetailsWillOpenInTheEditorOnTheRight:
+      "Pilih entri harga dari daftar. Detailnya akan terbuka di panel editor sebelah kanan.",
+    chooseAPricingPackageFromTheListItsDetailsWillOpenInTheEditorOnTheRight:
+      "Pilih paket harga dari daftar. Detailnya akan terbuka di panel editor sebelah kanan.",
     clearFilter: "Clear Filter",
     clearForm: "Kosongkan Form",
     clickToEditThisPriceEntry: "Klik untuk mengubah entri harga ini.",
@@ -966,7 +1139,8 @@ export default {
     categoryUpdatedSuccessfully: "Kategori berhasil diperbarui",
     clientIdIsMissing: "ID client tidak ditemukan.",
     clients: "Klien",
-    clipboardIsNotAvailableInThisBrowser: "Clipboard tidak tersedia di browser ini",
+    clipboardIsNotAvailableInThisBrowser:
+      "Clipboard tidak tersedia di browser ini",
     close: "Tutup",
     closeActions: "Close actions",
     closeFilters: "Close filters",
@@ -980,10 +1154,19 @@ export default {
     copyInvitationMessage: "Salin pesan undangan",
     copyToken: "Salin token",
     create: "Buat",
-    createANewPriceEntryForTheSelectedPricingPackage: "Buat entri harga baru untuk paket harga yang sedang dipilih.",
-    createANewPricingPackageForThisProduct: "Buat paket harga baru untuk produk ini.",
+    createANewPriceEntryForTheSelectedPricingPackage:
+      "Buat entri harga baru untuk paket harga yang sedang dipilih.",
+    createANewPricingPackageForThisProduct:
+      "Buat paket harga baru untuk produk ini.",
     createBranch: "Buat cabang",
     createCategory: "Buat kategori",
+    customerCreatedSuccessfully: "Pelanggan berhasil dibuat",
+    customerEntityType: "Tipe Entitas",
+    customerCompanies: "Perusahaan Customer",
+    customerStatus: "Status Customer",
+    customerUpdatedSuccessfully: "Pelanggan berhasil diperbarui",
+    customers: "Pelanggan",
+    customerTypes: "Tipe Customer",
     createdAt: "Dibuat Pada",
     createFirstPrice: "Buat Harga Pertama",
     createFirstPricing: "Buat Paket Harga Pertama",
@@ -991,6 +1174,7 @@ export default {
     createNewPrice: "Buat Harga Baru",
     createNewPricing: "Buat Paket Harga Baru",
     createOrder: "Buat Order",
+    createOptionNamed: "Buat \"{name}\"",
     createOrganizationUnit: "Buat Unit Organisasi",
     createQuotation: "Buat Quotation",
     createRole: "Buat peran",
@@ -999,16 +1183,20 @@ export default {
     currency: "Mata uang",
     currencyCodeIsRequired: "Kode mata uang wajib diisi",
     customDateRange: "Custom date range",
-    defineRoleNamingAndGradeStructureWithACleanerFormLayout: "Atur penamaan jabatan dan struktur grade dengan tata letak formulir yang lebih rapi.",
+    defineRoleNamingAndGradeStructureWithACleanerFormLayout:
+      "Atur penamaan jabatan dan struktur grade dengan tata letak formulir yang lebih rapi.",
     delete: "Hapus",
     deleteThisPricePoint: "Hapus titik harga ini?",
-    deleteThisPricingAndItsLinkedPriceSetup: "Hapus paket harga ini beserta daftar harga yang terhubung?",
+    deleteThisPricingAndItsLinkedPriceSetup:
+      "Hapus paket harga ini beserta daftar harga yang terhubung?",
     deleting: "Menghapus...",
     describeThePricingPlan: "Jelaskan paket harga",
     description: "Deskripsi",
+    displayName: "Nama Tampil",
     detecting: "Mendeteksi…",
     deviceDetails: "Detail Perangkat",
-    deviceInformationUsedDuringTheAttendanceSubmission: "Informasi perangkat yang digunakan saat mengirim kehadiran.",
+    deviceInformationUsedDuringTheAttendanceSubmission:
+      "Informasi perangkat yang digunakan saat mengirim kehadiran.",
     discountAmount: "Diskon",
     download: "Unduh",
     dueAt: "Jatuh Tempo",
@@ -1016,6 +1204,7 @@ export default {
     editBranch: "Edit cabang",
     editEmployee: "Ubah Karyawan",
     editCategory: "Ubah kategori",
+    areas: "Area",
     editFailedMissingId: "Gagal mengedit: ID tidak ditemukan.",
     editing: "Sedang Diedit",
     editJobPosition: "Ubah Jabatan",
@@ -1029,13 +1218,16 @@ export default {
     editWorkShift: "Ubah Shift Kerja",
     eGAdminExampleCom: "e.g. admin{'@'}example.com",
     email: "Email",
-    emailCouldNotBeSentAutomaticallyYetUseTheBackupLinkBelowIfYouStillNeedToShareAccessManually: "Email belum bisa dikirim otomatis. Gunakan tautan cadangan di bawah jika Anda tetap perlu membagikan akses secara manual.",
-    emailDeliveryIsNotWiredYetSoKeepThisTokenForTheAcceptanceFlow: "Pengiriman email belum terhubung, jadi simpan token ini untuk alur penerimaan undangan.",
+    emailCouldNotBeSentAutomaticallyYetUseTheBackupLinkBelowIfYouStillNeedToShareAccessManually:
+      "Email belum bisa dikirim otomatis. Gunakan tautan cadangan di bawah jika Anda tetap perlu membagikan akses secara manual.",
+    emailDeliveryIsNotWiredYetSoKeepThisTokenForTheAcceptanceFlow:
+      "Pengiriman email belum terhubung, jadi simpan token ini untuk alur penerimaan undangan.",
     emailIsRequired: "Email wajib diisi",
     employee: "Karyawan",
     employeeCreatedSuccessfully: "Karyawan berhasil dibuat",
     employeeInformation: "Informasi Karyawan",
-    employeeInvitationRequiresAValidEmployeeEmail: "Undangan karyawan memerlukan email karyawan yang valid",
+    employeeInvitationRequiresAValidEmployeeEmail:
+      "Undangan karyawan memerlukan email karyawan yang valid",
     employeeNumberIsRequired: "Nomor karyawan wajib diisi",
     employees: "Karyawan",
     employeeUpdatedSuccessfully: "Karyawan berhasil diperbarui",
@@ -1048,21 +1240,28 @@ export default {
     exportActions: "Export actions",
     exportCompleted: "Export completed.",
     exporting: "Exporting…",
-    exportsFollowTheActiveFiltersAtTheTimeTheRequestIsCreatedAndWillAppearHereOnceTheFileIsReadyToDownload: "Ekspor mengikuti filter aktif saat request dibuat dan akan muncul di sini ketika file siap diunduh.",
+    exportsFollowTheActiveFiltersAtTheTimeTheRequestIsCreatedAndWillAppearHereOnceTheFileIsReadyToDownload:
+      "Ekspor mengikuti filter aktif saat request dibuat dan akan muncul di sini ketika file siap diunduh.",
     failedToLoadPermissions: "Gagal memuat izin.",
     filterByDate: "Filter by date",
     firstCheckIn: "Check-in pertama",
-    focusOnArrivalRecordsForTheSelectedDay: "Fokus pada catatan kedatangan untuk hari yang dipilih.",
+    focusOnArrivalRecordsForTheSelectedDay:
+      "Fokus pada catatan kedatangan untuk hari yang dipilih.",
     fullName: "Nama Lengkap",
     fullName2: "Full name",
     fullNameIsRequired: "Nama lengkap wajib diisi",
     generateInvoice: "Buat invoice",
+    generalNotes: "Catatan Umum",
     generationFailed: "Pembuatan file gagal",
     group: "Grup",
+    hasContractBefore: "Pernah Berkontrak",
+    high: "Tinggi",
     inQueue: "Dalam antrean",
+    individual: "Perseorangan",
     internal: "Internal",
     internalAdminLogin: "Login Admin Internal",
-    internalIdentifiersAndTimestampsForAuditing: "Identifier internal dan cap waktu untuk kebutuhan audit.",
+    internalIdentifiersAndTimestampsForAuditing:
+      "Identifier internal dan cap waktu untuk kebutuhan audit.",
     internalLoginFailed: "Login internal gagal",
     internalProductCreatedSuccessfully: "Produk internal berhasil dibuat",
     internalProductUpdatedSuccessfully: "Produk internal berhasil diperbarui",
@@ -1080,15 +1279,22 @@ export default {
     jobPosition: "Jabatan",
     jobPositionCreatedSuccessfully: "Jabatan berhasil dibuat",
     jobPositionUpdatedSuccessfully: "Jabatan berhasil diperbarui",
-    keepAnEyeOnTodaysAttendanceHealthFollowShortTermTrendsAndJumpIntoAttendanceLogsWhenTheTeamNeedsCloserAudit: "Pantau kondisi kehadiran hari ini, lihat tren jangka pendek, dan masuk ke log kehadiran saat tim perlu audit lebih detail.",
-    keepEmployeeIdentityAssignmentAndAttendanceSetupAligned: "Jaga identitas, penugasan, dan pengaturan kehadiran karyawan tetap selaras.",
+    keepAnEyeOnTodaysAttendanceHealthFollowShortTermTrendsAndJumpIntoAttendanceLogsWhenTheTeamNeedsCloserAudit:
+      "Pantau kondisi kehadiran hari ini, lihat tren jangka pendek, dan masuk ke log kehadiran saat tim perlu audit lebih detail.",
+    keepEmployeeIdentityAssignmentAndAttendanceSetupAligned:
+      "Jaga identitas, penugasan, dan pengaturan kehadiran karyawan tetap selaras.",
     language: "Bahasa",
     lastCheckOut: "Check-out terakhir",
+    lastContractValue: "Omset Kontrak Terakhir",
+    lastContractValueMustBeValid: "Omset kontrak terakhir harus berupa angka valid",
+    lastContractYear: "Tahun Kontrak Terakhir",
+    lastContractYearMustBeValid: "Tahun kontrak terakhir wajib berupa tahun valid",
     lastSentAt: "Terakhir dikirim pada",
     late: "Terlambat",
     lateCheckIn: "Terlambat Check-in",
     lateCheckIn2: "Terlambat check-in",
-    leaveBlankToKeepCurrentPassword: "Kosongkan untuk mempertahankan kata sandi saat ini",
+    leaveBlankToKeepCurrentPassword:
+      "Kosongkan untuk mempertahankan kata sandi saat ini",
     live: "Langsung",
     loading: "Memuat…",
     loading2: "Memuat…",
@@ -1105,13 +1311,17 @@ export default {
     loadingUserData: "Memuat data pengguna...",
     locationDetails: "Detail Lokasi",
     loggedAt: "Dicatat Pada",
-    mainAttendanceActivityAndSupportingNotes: "Aktivitas kehadiran utama beserta catatan pendukung.",
+    mainAttendanceActivityAndSupportingNotes:
+      "Aktivitas kehadiran utama beserta catatan pendukung.",
     manage: "Kelola",
     manageAccess: "Kelola Akses",
-    manageAccountDetailsAndRoleAssignmentsInOnePlace: "Kelola detail akun dan penugasan peran di satu tempat.",
-    manageEmployeeProfileAndAttendanceAssignments: "Kelola profil karyawan dan penugasan kehadiran.",
+    manageAccountDetailsAndRoleAssignmentsInOnePlace:
+      "Kelola detail akun dan penugasan peran di satu tempat.",
+    manageEmployeeProfileAndAttendanceAssignments:
+      "Kelola profil karyawan dan penugasan kehadiran.",
     manageUserAccessAndAccountStatus: "Kelola akses pengguna dan status akun.",
     minimum8Characters: "Minimal 8 karakter",
+    medium: "Sedang",
     missingCheckIn: "Tidak check-in",
     missingCheckIn2: "Tidak Check-in",
     missingCheckout: "Tidak check-out",
@@ -1126,47 +1336,76 @@ export default {
     newPrice: "Tambah Harga",
     newPricing: "Tambah Paket Harga",
     next: "Next",
-    noActiveInvitationWasFoundForThisEmployee: "Tidak ada undangan aktif untuk karyawan ini.",
-    noAttendanceExceptionsForTheSelectedDay: "Tidak ada pengecualian kehadiran pada hari yang dipilih.",
-    noDataAvailableInThisSection: "Tidak ada data yang tersedia pada bagian ini.",
+    noActiveInvitationWasFoundForThisEmployee:
+      "Tidak ada undangan aktif untuk karyawan ini.",
+    noAttendanceExceptionsForTheSelectedDay:
+      "Tidak ada pengecualian kehadiran pada hari yang dipilih.",
+    noDataAvailableInThisSection:
+      "Tidak ada data yang tersedia pada bagian ini.",
     noEndDate: "Tidak ada tanggal selesai",
     noExportHistoryYet: "No export history yet.",
-    noExportRequestsYetStartOneFromTheExportButtonAbove: "Belum ada permintaan ekspor. Mulai dari tombol Ekspor di atas.",
+    noExportRequestsYetStartOneFromTheExportButtonAbove:
+      "Belum ada permintaan ekspor. Mulai dari tombol Ekspor di atas.",
     none: "Tidak ada",
     noPermissionsAvailable: "Tidak ada izin yang tersedia.",
     noPermissionsFound: "Tidak ada izin yang ditemukan.",
-    noPhotoProofIsAttachedToThisAttendanceLog: "Tidak ada bukti foto yang terlampir pada log kehadiran ini.",
-    noPricePointsYetForTheSelectedPricing: "Belum ada harga untuk paket harga yang dipilih.",
+    noPhotoProofIsAttachedToThisAttendanceLog:
+      "Tidak ada bukti foto yang terlampir pada log kehadiran ini.",
+    noPricePointsYetForTheSelectedPricing:
+      "Belum ada harga untuk paket harga yang dipilih.",
     noPricingYetForThisProduct: "Belum ada paket harga untuk produk ini.",
     noRolesAvailable: "Tidak ada peran tersedia.",
     notAssigned: "Belum ditetapkan",
     note: "Catatan",
-    noTrendDataIsAvailableYetForTheSelectedPeriod: "Belum ada data tren untuk periode yang dipilih.",
+    noTrendDataIsAvailableYetForTheSelectedPeriod:
+      "Belum ada data tren untuk periode yang dipilih.",
     of: "of",
     open: "Buka",
     openCoordinatesInMaps: "Buka Koordinat di Peta",
     openFullSize: "Buka Ukuran Penuh",
     openLogs: "Buka Log",
-    optionalLeaveBlankToKeepCurrentPassword: "Opsional, kosongkan untuk mempertahankan kata sandi saat ini",
+    optionalLeaveBlankToKeepCurrentPassword:
+      "Opsional, kosongkan untuk mempertahankan kata sandi saat ini",
     orderAndInvoiceCreatedSuccessfully: "Order dan invoice berhasil dibuat",
     orderNumber: "Nomor Order",
     orders: "Order",
     organizationUnit: "Unit Organisasi",
-    organizeShiftTimingAndGraceSettingsWithACleanerFormLayout: "Susun jam shift dan pengaturan toleransi dengan tata letak formulir yang lebih rapi.",
+    manageCategoryNamesAndStatusWithACleanerFormLayout:
+      "Kelola nama kategori dan status dengan tata letak formulir yang lebih rapi.",
+    manageCategoryNamesStatusAndParentWithACleanerFormLayout:
+      "Kelola nama kategori, status, dan parent dengan tata letak formulir yang lebih rapi.",
+    manageCustomerProfileAndContractSummaryInOnePlace:
+      "Kelola profil pelanggan, kontak utama, dan ringkasan kontrak di satu tempat.",
+    organizeShiftTimingAndGraceSettingsWithACleanerFormLayout:
+      "Susun jam shift dan pengaturan toleransi dengan tata letak formulir yang lebih rapi.",
     owner: "Owner",
     ownerAttendanceDashboard: "Dashboard Kehadiran Owner",
     ownerPermissionsUpdated: "Izin owner berhasil diperbarui.",
     page: "Halaman",
     password: "Password",
+    parent: "Parent",
     parentId: "Parent ID",
+    relationshipStatuses: "Status Relasi",
+    low: "Rendah",
+    no: "Tidak",
     passwordMustBeAtLeast8Characters: "Kata sandi minimal 8 karakter",
     pendingCheckIn: "Belum Check-in",
     pendingCheckOut: "Belum Check-out",
     permissions: "Izin",
-    permissionsAreSetByTheSystemAndCanOnlyBeViewedHere: "Izin sudah diatur oleh sistem. Di halaman ini Anda hanya bisa melihatnya.",
+    permissionsAreSetByTheSystemAndCanOnlyBeViewedHere:
+      "Izin sudah diatur oleh sistem. Di halaman ini Anda hanya bisa melihatnya.",
     photoProof: "Bukti Foto",
     photoStatus: "Status Foto",
     previous: "Sebelumnya",
+    primaryContactName: "Nama Kontak Utama",
+    primaryContactRole: "Peran Kontak Utama",
+    businessField: "Bidang Usaha",
+    profession: "Profesi",
+    project: "Project",
+    prospect: "Prospek",
+    province: "Provinsi",
+    potentialLevel: "Level Potensi",
+    phone: "Telepon",
     priceCreatedSuccessfully: "Harga berhasil dibuat",
     priceDeletedSuccessfully: "Harga berhasil dihapus",
     prices: "Daftar Harga",
@@ -1193,11 +1432,29 @@ export default {
     refreshingAttendanceInsights: "Menyegarkan insight kehadiran…",
     requested: "Diminta",
     resendInvitationEmail: "Kirim ulang email undangan",
-    resendTheEmailToDeliverAFreshAccessLinkOrRevokeItIfThisEmployeeShouldNotReceiveAccessRightNow: "Kirim ulang email untuk mengirim tautan akses baru, atau batalkan jika karyawan ini belum boleh menerima akses saat ini.",
+    addCustomer: "Tambah Customer",
+    city: "Kota/Kabupaten",
+    contractNotes: "Catatan Kontrak",
+    editCustomer: "Ubah Customer",
+    followUpPriority: "Prioritas Follow Up",
+    individualName: "Nama Individu",
+    whatsappNumber: "Nomor WhatsApp",
+    yes: "Ya",
+    selectArea: "Pilih area",
+    selectCustomerEntityType: "Pilih tipe entitas",
+    selectCustomerStatus: "Pilih status customer",
+    selectCustomerType: "Pilih tipe customer",
+    selectFollowUpPriority: "Pilih prioritas follow up",
+    selectPotentialLevel: "Pilih level potensi",
+    selectRelationshipStatus: "Pilih status relasi",
+    selectSegment: "Pilih segmentasi",
+    resendTheEmailToDeliverAFreshAccessLinkOrRevokeItIfThisEmployeeShouldNotReceiveAccessRightNow:
+      "Kirim ulang email untuk mengirim tautan akses baru, atau batalkan jika karyawan ini belum boleh menerima akses saat ini.",
     resetPassword: "Reset Kata Sandi",
     resetPasswordOptional: "Reset Kata Sandi (Opsional)",
     reviewShiftTimingAndGracePeriods: "Tinjau jadwal shift dan masa toleransi.",
-    reviewTheAttendanceRecordWithACleanerSummarySupportingContextAndPhotoProof: "Tinjau catatan kehadiran dengan ringkasan yang lebih rapi, konteks pendukung, dan bukti foto.",
+    reviewTheAttendanceRecordWithACleanerSummarySupportingContextAndPhotoProof:
+      "Tinjau catatan kehadiran dengan ringkasan yang lebih rapi, konteks pendukung, dan bukti foto.",
     revokeInvitation: "Batalkan Undangan",
     role: "Peran",
     roleCreated: "Peran berhasil dibuat.",
@@ -1213,7 +1470,8 @@ export default {
     saveChanges: "Simpan Perubahan",
     saved: "Tersimpan",
     saveProductFirstToContinue: "Simpan produk terlebih dahulu untuk lanjut.",
-    saveProductFirstToManagePricingsAndPrices: "Simpan produk terlebih dahulu untuk mengelola paket harga dan daftar harga.",
+    saveProductFirstToManagePricingsAndPrices:
+      "Simpan produk terlebih dahulu untuk mengelola paket harga dan daftar harga.",
     saving: "Menyimpan...",
     searchBranch: "Cari cabang…",
     searchClients: "Cari klien...",
@@ -1229,16 +1487,20 @@ export default {
     searchRole: "Cari peran...",
     searchSource: "Cari sumber…",
     searchStatus: "Cari status...",
+    searchCategories: "Cari kategori...",
+    segments: "Segmen",
     searchTimezone: "Cari zona waktu",
     searchType: "Cari tipe…",
     searchUsers: "Cari pengguna...",
     searchWorkLocation: "Cari lokasi kerja…",
-    selectAPricingToManageItsPrices: "Pilih paket harga untuk mengelola daftar harganya.",
+    selectAPricingToManageItsPrices:
+      "Pilih paket harga untuk mengelola daftar harganya.",
     selectAtLeastOneRole: "Pilih minimal satu peran",
     selectedPriceEntry: "Entri harga yang sedang diedit",
     selectedPricing: "Paket harga terpilih",
     selectedPricingPackage: "Paket harga yang sedang diedit",
     selectedRoles: "Peran terpilih",
+    selectParent: "Pilih parent",
     selectPricing: "Pilih paket harga",
     selectProduct: "Pilih produk",
     selectRole: "Pilih peran",
@@ -1249,11 +1511,14 @@ export default {
     sendAccess: "Kirim Akses",
     sending: "Mengirim…",
     sendInvitationEmail: "Kirim email undangan",
-    setUpProductPricingAndPricesInClearSteps: "Atur produk, paket harga, dan harga secara bertahap agar lebih mudah dibaca.",
-    setWorkLocationIdentityAndMapCoverageInOneFlow: "Atur identitas lokasi kerja dan cakupan peta dalam satu alur.",
+    setUpProductPricingAndPricesInClearSteps:
+      "Atur produk, paket harga, dan harga secara bertahap agar lebih mudah dibaca.",
+    setWorkLocationIdentityAndMapCoverageInOneFlow:
+      "Atur identitas lokasi kerja dan cakupan peta dalam satu alur.",
     signIn: "Masuk",
     signingIn: "Sedang masuk...",
-    signInWithYourInternalAdminAccount: "Masuk dengan akun admin internal Anda.",
+    signInWithYourInternalAdminAccount:
+      "Masuk dengan akun admin internal Anda.",
     source: "Sumber",
     sourceType: "Tipe Sumber",
     started: "Dimulai",
@@ -1264,34 +1529,46 @@ export default {
     step: "Langkah",
     submit: "Submit",
     subtotalAmount: "Subtotal",
-    subtotalAndTotalAmountAreRequired: "Subtotal dan total nominal wajib diisi.",
+    subtotalAndTotalAmountAreRequired:
+      "Subtotal dan total nominal wajib diisi.",
     systemMetadata: "Metadata Sistem",
     taxAmount: "Pajak",
     tenant: "Tenant",
-    tenantProductPricingAndCurrencyAreRequired: "Tenant, produk, paket harga, dan mata uang wajib diisi.",
-    teamMembersWhoAreMissingAttendanceActionsOrCheckedInLate: "Anggota tim yang belum melakukan aksi kehadiran atau check-in terlambat.",
-    theDashboardCouldNotBeRefreshedJustNowPleaseTryAgainOrInspectTheAttendanceLogsDirectly: "Dashboard tidak bisa dimuat ulang saat ini. Silakan coba lagi atau periksa log kehadiran secara langsung.",
-    thisPackageIsCurrentlyOpenInTheEditor: "Paket ini sedang terbuka di editor.",
-    thisPriceEntryIsCurrentlyOpenInTheEditor: "Entri harga ini sedang terbuka di editor.",
+    tenantProductPricingAndCurrencyAreRequired:
+      "Tenant, produk, paket harga, dan mata uang wajib diisi.",
+    teamMembersWhoAreMissingAttendanceActionsOrCheckedInLate:
+      "Anggota tim yang belum melakukan aksi kehadiran atau check-in terlambat.",
+    theDashboardCouldNotBeRefreshedJustNowPleaseTryAgainOrInspectTheAttendanceLogsDirectly:
+      "Dashboard tidak bisa dimuat ulang saat ini. Silakan coba lagi atau periksa log kehadiran secara langsung.",
+    thisPackageIsCurrentlyOpenInTheEditor:
+      "Paket ini sedang terbuka di editor.",
+    thisPriceEntryIsCurrentlyOpenInTheEditor:
+      "Entri harga ini sedang terbuka di editor.",
     timezoneIsRequired: "Zona waktu wajib diisi",
     totalAmount: "Total",
     trendWindow: "Jendela Tren",
     type: "Tipe",
     unknownEmployee: "Karyawan Tidak Dikenal",
     update: "Perbarui",
-    useFriendlyTimezoneLabelsSuchAsWibWitaOrWit: "Gunakan label zona waktu yang lebih familiar seperti WIB, WITA, atau WIT.",
+    useFriendlyTimezoneLabelsSuchAsWibWitaOrWit:
+      "Gunakan label zona waktu yang lebih familiar seperti WIB, WITA, atau WIT.",
     userCreatedSuccessfully: "Pengguna berhasil dibuat",
     usernameIsRequired: "Username wajib diisi",
     users: "Pengguna",
     userUpdatedSuccessfully: "Pengguna berhasil diperbarui",
-    useTheOwnerDashboardAsTheOverviewThenOpenResourcePagesForDeeperOperations: "Gunakan dashboard owner sebagai ringkasan, lalu buka halaman resource untuk operasi yang lebih dalam.",
-    useThePhotoToQuicklyVerifyThatTheRecordMatchesTheEmployeeSubmission: "Gunakan foto untuk memverifikasi dengan cepat bahwa catatan ini sesuai dengan kiriman karyawan.",
-    useThisFlowForAdminAccountAccessWhileUsersStayHiddenFromTheMainProductNavigation: "Gunakan alur ini untuk akses akun admin sementara menu pengguna tetap tersembunyi dari navigasi utama produk.",
+    useTheOwnerDashboardAsTheOverviewThenOpenResourcePagesForDeeperOperations:
+      "Gunakan dashboard owner sebagai ringkasan, lalu buka halaman resource untuk operasi yang lebih dalam.",
+    useThePhotoToQuicklyVerifyThatTheRecordMatchesTheEmployeeSubmission:
+      "Gunakan foto untuk memverifikasi dengan cepat bahwa catatan ini sesuai dengan kiriman karyawan.",
+    useThisFlowForAdminAccountAccessWhileUsersStayHiddenFromTheMainProductNavigation:
+      "Gunakan alur ini untuk akses akun admin sementara menu pengguna tetap tersembunyi dari navigasi utama produk.",
     viewPhoto: "Lihat Foto",
     waitingForFile: "Menunggu file",
     web: "Web",
-    weSentTheActivationEmailToThisEmployeeTheyCanSetTheirPasswordDirectlyFromTheirInbox: "Kami sudah mengirim email aktivasi ke karyawan ini. Mereka bisa langsung membuat kata sandi dari inbox mereka.",
-    whoTheAttendanceRecordBelongsTo: "Menunjukkan pemilik catatan kehadiran ini.",
+    weSentTheActivationEmailToThisEmployeeTheyCanSetTheirPasswordDirectlyFromTheirInbox:
+      "Kami sudah mengirim email aktivasi ke karyawan ini. Mereka bisa langsung membuat kata sandi dari inbox mereka.",
+    whoTheAttendanceRecordBelongsTo:
+      "Menunjukkan pemilik catatan kehadiran ini.",
     withoutPhoto: "Tanpa Foto",
     withPhoto: "Dengan Foto",
     workLocation: "Lokasi Kerja",
@@ -1305,7 +1582,8 @@ export default {
     allEmployees: "Semua karyawan",
     attendanceLogId: "ID Log Kehadiran",
     attendanceOverviewForDate: "Ringkasan kehadiran untuk {date}",
-    attendanceTrendDescription: "Jumlah check-in, check-out, keterlambatan, dan tidak check-out untuk {days} hari terakhir.",
+    attendanceTrendDescription:
+      "Jumlah check-in, check-out, keterlambatan, dan tidak check-out untuk {days} hari terakhir.",
     attendanceType: "Tipe Kehadiran",
     branch: "Cabang",
     createProduct: "Buat Produk",
@@ -1343,12 +1621,14 @@ export default {
     updatedAt: "Diperbarui Pada",
     yesterday: "Kemarin",
     clear: "Hapus",
+    active: "Aktif",
+    inactive: "Nonaktif",
     end: "Selesai",
     noOptions: "Tidak ada opsi",
     openFilters: "Buka filter",
     pickAStartDateThenAnEndDate: "Pilih tanggal mulai, lalu tanggal selesai.",
     selectDateRange: "Pilih rentang tanggal",
     selected: "Dipilih",
-    start: "Mulai"
-  }
-}
+    start: "Mulai",
+  },
+};

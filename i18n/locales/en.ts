@@ -40,7 +40,7 @@ export default {
     location: "Location",
     latitude: "Latitude",
     longitude: "Longitude",
-    myLocation: "My Location"
+    myLocation: "My Location",
   },
   layout: {
     main: "Main",
@@ -65,7 +65,11 @@ export default {
     logout: "Log out",
     themeLight: "Light",
     themeDark: "Dark",
-    billing: "Billing"
+    productSwitch: "Choose product",
+    productHr: "Human Resource",
+    productCrm: "CRM",
+    billing: "Billing",
+    crm: "CRM",
   },
   auth: {
     welcomeBack: "Welcome back",
@@ -74,7 +78,8 @@ export default {
     password: "Password",
     tenantCode: "Organization Code",
     tenantCodeHint: "Maximum 5 characters, case insensitive",
-    tenantCodeRegisterHint: "Create a short 3-5 letter/number code. Employees use it when signing in.",
+    tenantCodeRegisterHint:
+      "Create a short 3-5 letter/number code. Employees use it when signing in.",
     tenantCodeLoginPlaceholder: "your tenant code",
     tenantCodePlaceholder: "TKS2A",
     tenantNamePlaceholder: "PT Example Presense",
@@ -89,28 +94,45 @@ export default {
     googleSigningIn: "Signing in with Google…",
     googleSigningUp: "Signing up with Google…",
     googleUnavailable: "Google is unavailable",
-    googleUnavailableDescription: "Google Sign-In is not available yet. Try again later or use email and password.",
-    googleLoginFailed: "Google login failed. Try again or use email and password.",
-    googleRegisterFailed: "Google registration failed. Try again or use email registration.",
-    googleAccountNotConnected: "This Google account is not connected to a Presense user yet. Continue by creating a new organization or sign in with email if your account already exists.",
+    googleUnavailableDescription:
+      "Google Sign-In is not available yet. Try again later or use email and password.",
+    googleLoginFailed:
+      "Google login failed. Try again or use email and password.",
+    googleRegisterFailed:
+      "Google registration failed. Try again or use email registration.",
+    googleAccountNotConnected:
+      "This Google account is not connected to a Presense user yet. Continue by creating a new organization or sign in with email if your account already exists.",
     continueGoogleRegister: "Continue Google registration",
-    googleEmailAmbiguous: "This Google email exists in more than one tenant. For now, sign in with email, password, and tenant code.",
-    googleEmailAlreadyRegistered: "This Google email is already registered. Sign in with Google or use another Google account.",
-    googleIdentityAlreadyLinked: "This Google account is already connected to another user. Sign in with Google.",
-    googleTokenInvalid: "The Google token is invalid or expired. Try signing in with Google again.",
-    googleRegisterRetryRequired: "Your Google registration session is missing or expired. Click Sign up with Google again.",
-    googleRegistrationSessionInvalid: "The Google registration session is invalid or expired. Click Sign in with Google or Sign up with Google again.",
+    googleEmailAmbiguous:
+      "This Google email exists in more than one tenant. For now, sign in with email, password, and tenant code.",
+    googleEmailAlreadyRegistered:
+      "This Google email is already registered. Sign in with Google or use another Google account.",
+    googleIdentityAlreadyLinked:
+      "This Google account is already connected to another user. Sign in with Google.",
+    googleTokenInvalid:
+      "The Google token is invalid or expired. Try signing in with Google again.",
+    googleRegisterRetryRequired:
+      "Your Google registration session is missing or expired. Click Sign up with Google again.",
+    googleRegistrationSessionInvalid:
+      "The Google registration session is invalid or expired. Click Sign in with Google or Sign up with Google again.",
     tenantCodeInvalid: "Tenant code must be 3-5 uppercase letters and numbers.",
     tenantCodeReserved: "This tenant code cannot be used. Choose another code.",
-    tenantCodeAlreadyUsed: "This tenant code is already used. Choose another code.",
-    tenantSetupConfirmationRequired: "Check the organization confirmation before continuing.",
+    tenantCodeAlreadyUsed:
+      "This tenant code is already used. Choose another code.",
+    tenantSetupConfirmationRequired:
+      "Check the organization confirmation before continuing.",
     googleTenantSetup: "Create organization",
-    googleTenantSetupDescription: "Your Google account does not have an organization yet. Enter the organization name and short sign-in code before entering the app.",
+    googleTenantSetupDescription:
+      "Your Google account does not have an organization yet. Enter the organization name and short sign-in code before entering the app.",
     tenantSetupTitle: "Complete organization setup",
-    tenantSetupDescription: "Your account is prepared. Add the organization name and tenant code before entering the rest of the app.",
-    tenantSetupLockedNotice: "You need to finish this step before using the application.",
-    tenantSetupOwner: "{email} will become the organization owner in {appName}.",
-    confirmTenantSetup: "I have checked the name and code above. Employees will use this code to sign in.",
+    tenantSetupDescription:
+      "Your account is prepared. Add the organization name and tenant code before entering the rest of the app.",
+    tenantSetupLockedNotice:
+      "You need to finish this step before using the application.",
+    tenantSetupOwner:
+      "{email} will become the organization owner in {appName}.",
+    confirmTenantSetup:
+      "I have checked the name and code above. Employees will use this code to sign in.",
     createWorkspace: "Create organization",
     creatingWorkspace: "Creating organization…",
     orContinueWithEmail: "or continue with email",
@@ -125,7 +147,8 @@ export default {
     fullName: "Full Name",
     username: "Username",
     businessEmail: "Business Email",
-    businessEmailHint: "Free email providers such as Gmail or Yahoo are not allowed.",
+    businessEmailHint:
+      "Free email providers such as Gmail or Yahoo are not allowed.",
     passwordWeak: "Weak",
     passwordFair: "Fair",
     passwordGood: "Good",
@@ -138,7 +161,8 @@ export default {
     alreadyHaveAccount: "Already have an account?",
     registrationFailed: "Registration failed",
     forgotPassword: "Forgot password?",
-    forgotPasswordDescription: "Enter your email and we will send a password reset link.",
+    forgotPasswordDescription:
+      "Enter your email and we will send a password reset link.",
     sendResetLink: "Send reset link",
     sendingResetLink: "Sending reset link…",
     resetPassword: "Reset password",
@@ -149,31 +173,40 @@ export default {
     passwordMismatch: "Password confirmation does not match",
     backToLogin: "Back to login",
     checkEmail: "Verify email",
-    checkEmailDescription: "Complete the verification step or head back to login.",
+    checkEmailDescription:
+      "Complete the verification step or head back to login.",
     verifyingEmail: "Verifying your email…",
     emailVerificationFailed: "Email verification failed",
     resendVerificationEmail: "Resend verification email",
     resendingVerificationEmail: "Resending verification email…",
-    verificationRequiredNotice: "Registration succeeded. Please check your email to verify your account.",
+    verificationRequiredNotice:
+      "Registration succeeded. Please check your email to verify your account.",
     passwordResetFailed: "Password reset failed",
     checkEmailBadge: "Final step",
     checkEmailHero: "Check your email to activate your account",
-    checkEmailHelp: "We have sent a verification link to your inbox. Open the email, click the link, then come back and sign in to ArtisanCode.",
+    checkEmailHelp:
+      "We have sent a verification link to your inbox. Open the email, click the link, then come back and sign in to ArtisanCode.",
     emailSentTo: "Email sent to",
     emailUnavailable: "Email unavailable",
     checkInboxStep: "Open your inbox",
-    checkInboxHint: "Look for the ArtisanCode verification email in your primary inbox or promotions tab.",
+    checkInboxHint:
+      "Look for the ArtisanCode verification email in your primary inbox or promotions tab.",
     openVerificationLinkStep: "Click the verification link",
-    openVerificationLinkHint: "The verification link activates your account and confirms this email address.",
+    openVerificationLinkHint:
+      "The verification link activates your account and confirms this email address.",
     returnToSignInStep: "Sign in again",
-    returnToSignInHint: "Once verification is done, return to the login page and sign in normally.",
+    returnToSignInHint:
+      "Once verification is done, return to the login page and sign in normally.",
     didNotReceiveEmail: "Didn’t receive the email?",
-    didNotReceiveEmailHint: "You can resend the verification email or jump straight to your mail app.",
+    didNotReceiveEmailHint:
+      "You can resend the verification email or jump straight to your mail app.",
     openEmailApp: "Open email app",
-    spamFolderHint: "Tip: check spam, updates, or promotions if the message does not show up after a few minutes.",
+    spamFolderHint:
+      "Tip: check spam, updates, or promotions if the message does not show up after a few minutes.",
     resendInCountdown: "Resend in {seconds}s",
     invitationTitle: "Activate your invited access",
-    invitationDescription: "Finish setting your password to accept this ArtisanCode invitation.",
+    invitationDescription:
+      "Finish setting your password to accept this ArtisanCode invitation.",
     loadingInvitation: "Loading invitation details…",
     acceptInvitation: "Accept invitation",
     acceptingInvitation: "Accepting invitation…",
@@ -181,26 +214,79 @@ export default {
     invitationMissingToken: "Invitation token is missing",
     invitationPreviewFailed: "Failed to load invitation details",
     invitationAcceptFailed: "Failed to accept invitation",
-    fullNameRequired: "Full name is required"
+    fullNameRequired: "Full name is required",
   },
   settings: {
     tenant: {
       title: "Organization Identity",
-      description: "This section shows the organization name and short code used for sign-in or invitations. It is informational, so you do not need to change anything.",
+      description:
+        "This section shows the organization identity and the tenant product configuration that controls which product areas are active.",
       cardTitle: "Organization summary",
-      cardDescription: "Use this information when an admin or employee asks which code they should use to sign in.",
+      cardDescription:
+        "Use this information when an admin or employee asks which code they should use to sign in.",
       readOnlyBadge: "View only",
       organizationNameLabel: "Organization name",
       organizationNameHint: "The name shown in accounts and app menus.",
       loginCodeLabel: "Sign-in code",
       loginCodeHint: "The short code that identifies your organization.",
       lockedTitle: "Why can’t this be edited?",
-      lockedDescription: "This code is already used by sign-in and invitation flows. Changing it from the web could confuse existing users when they sign in.",
+      lockedDescription:
+        "This code is already used by sign-in and invitation flows. Changing it from the web could confuse existing users when they sign in.",
       finalCode: "This is now your organization’s permanent code.",
-      changeUnavailable: "Code changes are not available in the current Google SSO version.",
+      changeUnavailable:
+        "Code changes are not available in the current Google SSO version.",
+      configTitle: "Tenant configuration",
+      configDescription:
+        "Choose the tenant primary product and enable any extra products the tenant may access from the app shell.",
+      editableBadge: "Editable",
+      primaryProductLabel: "Primary product",
+      primaryProductHint:
+        "This product becomes the tenant default mode when a new session is created.",
+      enabledProductsLabel: "Enabled products",
+      enabledProductsHint:
+        "Choose which products may appear in navigation and the product switcher for this tenant.",
+      primaryPinnedHint:
+        "The primary product always stays enabled and cannot be removed.",
+      productHrTitle: "HR",
+      productHrDescription:
+        "HR operations such as companies, employees, attendance, shifts, and roles.",
+      productCrmTitle: "CRM",
+      productCrmDescription:
+        "CRM capabilities such as customer types, segments, areas, and relationship statuses.",
+      primaryBadge: "Primary",
+      enabledBadge: "Enabled",
+      saveAction: "Save tenant config",
+      savingAction: "Saving tenant config…",
+      saveSuccess:
+        "Tenant configuration updated successfully. Product session has been refreshed too.",
       refreshAction: "Refresh data",
-      loadFailed: "Failed to load tenant profile."
-    }
+      loadFailed: "Failed to load tenant profile.",
+    },
+  },
+  crm: {
+    dashboard: {
+      badge: "CRM mode",
+      title: "CRM foundation active",
+      description:
+        "This tenant now runs in CRM mode. The main shell is separated from HR areas so navigation, dashboards, and route access can evolve as a focused CRM product.",
+      customerDatabaseTitle: "Customer database",
+      customerDatabaseDescription:
+        "This area will host customer lists, customer detail pages, primary contacts, and short contract history.",
+      importExportTitle: "Import and export",
+      importExportDescription:
+        "Import preview and filter-based export can build on top of the resource and async job foundations already present in this codebase.",
+      masterDataTitle: "Tenant master data",
+      masterDataDescription:
+        "Customer types, segments, areas, and relationship statuses should live as tenant resources separate from the HR domain.",
+      nextStepTitle: "Next steps",
+      nextStepDescription:
+        "The product-mode foundation is ready. The next step is to add CRM routes and modules incrementally.",
+      nextStepCustomer:
+        "1. Add the primary customer routes and customer list module.",
+      nextStepImport: "2. Add Excel import with preview and validation.",
+      nextStepIsolation:
+        "3. Ensure CRM tenants cannot access HR routes even through manually typed URLs.",
+    },
   },
   billing: {
     nav: {
@@ -210,18 +296,20 @@ export default {
       paymentStatus: "Payment status",
       subscription: "Subscription",
       invoices: "Invoices",
-      addOns: "Add-ons"
+      addOns: "Add-ons",
     },
     common: {
       amount: "Amount",
       billingCycle: "Billing cycle",
       paymentRail: "Payment rail",
       doku: "DOKU",
-      managePermissionHint: "Billing changes are limited to owners and admins with billing permission. Read-only data can still load when your account is allowed."
+      managePermissionHint:
+        "Billing changes are limited to owners and admins with billing permission. Read-only data can still load when your account is allowed.",
     },
     payments: {
       title: "Payments",
-      description: "Manage payments, choose a plan, and review invoice history.",
+      description:
+        "Manage payments, choose a plan, and review invoice history.",
       refresh: "Refresh",
       choosePlan: "Choose plan",
       currentBalance: "Current credits",
@@ -231,42 +319,48 @@ export default {
       invoice: "Invoice",
       pay: "Pay",
       invoiceAction: "Invoice",
-      empty: "No payment invoices yet."
+      empty: "No payment invoices yet.",
     },
     planModal: {
       title: "Choose plan",
-      description: "Choose an available plan, then continue payment through DOKU.",
-      checkoutHint: "The invoice will be created and shown in Payments after checkout is created."
+      description:
+        "Choose an available plan, then continue payment through DOKU.",
+      checkoutHint:
+        "The invoice will be created and shown in Payments after checkout is created.",
     },
     cycles: {
       monthly: "Monthly",
-      annual: "Annual"
+      annual: "Annual",
     },
     plans: {
       title: "Billing plans",
-      description: "Compare available tenant plans and choose the pricing cycle before checkout.",
+      description:
+        "Compare available tenant plans and choose the pricing cycle before checkout.",
       currency: "Currency",
       defaultDescription: "Plan details come from the billing API.",
       selectPlan: "Select",
-      empty: "No billing plans are available yet."
+      empty: "No billing plans are available yet.",
     },
     checkout: {
       title: "Checkout",
       description: "Review the selected plan before creating a DOKU checkout.",
       noPlanTitle: "No plan selected",
-      summaryHint: "Backend remains the source of truth for final invoice and payment state.",
+      summaryHint:
+        "Backend remains the source of truth for final invoice and payment state.",
       confirm: "Continue to DOKU",
-      redirecting: "Redirecting…"
+      redirecting: "Redirecting…",
     },
     paymentStatus: {
       title: "Payment status",
-      description: "Refresh backend invoice and attempt state after returning from DOKU.",
+      description:
+        "Refresh backend invoice and attempt state after returning from DOKU.",
       latestInvoice: "Latest invoice",
-      attempts: "Payment attempts"
+      attempts: "Payment attempts",
     },
     subscription: {
       title: "Subscription",
-      description: "Review current plan, lifecycle state, renewal timing, and entitlement snapshot.",
+      description:
+        "Review current plan, lifecycle state, renewal timing, and entitlement snapshot.",
       freePlan: "Free plan",
       renewalAt: "Renewal",
       features: "Features",
@@ -281,22 +375,26 @@ export default {
       statusExpired: "Expired",
       statusFree: "Free",
       freeTierTitle: "Free tier active",
-      freeTierHint: "You're currently on the free tier. Upgrade to a paid plan to unlock more features and higher limits.",
+      freeTierHint:
+        "You're currently on the free tier. Upgrade to a paid plan to unlock more features and higher limits.",
       gracePeriodTitle: "Payment grace period",
-      gracePeriodHint: "Your last payment didn't go through. Update your payment method to restore full access.",
-      empty: "No subscription data available yet."
+      gracePeriodHint:
+        "Your last payment didn't go through. Update your payment method to restore full access.",
+      empty: "No subscription data available yet.",
     },
     invoices: {
       title: "Invoice history",
-      description: "Review tenant invoices and distinguish open, paid, expired, and cancelled states.",
+      description:
+        "Review tenant invoices and distinguish open, paid, expired, and cancelled states.",
       recent: "Recent invoices",
-      empty: "No invoices are available yet."
+      empty: "No invoices are available yet.",
     },
     addOns: {
       title: "Add-ons",
-      description: "Review active add-ons and entitlement impact. Add-on mutation actions will use the tenant billing API.",
+      description:
+        "Review active add-ons and entitlement impact. Add-on mutation actions will use the tenant billing API.",
       current: "Current add-ons",
-      empty: "No add-ons active."
+      empty: "No add-ons active.",
     },
     status: {
       unknown: "Unknown",
@@ -306,7 +404,7 @@ export default {
         partiallyPaid: "Partially paid",
         paid: "Paid",
         expired: "Expired",
-        cancelled: "Cancelled"
+        cancelled: "Cancelled",
       },
       payment: {
         initiated: "Initiated",
@@ -314,7 +412,7 @@ export default {
         succeeded: "Succeeded",
         failed: "Failed",
         expired: "Expired",
-        cancelled: "Cancelled"
+        cancelled: "Cancelled",
       },
       subscription: {
         free: "Free",
@@ -323,30 +421,34 @@ export default {
         gracePeriod: "Grace period",
         suspended: "Suspended",
         cancelled: "Cancelled",
-        expired: "Expired"
+        expired: "Expired",
       },
       receipt: {
         pendingVerification: "Pending verification",
         accepted: "Accepted",
-        rejected: "Rejected"
-      }
+        rejected: "Rejected",
+      },
     },
     errors: {
       generic: "Billing request failed.",
-      forbiddenBillingAction: "You do not have permission to perform this billing action.",
+      forbiddenBillingAction:
+        "You do not have permission to perform this billing action.",
       planNotAvailable: "This plan is not available.",
-      addOnNotCompatible: "This add-on is not compatible with the selected plan.",
+      addOnNotCompatible:
+        "This add-on is not compatible with the selected plan.",
       checkoutAlreadyInProgress: "A checkout is already in progress.",
-      checkoutReplacementNotAllowed: "This checkout cannot replace the active checkout.",
+      checkoutReplacementNotAllowed:
+        "This checkout cannot replace the active checkout.",
       invoiceNotPayable: "This invoice is not payable.",
       paymentAttemptNotRetryable: "This payment attempt cannot be retried.",
       webhookSignatureInvalid: "The payment provider signature is invalid.",
       webhookEventDuplicate: "This payment event was already processed.",
-      paymentReceiptAlreadyVerified: "This payment receipt has already been verified.",
+      paymentReceiptAlreadyVerified:
+        "This payment receipt has already been verified.",
       subscriptionChangeNotAllowed: "This subscription change is not allowed.",
       dokuStatusUnmapped: "The DOKU status is not mapped yet.",
-      dokuEventNotTerminal: "The DOKU event is not final yet."
-    }
+      dokuEventNotTerminal: "The DOKU event is not final yet.",
+    },
   },
   marketing: {
     site: {
@@ -355,190 +457,229 @@ export default {
         home: "Home",
         templates: "Templates",
         pricing: "Pricing",
-        features: "Features"
+        features: "Features",
       },
       cta: {
         dashboard: "Dashboard",
-        getStarted: "Get Started"
+        getStarted: "Get Started",
       },
       footer: {
-        copy: "Web and mobile attendance system for operational teams."
+        copy: "Web and mobile attendance system for operational teams.",
       },
       home: {
         seo: {
           title: "Presense - A cleaner employee attendance entry point",
-          description: "A lighter Presense marketing experience with direct paths to sign in or start a new workspace."
+          description:
+            "A lighter Presense marketing experience with direct paths to sign in or start a new workspace.",
         },
         badge: "Attendance platform for modern operational teams",
         title: "A lighter homepage focused on sign in and getting started.",
-        description: "Presense helps HR and operations teams run web and mobile attendance without relying on one long scrolling landing page. Visitors can go straight to the path they need.",
-        highlight1: "Existing users can sign in without going through a long demo section.",
-        highlight2: "Dedicated routes keep features, templates, and pricing easier to explore.",
-        highlight3: "The first screen stays clear for HR, owners, and field teams that need quick orientation.",
+        description:
+          "Presense helps HR and operations teams run web and mobile attendance without relying on one long scrolling landing page. Visitors can go straight to the path they need.",
+        highlight1:
+          "Existing users can sign in without going through a long demo section.",
+        highlight2:
+          "Dedicated routes keep features, templates, and pricing easier to explore.",
+        highlight3:
+          "The first screen stays clear for HR, owners, and field teams that need quick orientation.",
         stats: {
           companies: "Organizations",
           employees: "Active employees",
-          locations: "Work locations"
+          locations: "Work locations",
         },
         panel: {
           label: "Product snapshot",
-          title: "Attendance control from web admin to the employee mobile app.",
+          title:
+            "Attendance control from web admin to the employee mobile app.",
           live: "Active",
           subTitle: "Today's operations",
-          subDescription: "Send visitors to the right page without forcing them through every section first.",
+          subDescription:
+            "Send visitors to the right page without forcing them through every section first.",
           status: "Ready",
           item1Label: "Primary flow",
           item1Value: "Sign in for existing users, register for new tenants.",
           item2Label: "Marketing routes",
-          item2Value: "Features, Templates, and Pricing now live on dedicated pages."
+          item2Value:
+            "Features, Templates, and Pricing now live on dedicated pages.",
         },
         products: {
           admin: {
             title: "Web admin for HR",
-            description: "Dashboards, audits, and master-data setup remain the center of operational control."
+            description:
+              "Dashboards, audits, and master-data setup remain the center of operational control.",
           },
           mobile: {
             title: "Mobile app for employees",
-            description: "Check-in, check-out, selfie proof, and daily attendance status stay easy to access on field devices."
+            description:
+              "Check-in, check-out, selfie proof, and daily attendance status stay easy to access on field devices.",
           },
           compliance: {
             title: "Audit trails stay readable",
-            description: "Location, shifts, and activity history remain easy to review when teams need to inspect exceptions."
-          }
-        }
+            description:
+              "Location, shifts, and activity history remain easy to review when teams need to inspect exceptions.",
+          },
+        },
       },
       features: {
         seo: {
           title: "Presense Features",
-          description: "See Presense core capabilities for mobile attendance, operational control, and audits."
+          description:
+            "See Presense core capabilities for mobile attendance, operational control, and audits.",
         },
         eyebrow: "Features",
         title: "Core capabilities moved into a dedicated page.",
-        description: "Instead of placing everything on the homepage, this page summarizes the capabilities prospective customers search for most often.",
+        description:
+          "Instead of placing everything on the homepage, this page summarizes the capabilities prospective customers search for most often.",
         sideNote: {
           label: "Why split it out?",
-          title: "Visitors can focus on the part they actually want to evaluate.",
-          description: "Teams that are already close to buying usually want capability, pricing, or workflow detail without scrolling through a full one-page story first."
+          title:
+            "Visitors can focus on the part they actually want to evaluate.",
+          description:
+            "Teams that are already close to buying usually want capability, pricing, or workflow detail without scrolling through a full one-page story first.",
         },
         groups: {
           mobile: {
             title: "Mobile attendance",
-            description: "The employee experience stays short and clear from app launch to completed check-out.",
+            description:
+              "The employee experience stays short and clear from app launch to completed check-out.",
             item1: "Check-in and check-out with selfie proof.",
-            item2: "Current shift and daily attendance status are visible immediately.",
-            item3: "Notes and device context are recorded cleanly."
+            item2:
+              "Current shift and daily attendance status are visible immediately.",
+            item3: "Notes and device context are recorded cleanly.",
           },
           operations: {
             title: "Operational control",
-            description: "HR and owners can read the important signals without digging through a long flow.",
+            description:
+              "HR and owners can read the important signals without digging through a long flow.",
             item1: "Daily attendance dashboard.",
             item2: "Exception and lateness monitoring.",
-            item3: "Employee, shift, and work-location management."
+            item3: "Employee, shift, and work-location management.",
           },
           compliance: {
             title: "Audit and compliance",
-            description: "The data needed for review and traceability stays available in a cleaner workflow.",
+            description:
+              "The data needed for review and traceability stays available in a cleaner workflow.",
             item1: "Filterable attendance logs.",
             item2: "Photo and location proof are easier to review.",
-            item3: "Exports for admin reporting."
+            item3: "Exports for admin reporting.",
           },
           deployment: {
             title: "Phased rollout",
-            description: "A good fit for teams that want to start small and expand workflows as operations grow.",
+            description:
+              "A good fit for teams that want to start small and expand workflows as operations grow.",
             item1: "Start with a single tenant first.",
             item2: "Separate marketing pages from login flows.",
-            item3: "Clarify onboarding for new and returning users."
-          }
+            item3: "Clarify onboarding for new and returning users.",
+          },
         },
         request: {
           eyebrow: "Need a custom workflow?",
-          title: "If there is a feature you want to request, let's discuss the operational need behind it first.",
-          description: "From complex shift rules and approval steps to location constraints and audit requirements, the conversation should stay anchored to real operations instead of becoming a vague feature wishlist.",
+          title:
+            "If there is a feature you want to request, let's discuss the operational need behind it first.",
+          description:
+            "From complex shift rules and approval steps to location constraints and audit requirements, the conversation should stay anchored to real operations instead of becoming a vague feature wishlist.",
           primaryCta: "Discuss My Workflow",
           secondaryCta: "See pricing structure",
-          point1: "Useful for teams with different attendance rules across locations or business units.",
-          point2: "Feature requests can be mapped back to the HR process people actually use every day.",
-          point3: "Once someone is signed in, the CTA switches straight to Dashboard to keep the flow short."
-        }
+          point1:
+            "Useful for teams with different attendance rules across locations or business units.",
+          point2:
+            "Feature requests can be mapped back to the HR process people actually use every day.",
+          point3:
+            "Once someone is signed in, the CTA switches straight to Dashboard to keep the flow short.",
+        },
       },
       templates: {
         seo: {
           title: "Presense Templates",
-          description: "Example setup packages and workflows that help teams start faster with Presense."
+          description:
+            "Example setup packages and workflows that help teams start faster with Presense.",
         },
         eyebrow: "Templates",
         title: "Workflow templates that speed up implementation.",
-        description: "This page shows example setup structures that new tenants can use as a starting point when adopting Presense.",
+        description:
+          "This page shows example setup structures that new tenants can use as a starting point when adopting Presense.",
         callout: {
           label: "Quick Start",
           title: "Begin from the setup that matches your operations best.",
-          description: "Open a new account and configure employees, shifts, and work locations without guessing the initial flow."
+          description:
+            "Open a new account and configure employees, shifts, and work locations without guessing the initial flow.",
         },
         cards: {
           onboarding: {
             title: "Tenant onboarding template",
-            description: "A baseline setup sequence for organizations entering the system for the first time.",
-            item1: "Create the tenant, primary admin, and organization identity.",
+            description:
+              "A baseline setup sequence for organizations entering the system for the first time.",
+            item1:
+              "Create the tenant, primary admin, and organization identity.",
             item2: "Fill in employee structure and access roles.",
-            item3: "Enable the internal team login workflow."
+            item3: "Enable the internal team login workflow.",
           },
           shift: {
             title: "Shift and location template",
-            description: "Start from common combinations of work shifts and locations used by field teams.",
+            description:
+              "Start from common combinations of work shifts and locations used by field teams.",
             item1: "Set fixed or rotating shifts.",
             item2: "Define location radius and workplace policy.",
-            item3: "Connect them to daily attendance status."
+            item3: "Connect them to daily attendance status.",
           },
           audit: {
             title: "Attendance audit template",
-            description: "A review structure that helps HR quickly find the exceptions that matter.",
-            item1: "Separate lateness, missing check-ins, and missing check-outs.",
+            description:
+              "A review structure that helps HR quickly find the exceptions that matter.",
+            item1:
+              "Separate lateness, missing check-ins, and missing check-outs.",
             item2: "Review photo and location proof in one flow.",
-            item3: "Export reports when recaps are needed."
-          }
-        }
+            item3: "Export reports when recaps are needed.",
+          },
+        },
       },
       pricing: {
         seo: {
           title: "Presense Pricing",
-          description: "A pricing summary for onboarding, growth, and enterprise attendance operations."
+          description:
+            "A pricing summary for onboarding, growth, and enterprise attendance operations.",
         },
         eyebrow: "Pricing",
         title: "Pricing that is easier to scan on its own page.",
-        description: "Pricing now lives away from the homepage so prospects can compare plans directly without getting lost in broader marketing content.",
+        description:
+          "Pricing now lives away from the homepage so prospects can compare plans directly without getting lost in broader marketing content.",
         highlight: "Most popular",
         plans: {
           starter: {
             name: "Starter",
             price: "Start onboarding",
-            description: "For small teams that need a basic attendance flow and a fast setup.",
+            description:
+              "For small teams that need a basic attendance flow and a fast setup.",
             item1: "Tenant login and registration flow.",
             item2: "Core mobile attendance flow.",
-            item3: "Dashboard and key operational logs."
+            item3: "Dashboard and key operational logs.",
           },
           growth: {
             name: "Growth",
             price: "For active operations",
-            description: "For companies that are starting to manage more employees and work locations.",
+            description:
+              "For companies that are starting to manage more employees and work locations.",
             item1: "Cleaner exception monitoring.",
             item2: "Shift, location, and admin role controls.",
-            item3: "Better audit and export readiness."
+            item3: "Better audit and export readiness.",
           },
           enterprise: {
             name: "Enterprise",
             price: "Custom setup",
-            description: "For organizations that need integration, governance, or multi-unit rollout support.",
+            description:
+              "For organizations that need integration, governance, or multi-unit rollout support.",
             item1: "Implementation structure consulting.",
             item2: "Phased rollout support.",
-            item3: "Operational workflow adjustments."
-          }
-        }
-      }
+            item3: "Operational workflow adjustments.",
+          },
+        },
+      },
     },
     presense: {
       seo: {
         title: "Presense - Web and mobile employee attendance",
-        description: "Presense helps HR monitor attendance, shifts, location, selfie proof, and attendance history from one web and mobile system."
+        description:
+          "Presense helps HR monitor attendance, shifts, location, selfie proof, and attendance history from one web and mobile system.",
       },
       logoAlt: "Presense logo",
       languageSwitch: "Switch language",
@@ -546,20 +687,21 @@ export default {
         label: "Main navigation",
         features: "Features",
         flow: "Flow",
-        platform: "Platform"
+        platform: "Platform",
       },
       cta: {
         demo: "Request Demo",
         flow: "See attendance flow",
-        adminLogin: "Admin login"
+        adminLogin: "Admin login",
       },
       hero: {
         badge: "Web admin and mobile attendance system",
         title: "Clear employee attendance for teams that move every day.",
-        description: "Presense helps HR monitor attendance, shifts, location, selfie proof, and attendance history from one web and mobile system.",
+        description:
+          "Presense helps HR monitor attendance, shifts, location, selfie proof, and attendance history from one web and mobile system.",
         proof1: "Mobile check-in and check-out with selfie proof",
         proof2: "Daily dashboard for Owners and HR",
-        proof3: "Logs and exports for attendance audits"
+        proof3: "Logs and exports for attendance audits",
       },
       mock: {
         aria: "Mock view of the Presense web dashboard and mobile app",
@@ -577,102 +719,118 @@ export default {
         shift: "Morning shift - 08:00 to 17:00",
         todayStatus: "Today status",
         readyCheckIn: "Ready to check in",
-        permissionHint: "Camera and location are used during check-in or check-out.",
+        permissionHint:
+          "Camera and location are used during check-in or check-out.",
         metric: {
           activeEmployees: "Active employees",
           checkedIn: "Checked in",
           checkedOut: "Checked out",
           pendingIn: "Pending check-in",
           pendingOut: "Pending check-out",
-          lateCheckIn: "Late check-in"
-        }
+          lateCheckIn: "Late check-in",
+        },
       },
       pain: {
         eyebrow: "Common attendance problems",
-        title: "HR needs to see attendance issues before reporting turns into manual work.",
+        title:
+          "HR needs to see attendance issues before reporting turns into manual work.",
         point1: "It is unclear who has not checked in today.",
-        point2: "Late arrivals and missing check-outs only appear during recap.",
+        point2:
+          "Late arrivals and missing check-outs only appear during recap.",
         point3: "Photo and location proof are hard to audit when scattered.",
-        point4: "Attendance reports still require too much manual work."
+        point4: "Attendance reports still require too much manual work.",
       },
       capability: {
         eyebrow: "Core capabilities",
         title: "From mobile check-in to audit logs in web admin.",
-        description: "Presense connects the employee experience and HR operations in one clear attendance flow.",
+        description:
+          "Presense connects the employee experience and HR operations in one clear attendance flow.",
         mobile: {
           title: "Mobile attendance for employees",
-          description: "Employees check in and check out from mobile with selfie proof, location, notes, and device context."
+          description:
+            "Employees check in and check out from mobile with selfie proof, location, notes, and device context.",
         },
         dashboard: {
           title: "Daily dashboard for Owner/HR",
-          description: "Owners and HR see today's attendance summary, exceptions, and short trends for follow-up."
+          description:
+            "Owners and HR see today's attendance summary, exceptions, and short trends for follow-up.",
         },
         policy: {
           title: "Policy, shifts, and work locations",
-          description: "Admins manage employees, work shifts, work locations, radius, timezone, and check-in/check-out windows."
+          description:
+            "Admins manage employees, work shifts, work locations, radius, timezone, and check-in/check-out windows.",
         },
         audit: {
           title: "Auditable logs and reports",
-          description: "Attendance logs can be filtered by employee, source, status, location, date, and exception, then exported."
-        }
+          description:
+            "Attendance logs can be filtered by employee, source, status, location, date, and exception, then exported.",
+        },
       },
       workflow: {
         eyebrow: "How it works",
         title: "One flow from HR setup to attendance reporting.",
         step1: {
           title: "Set up operations data",
-          description: "HR prepares companies, employees, job positions, work locations, work shifts, and access roles."
+          description:
+            "HR prepares companies, employees, job positions, work locations, work shifts, and access roles.",
         },
         step2: {
           title: "Define attendance policy",
-          description: "The system reads timezone, radius, and check-in/check-out windows that apply to the team."
+          description:
+            "The system reads timezone, radius, and check-in/check-out windows that apply to the team.",
         },
         step3: {
           title: "Employees record attendance",
-          description: "Employees check in or check out from mobile with selfie proof and location."
+          description:
+            "Employees check in or check out from mobile with selfie proof and location.",
         },
         step4: {
           title: "HR reviews and exports",
-          description: "Owner/HR opens the dashboard, filters exceptions, reviews logs, and downloads reports."
-        }
+          description:
+            "Owner/HR opens the dashboard, filters exceptions, reviews logs, and downloads reports.",
+        },
       },
       platform: {
         eyebrow: "Two sides of the product",
         title: "Web admin for HR, mobile app for employees.",
         admin: {
           title: "Web Admin for Owner/HR",
-          description: "Operational control, audits, master data, filters, and report exports live in one admin console.",
+          description:
+            "Operational control, audits, master data, filters, and report exports live in one admin console.",
           feature1: "Owner attendance dashboard",
           feature2: "Attendance logs with complete filters",
           feature3: "Employee, shift, and work location data",
           feature4: "Attendance report export",
-          feature5: "Access roles for admin needs"
+          feature5: "Access roles for admin needs",
         },
         mobile: {
           title: "Mobile App for Employees",
-          description: "Employees see today's status, shifts, policy, check-in/check-out, selfie proof, and personal history.",
+          description:
+            "Employees see today's status, shifts, policy, check-in/check-out, selfie proof, and personal history.",
           feature1: "Today attendance status",
           feature2: "Current shift and policy",
           feature3: "Check-in/check-out with selfie proof",
           feature4: "Location, notes, and device context",
-          feature5: "Employee attendance history"
-        }
+          feature5: "Employee attendance history",
+        },
       },
       final: {
         title: "Make attendance easier to audit.",
-        description: "See how Presense helps HR monitor attendance from web admin and the employee mobile app."
-      }
-    }
+        description:
+          "See how Presense helps HR monitor attendance from web admin and the employee mobile app.",
+      },
+    },
   },
   api: {
     requestFailed: "Request failed",
     networkError: "Network error",
     sessionExpired: "Session expired. Please sign in again.",
     backendUnavailable: "Data could not be loaded. Please try again later.",
-    backendUnexpected: "Something went wrong while loading data. Please try again."
+    backendUnexpected:
+      "Something went wrong while loading data. Please try again.",
   },
   company: {
-    deleteOrgUnitConfirm: "Delete \"{name}\"? This cannot be undone.",
+    deleteOrgUnitConfirm: 'Delete "{name}"? This cannot be undone.',
     orgUnitDeleted: "Organization unit deleted.",
     orgUnitCreated: "Organization unit created.",
     orgUnitUpdated: "Organization unit updated.",
@@ -706,7 +864,7 @@ export default {
     selectOrganizationUnit: "Select organization unit",
     address: "Address",
     radiusMeters: "Radius (meters)",
-    locationAndAddress: "Location & Address"
+    locationAndAddress: "Location & Address",
   },
   resource: {
     detailEmpty: "No detail available.",
@@ -717,33 +875,37 @@ export default {
     deleteFailedMissingId: "Delete failed: missing id.",
     selectedRows: "{selected} of {total} row(s) selected",
     searchLocation: "Search location…",
-    mapPickerHint: "Click on the map, drag the marker, or use \"My Location\" to set the location.",
+    mapPickerHint:
+      'Click on the map, drag the marker, or use "My Location" to set the location.',
     geolocationUnsupported: "Geolocation is not supported by your browser.",
-    geolocationDenied: "Location permission denied. Please enable it in your browser settings.",
+    geolocationDenied:
+      "Location permission denied. Please enable it in your browser settings.",
     geolocationUnavailable: "Location information is unavailable.",
     geolocationTimeout: "Location request timed out. Please try again.",
     geolocationUnknown: "An unknown error occurred while getting location.",
-    noOrganizationUnits: "No organization units found."
+    noOrganizationUnits: "No organization units found.",
   },
   internalProducts: {
     prices: {
       currencyPlaceholder: "Select currency",
       currencySearchPlaceholder: "Search currency…",
-      currencyHint: "Use one of the available currencies to avoid input mistakes.",
+      currencyHint:
+        "Use one of the available currencies to avoid input mistakes.",
       currencyOptions: {
         IDR: "IDR - Indonesian Rupiah",
         USD: "USD - United States Dollar",
         SGD: "SGD - Singapore Dollar",
-        EUR: "EUR - Euro"
+        EUR: "EUR - Euro",
       },
       amountLabel: "Amount",
       amountPlaceholder: "Example: 199,000",
       amountHint: "The amount is formatted automatically while you type.",
       effectiveStartLabel: "Effective From",
       effectiveEndLabel: "Effective Until",
-      effectiveStartHint: "Choose the date and time when this price becomes active.",
-      effectiveEndHint: "Leave empty if this price has no end date."
-    }
+      effectiveStartHint:
+        "Choose the date and time when this price becomes active.",
+      effectiveEndHint: "Leave empty if this price has no end date.",
+    },
   },
   billingSettings: {
     currencies: {
@@ -755,14 +917,15 @@ export default {
       activate: "Activate",
       deactivate: "Deactivate",
       setDefault: "Set default",
-      noActiveCurrency: "No active currency is available. Activate a currency in Billing Settings first.",
+      noActiveCurrency:
+        "No active currency is available. Activate a currency in Billing Settings first.",
       saveFailed: "Failed to save currency.",
       deleteFailed: "Failed to delete currency.",
       deleteConfirm: "Delete currency {code}?",
       filters: {
         all: "All",
         active: "Active",
-        inactive: "Inactive"
+        inactive: "Inactive",
       },
       columns: {
         code: "Code",
@@ -770,15 +933,15 @@ export default {
         symbol: "Symbol",
         decimalPlaces: "Decimal places",
         status: "Status",
-        default: "Default"
-      }
-    }
+        default: "Default",
+      },
+    },
   },
   internalCommerce: {
     states: {
       loadingTitle: "Loading commerce",
       loadingDescription: "Fetching the latest backend status.",
-      emptyTitle: "Data is not available"
+      emptyTitle: "Data is not available",
     },
     errors: {
       loadQuotation: "Failed to load quotation.",
@@ -786,7 +949,7 @@ export default {
       createOrder: "Failed to create order.",
       loadInvoice: "Failed to load invoice.",
       startPayment: "Failed to start payment.",
-      retryPayment: "Failed to retry payment."
+      retryPayment: "Failed to retry payment.",
     },
     actions: {
       approveQuotation: "Approve quotation",
@@ -799,7 +962,7 @@ export default {
       continuePayment: "Continue payment",
       retryPayment: "Retry payment",
       retrying: "Retrying…",
-      refreshStatus: "Refresh status"
+      refreshStatus: "Refresh status",
     },
     money: {
       subtotal: "Subtotal",
@@ -808,7 +971,7 @@ export default {
       total: "Total",
       invoiceAmount: "Invoice amount",
       amountPaid: "Amount paid",
-      amountOutstanding: "Amount outstanding"
+      amountOutstanding: "Amount outstanding",
     },
     status: {
       unknown: "Unknown status",
@@ -818,7 +981,7 @@ export default {
         approved: "Approved",
         rejected: "Rejected",
         expired: "Expired",
-        converted: "Converted to order"
+        converted: "Converted to order",
       },
       order: {
         draft: "Draft",
@@ -826,13 +989,13 @@ export default {
         pendingPayment: "Pending payment",
         paid: "Paid",
         cancelled: "Cancelled",
-        expired: "Expired"
+        expired: "Expired",
       },
       invoice: {
         open: "Awaiting payment",
         paid: "Paid",
         expired: "Expired",
-        cancelled: "Cancelled"
+        cancelled: "Cancelled",
       },
       payment: {
         initiated: "Initiated",
@@ -840,21 +1003,23 @@ export default {
         succeeded: "Succeeded",
         failed: "Failed",
         expired: "Expired",
-        awaitingVerification: "Awaiting verification"
-      }
+        awaitingVerification: "Awaiting verification",
+      },
     },
     quotation: {
       eyebrow: "Quotation",
       title: "Quotation detail",
-      description: "Review the final price before the quotation is converted into an order and invoice.",
+      description:
+        "Review the final price before the quotation is converted into an order and invoice.",
       priceSummary: "Price summary",
       nextStep: "Next step",
-      expiresAt: "Expires at"
+      expiresAt: "Expires at",
     },
     checkout: {
       eyebrow: "Checkout",
       title: "Create commerce order",
-      description: "Start the purchase flow from standard pricing or a finalized quotation.",
+      description:
+        "Start the purchase flow from standard pricing or a finalized quotation.",
       orderInput: "Order input",
       productId: "Product ID",
       productIdPlaceholder: "Internal product UUID",
@@ -862,18 +1027,22 @@ export default {
       pricingIdPlaceholder: "Internal pricing UUID",
       quotationId: "Quotation ID",
       quotationIdPlaceholder: "Optional for quotation flow",
-      quotationHint: "Use quotation ID when the amount comes from custom pricing. For standard pricing, provide product and pricing IDs.",
+      quotationHint:
+        "Use quotation ID when the amount comes from custom pricing. For standard pricing, provide product and pricing IDs.",
       currency: "Currency",
       invoiceDueAt: "Invoice due at",
       nextStep: "Next step",
-      nextStepHint: "After the order is created, continue to the invoice to choose a payment method."
+      nextStepHint:
+        "After the order is created, continue to the invoice to choose a payment method.",
     },
     invoice: {
       eyebrow: "Invoice",
       returnEyebrow: "Payment status",
       title: "Invoice detail",
-      description: "Invoice and payment attempt status are read from the backend as the source of truth.",
-      returnDescription: "A successful redirect is not treated as payment proof. Refresh status to see the backend result.",
+      description:
+        "Invoice and payment attempt status are read from the backend as the source of truth.",
+      returnDescription:
+        "A successful redirect is not treated as payment proof. Refresh status to see the backend result.",
       amountSummary: "Invoice summary",
       dueAt: "Due at",
       order: "Order",
@@ -882,23 +1051,26 @@ export default {
       requestedAmount: "Requested amount",
       paymentType: "Payment type",
       expiresAt: "Expires at",
-      paymentHistory: "Payment attempt history"
+      paymentHistory: "Payment attempt history",
     },
     payment: {
       title: "Payment method",
       noMethods: "No payment method is available for this invoice yet.",
-      sourceOfTruthHint: "Final payment status is always decided by the backend, not by a successful gateway redirect."
+      sourceOfTruthHint:
+        "Final payment status is always decided by the backend, not by a successful gateway redirect.",
     },
     manual: {
       title: "Manual transfer",
-      description: "Use these details to pay, then wait for finance verification.",
+      description:
+        "Use these details to pay, then wait for finance verification.",
       amount: "Transfer amount",
       reference: "Reference",
       bankName: "Bank",
       accountNumber: "Account number",
       accountName: "Account name",
-      emptyInstruction: "Payment instructions are not available from the backend yet."
-    }
+      emptyInstruction:
+        "Payment instructions are not available from the backend yet.",
+    },
   },
   ui: {
     accessActive: "Access Active",
@@ -911,7 +1083,8 @@ export default {
     addPrice: "Add Price",
     addPricing: "Add Pricing",
     addProduct: "Add Product",
-    addressAndCoordinatesCapturedWhenTheLogWasCreated: "Address and coordinates captured when the log was created.",
+    addressAndCoordinatesCapturedWhenTheLogWasCreated:
+      "Address and coordinates captured when the log was created.",
     addUser: "Add User",
     addWorkShift: "Add Work Shift",
     adminEmail: "Admin email",
@@ -945,8 +1118,10 @@ export default {
     back: "Back",
     browserTimezone: "Browser timezone",
     cancel: "Cancel",
-    changesAreAppliedToTheSelectedPriceEntry: "Changes are applied to the selected price entry.",
-    changesAreAppliedToTheSelectedPricingPackage: "Changes are applied to the selected pricing package.",
+    changesAreAppliedToTheSelectedPriceEntry:
+      "Changes are applied to the selected price entry.",
+    changesAreAppliedToTheSelectedPricingPackage:
+      "Changes are applied to the selected pricing package.",
     checkedIn: "Checked In",
     checkedIn2: "Checked in",
     checkedOut: "Checked Out",
@@ -954,8 +1129,10 @@ export default {
     checkIn: "Check In",
     checkInRecords: "Check-in Records",
     checkOut: "Check Out",
-    chooseAPriceEntryFromTheListItsDetailsWillOpenInTheEditorOnTheRight: "Choose a price entry from the list. Its details will open in the editor on the right.",
-    chooseAPricingPackageFromTheListItsDetailsWillOpenInTheEditorOnTheRight: "Choose a pricing package from the list. Its details will open in the editor on the right.",
+    chooseAPriceEntryFromTheListItsDetailsWillOpenInTheEditorOnTheRight:
+      "Choose a price entry from the list. Its details will open in the editor on the right.",
+    chooseAPricingPackageFromTheListItsDetailsWillOpenInTheEditorOnTheRight:
+      "Choose a pricing package from the list. Its details will open in the editor on the right.",
     clearFilter: "Clear Filter",
     clearForm: "Clear Form",
     clickToEditThisPriceEntry: "Click to edit this price entry.",
@@ -966,7 +1143,8 @@ export default {
     categoryUpdatedSuccessfully: "Category updated successfully",
     clientIdIsMissing: "Client id is missing.",
     clients: "Clients",
-    clipboardIsNotAvailableInThisBrowser: "Clipboard is not available in this browser",
+    clipboardIsNotAvailableInThisBrowser:
+      "Clipboard is not available in this browser",
     close: "Close",
     closeActions: "Close actions",
     closeFilters: "Close filters",
@@ -980,10 +1158,19 @@ export default {
     copyInvitationMessage: "Copy invitation message",
     copyToken: "Copy token",
     create: "Create",
-    createANewPriceEntryForTheSelectedPricingPackage: "Create a new price entry for the selected pricing package.",
-    createANewPricingPackageForThisProduct: "Create a new pricing package for this product.",
+    createANewPriceEntryForTheSelectedPricingPackage:
+      "Create a new price entry for the selected pricing package.",
+    createANewPricingPackageForThisProduct:
+      "Create a new pricing package for this product.",
     createBranch: "Create branch",
     createCategory: "Create category",
+    customerCreatedSuccessfully: "Customer created successfully",
+    customerEntityType: "Entity Type",
+    customerCompanies: "Customer Companies",
+    customerStatus: "Customer Status",
+    customerUpdatedSuccessfully: "Customer updated successfully",
+    customers: "Customers",
+    customerTypes: "Customer Types",
     createdAt: "Created At",
     createFirstPrice: "Create First Price",
     createFirstPricing: "Create First Pricing",
@@ -991,6 +1178,7 @@ export default {
     createNewPrice: "Create New Price",
     createNewPricing: "Create New Pricing",
     createOrder: "Create Order",
+    createOptionNamed: "Create \"{name}\"",
     createOrganizationUnit: "Create Organization Unit",
     createQuotation: "Create Quotation",
     createRole: "Create role",
@@ -999,16 +1187,20 @@ export default {
     currency: "Currency",
     currencyCodeIsRequired: "Currency code is required",
     customDateRange: "Custom date range",
-    defineRoleNamingAndGradeStructureWithACleanerFormLayout: "Define role naming and grade structure with a cleaner form layout.",
+    defineRoleNamingAndGradeStructureWithACleanerFormLayout:
+      "Define role naming and grade structure with a cleaner form layout.",
     delete: "Delete",
     deleteThisPricePoint: "Delete this price point?",
-    deleteThisPricingAndItsLinkedPriceSetup: "Delete this pricing and its linked price setup?",
+    deleteThisPricingAndItsLinkedPriceSetup:
+      "Delete this pricing and its linked price setup?",
     deleting: "Deleting…",
     describeThePricingPlan: "Describe the pricing plan",
     description: "Description",
+    displayName: "Display Name",
     detecting: "Detecting…",
     deviceDetails: "Device Details",
-    deviceInformationUsedDuringTheAttendanceSubmission: "Device information used during the attendance submission.",
+    deviceInformationUsedDuringTheAttendanceSubmission:
+      "Device information used during the attendance submission.",
     discountAmount: "Discount Amount",
     download: "Download",
     dueAt: "Due At",
@@ -1016,6 +1208,7 @@ export default {
     editBranch: "Edit branch",
     editEmployee: "Edit Employee",
     editCategory: "Edit category",
+    areas: "Areas",
     editFailedMissingId: "Edit failed: missing id.",
     editing: "Editing",
     editJobPosition: "Edit Job Position",
@@ -1029,13 +1222,16 @@ export default {
     editWorkShift: "Edit Work Shift",
     eGAdminExampleCom: "e.g. admin{'@'}example.com",
     email: "Email",
-    emailCouldNotBeSentAutomaticallyYetUseTheBackupLinkBelowIfYouStillNeedToShareAccessManually: "Email could not be sent automatically yet. Use the backup link below if you still need to share access manually.",
-    emailDeliveryIsNotWiredYetSoKeepThisTokenForTheAcceptanceFlow: "Email delivery is not wired yet, so keep this token for the acceptance flow.",
+    emailCouldNotBeSentAutomaticallyYetUseTheBackupLinkBelowIfYouStillNeedToShareAccessManually:
+      "Email could not be sent automatically yet. Use the backup link below if you still need to share access manually.",
+    emailDeliveryIsNotWiredYetSoKeepThisTokenForTheAcceptanceFlow:
+      "Email delivery is not wired yet, so keep this token for the acceptance flow.",
     emailIsRequired: "Email is required",
     employee: "Employee",
     employeeCreatedSuccessfully: "Employee created successfully",
     employeeInformation: "Employee Information",
-    employeeInvitationRequiresAValidEmployeeEmail: "Employee invitation requires a valid employee email",
+    employeeInvitationRequiresAValidEmployeeEmail:
+      "Employee invitation requires a valid employee email",
     employeeNumberIsRequired: "Employee number is required",
     employees: "Employees",
     employeeUpdatedSuccessfully: "Employee updated successfully",
@@ -1048,21 +1244,28 @@ export default {
     exportActions: "Export actions",
     exportCompleted: "Export completed.",
     exporting: "Exporting…",
-    exportsFollowTheActiveFiltersAtTheTimeTheRequestIsCreatedAndWillAppearHereOnceTheFileIsReadyToDownload: "Exports follow the active filters at the time the request is created and will appear here once the file is ready to download.",
+    exportsFollowTheActiveFiltersAtTheTimeTheRequestIsCreatedAndWillAppearHereOnceTheFileIsReadyToDownload:
+      "Exports follow the active filters at the time the request is created and will appear here once the file is ready to download.",
     failedToLoadPermissions: "Failed to load permissions.",
     filterByDate: "Filter by date",
     firstCheckIn: "First check in",
-    focusOnArrivalRecordsForTheSelectedDay: "Focus on arrival records for the selected day.",
+    focusOnArrivalRecordsForTheSelectedDay:
+      "Focus on arrival records for the selected day.",
     fullName: "Full Name",
     fullName2: "Full name",
     fullNameIsRequired: "Full name is required",
     generateInvoice: "Generate invoice",
+    generalNotes: "General Notes",
     generationFailed: "Generation failed",
     group: "Group",
+    hasContractBefore: "Has Contract Before",
+    high: "High",
     inQueue: "In queue",
+    individual: "Individual",
     internal: "Internal",
     internalAdminLogin: "Internal Admin Login",
-    internalIdentifiersAndTimestampsForAuditing: "Internal identifiers and timestamps for auditing.",
+    internalIdentifiersAndTimestampsForAuditing:
+      "Internal identifiers and timestamps for auditing.",
     internalLoginFailed: "Internal login failed",
     internalProductCreatedSuccessfully: "Internal product created successfully",
     internalProductUpdatedSuccessfully: "Internal product updated successfully",
@@ -1080,10 +1283,16 @@ export default {
     jobPosition: "Job Position",
     jobPositionCreatedSuccessfully: "Job position created successfully",
     jobPositionUpdatedSuccessfully: "Job position updated successfully",
-    keepAnEyeOnTodaysAttendanceHealthFollowShortTermTrendsAndJumpIntoAttendanceLogsWhenTheTeamNeedsCloserAudit: "Keep an eye on today’s attendance health, follow short-term trends, and jump into attendance logs when the team needs closer audit.",
-    keepEmployeeIdentityAssignmentAndAttendanceSetupAligned: "Keep employee identity, assignment, and attendance setup aligned.",
+    keepAnEyeOnTodaysAttendanceHealthFollowShortTermTrendsAndJumpIntoAttendanceLogsWhenTheTeamNeedsCloserAudit:
+      "Keep an eye on today’s attendance health, follow short-term trends, and jump into attendance logs when the team needs closer audit.",
+    keepEmployeeIdentityAssignmentAndAttendanceSetupAligned:
+      "Keep employee identity, assignment, and attendance setup aligned.",
     language: "Language",
     lastCheckOut: "Last check out",
+    lastContractValue: "Last Contract Value",
+    lastContractValueMustBeValid: "Last contract value must be a valid number",
+    lastContractYear: "Last Contract Year",
+    lastContractYearMustBeValid: "Last contract year must be a valid year",
     lastSentAt: "Last sent at",
     late: "Late",
     lateCheckIn: "Late Check In",
@@ -1105,13 +1314,17 @@ export default {
     loadingUserData: "Loading user data…",
     locationDetails: "Location Details",
     loggedAt: "Logged At",
-    mainAttendanceActivityAndSupportingNotes: "Main attendance activity and supporting notes.",
+    mainAttendanceActivityAndSupportingNotes:
+      "Main attendance activity and supporting notes.",
     manage: "Manage",
     manageAccess: "Manage Access",
-    manageAccountDetailsAndRoleAssignmentsInOnePlace: "Manage account details and role assignments in one place.",
-    manageEmployeeProfileAndAttendanceAssignments: "Manage employee profile and attendance assignments.",
+    manageAccountDetailsAndRoleAssignmentsInOnePlace:
+      "Manage account details and role assignments in one place.",
+    manageEmployeeProfileAndAttendanceAssignments:
+      "Manage employee profile and attendance assignments.",
     manageUserAccessAndAccountStatus: "Manage user access and account status.",
     minimum8Characters: "Minimum 8 characters",
+    medium: "Medium",
     missingCheckIn: "Missing check in",
     missingCheckIn2: "Missing Check In",
     missingCheckout: "Missing checkout",
@@ -1126,47 +1339,75 @@ export default {
     newPrice: "New Price",
     newPricing: "New Pricing",
     next: "Next",
-    noActiveInvitationWasFoundForThisEmployee: "No active invitation was found for this employee.",
-    noAttendanceExceptionsForTheSelectedDay: "No attendance exceptions for the selected day.",
+    noActiveInvitationWasFoundForThisEmployee:
+      "No active invitation was found for this employee.",
+    noAttendanceExceptionsForTheSelectedDay:
+      "No attendance exceptions for the selected day.",
     noDataAvailableInThisSection: "No data available in this section.",
     noEndDate: "No end date",
     noExportHistoryYet: "No export history yet.",
-    noExportRequestsYetStartOneFromTheExportButtonAbove: "No export requests yet. Start one from the Export button above.",
+    noExportRequestsYetStartOneFromTheExportButtonAbove:
+      "No export requests yet. Start one from the Export button above.",
     none: "None",
     noPermissionsAvailable: "No permissions available.",
     noPermissionsFound: "No permissions found.",
-    noPhotoProofIsAttachedToThisAttendanceLog: "No photo proof is attached to this attendance log.",
-    noPricePointsYetForTheSelectedPricing: "No price points yet for the selected pricing.",
+    noPhotoProofIsAttachedToThisAttendanceLog:
+      "No photo proof is attached to this attendance log.",
+    noPricePointsYetForTheSelectedPricing:
+      "No price points yet for the selected pricing.",
     noPricingYetForThisProduct: "No pricing yet for this product.",
     noRolesAvailable: "No roles available.",
     notAssigned: "Not assigned",
     note: "Note",
-    noTrendDataIsAvailableYetForTheSelectedPeriod: "No trend data is available yet for the selected period.",
+    noTrendDataIsAvailableYetForTheSelectedPeriod:
+      "No trend data is available yet for the selected period.",
     of: "of",
     open: "Open",
     openCoordinatesInMaps: "Open Coordinates in Maps",
     openFullSize: "Open Full Size",
     openLogs: "Open Logs",
-    optionalLeaveBlankToKeepCurrentPassword: "Optional, leave blank to keep current password",
-    orderAndInvoiceCreatedSuccessfully: "Order and invoice created successfully",
+    optionalLeaveBlankToKeepCurrentPassword:
+      "Optional, leave blank to keep current password",
+    orderAndInvoiceCreatedSuccessfully:
+      "Order and invoice created successfully",
     orderNumber: "Order Number",
     orders: "Orders",
     organizationUnit: "Organization Unit",
-    organizeShiftTimingAndGraceSettingsWithACleanerFormLayout: "Organize shift timing and grace settings with a cleaner form layout.",
+    manageCategoryNamesAndStatusWithACleanerFormLayout:
+      "Manage category names and status with a cleaner form layout.",
+    manageCategoryNamesStatusAndParentWithACleanerFormLayout:
+      "Manage category names, status, and parent with a cleaner form layout.",
+    manageCustomerProfileAndContractSummaryInOnePlace:
+      "Manage the customer profile, main contact, and contract summary in one place.",
+    organizeShiftTimingAndGraceSettingsWithACleanerFormLayout:
+      "Organize shift timing and grace settings with a cleaner form layout.",
     owner: "Owner",
     ownerAttendanceDashboard: "Owner Attendance Dashboard",
     ownerPermissionsUpdated: "Owner permissions updated.",
     page: "Page",
     password: "Password",
+    parent: "Parent",
     parentId: "Parent ID",
+    relationshipStatuses: "Relationship Statuses",
+    low: "Low",
+    no: "No",
     passwordMustBeAtLeast8Characters: "Password must be at least 8 characters",
     pendingCheckIn: "Pending Check In",
     pendingCheckOut: "Pending Check Out",
     permissions: "Permissions",
-    permissionsAreSetByTheSystemAndCanOnlyBeViewedHere: "Permissions are set by the system and can only be viewed here.",
+    permissionsAreSetByTheSystemAndCanOnlyBeViewedHere:
+      "Permissions are set by the system and can only be viewed here.",
     photoProof: "Photo Proof",
     photoStatus: "Photo Status",
     previous: "Previous",
+    primaryContactName: "Primary Contact Name",
+    primaryContactRole: "Primary Contact Role",
+    businessField: "Business Field",
+    profession: "Profession",
+    prospect: "Prospect",
+    province: "Province",
+    potentialLevel: "Potential Level",
+    phone: "Phone",
     priceCreatedSuccessfully: "Price created successfully",
     priceDeletedSuccessfully: "Price deleted successfully",
     prices: "Prices",
@@ -1193,11 +1434,29 @@ export default {
     refreshingAttendanceInsights: "Refreshing attendance insights…",
     requested: "Requested",
     resendInvitationEmail: "Resend invitation email",
-    resendTheEmailToDeliverAFreshAccessLinkOrRevokeItIfThisEmployeeShouldNotReceiveAccessRightNow: "Resend the email to deliver a fresh access link, or revoke it if this employee should not receive access right now.",
+    addCustomer: "Add Customer",
+    city: "City",
+    contractNotes: "Contract Notes",
+    editCustomer: "Edit Customer",
+    followUpPriority: "Follow Up Priority",
+    individualName: "Individual Name",
+    whatsappNumber: "WhatsApp Number",
+    yes: "Yes",
+    selectArea: "Select area",
+    selectCustomerEntityType: "Select entity type",
+    selectCustomerStatus: "Select customer status",
+    selectCustomerType: "Select customer type",
+    selectFollowUpPriority: "Select follow up priority",
+    selectPotentialLevel: "Select potential level",
+    selectRelationshipStatus: "Select relationship status",
+    selectSegment: "Select segment",
+    resendTheEmailToDeliverAFreshAccessLinkOrRevokeItIfThisEmployeeShouldNotReceiveAccessRightNow:
+      "Resend the email to deliver a fresh access link, or revoke it if this employee should not receive access right now.",
     resetPassword: "Reset Password",
     resetPasswordOptional: "Reset Password (Optional)",
     reviewShiftTimingAndGracePeriods: "Review shift timing and grace periods.",
-    reviewTheAttendanceRecordWithACleanerSummarySupportingContextAndPhotoProof: "Review the attendance record with a cleaner summary, supporting context, and photo proof.",
+    reviewTheAttendanceRecordWithACleanerSummarySupportingContextAndPhotoProof:
+      "Review the attendance record with a cleaner summary, supporting context, and photo proof.",
     revokeInvitation: "Revoke Invitation",
     role: "Role",
     roleCreated: "Role created.",
@@ -1213,7 +1472,8 @@ export default {
     saveChanges: "Save Changes",
     saved: "Saved",
     saveProductFirstToContinue: "Save product first to continue.",
-    saveProductFirstToManagePricingsAndPrices: "Save product first to manage pricings and prices.",
+    saveProductFirstToManagePricingsAndPrices:
+      "Save product first to manage pricings and prices.",
     saving: "Saving…",
     searchBranch: "Search branch…",
     searchClients: "Search clients…",
@@ -1229,6 +1489,8 @@ export default {
     searchRole: "Search role…",
     searchSource: "Search source…",
     searchStatus: "Search status…",
+    searchCategories: "Search categories…",
+    segments: "Segments",
     searchTimezone: "Search timezone",
     searchType: "Search type…",
     searchUsers: "Search users…",
@@ -1239,6 +1501,7 @@ export default {
     selectedPricing: "Selected pricing",
     selectedPricingPackage: "Selected pricing package",
     selectedRoles: "Selected roles",
+    selectParent: "Select parent",
     selectPricing: "Select pricing",
     selectProduct: "Select product",
     selectRole: "Select role",
@@ -1249,11 +1512,14 @@ export default {
     sendAccess: "Send Access",
     sending: "Sending…",
     sendInvitationEmail: "Send invitation email",
-    setUpProductPricingAndPricesInClearSteps: "Set up product, pricing, and prices in clear steps.",
-    setWorkLocationIdentityAndMapCoverageInOneFlow: "Set work location identity and map coverage in one flow.",
+    setUpProductPricingAndPricesInClearSteps:
+      "Set up product, pricing, and prices in clear steps.",
+    setWorkLocationIdentityAndMapCoverageInOneFlow:
+      "Set work location identity and map coverage in one flow.",
     signIn: "Sign In",
     signingIn: "Signing in…",
-    signInWithYourInternalAdminAccount: "Sign in with your internal admin account.",
+    signInWithYourInternalAdminAccount:
+      "Sign in with your internal admin account.",
     source: "Source",
     sourceType: "Source Type",
     started: "Started",
@@ -1264,33 +1530,44 @@ export default {
     step: "Step",
     submit: "Submit",
     subtotalAmount: "Subtotal Amount",
-    subtotalAndTotalAmountAreRequired: "Subtotal and total amount are required.",
+    subtotalAndTotalAmountAreRequired:
+      "Subtotal and total amount are required.",
     systemMetadata: "System Metadata",
     taxAmount: "Tax Amount",
     tenant: "Tenant",
-    tenantProductPricingAndCurrencyAreRequired: "Tenant, product, pricing, and currency are required.",
-    teamMembersWhoAreMissingAttendanceActionsOrCheckedInLate: "Team members who are missing attendance actions or checked in late.",
-    theDashboardCouldNotBeRefreshedJustNowPleaseTryAgainOrInspectTheAttendanceLogsDirectly: "The dashboard could not be refreshed just now. Please try again or inspect the attendance logs directly.",
-    thisPackageIsCurrentlyOpenInTheEditor: "This package is currently open in the editor.",
-    thisPriceEntryIsCurrentlyOpenInTheEditor: "This price entry is currently open in the editor.",
+    tenantProductPricingAndCurrencyAreRequired:
+      "Tenant, product, pricing, and currency are required.",
+    teamMembersWhoAreMissingAttendanceActionsOrCheckedInLate:
+      "Team members who are missing attendance actions or checked in late.",
+    theDashboardCouldNotBeRefreshedJustNowPleaseTryAgainOrInspectTheAttendanceLogsDirectly:
+      "The dashboard could not be refreshed just now. Please try again or inspect the attendance logs directly.",
+    thisPackageIsCurrentlyOpenInTheEditor:
+      "This package is currently open in the editor.",
+    thisPriceEntryIsCurrentlyOpenInTheEditor:
+      "This price entry is currently open in the editor.",
     timezoneIsRequired: "Timezone is required",
     totalAmount: "Total Amount",
     trendWindow: "Trend Window",
     type: "Type",
     unknownEmployee: "Unknown Employee",
     update: "Update",
-    useFriendlyTimezoneLabelsSuchAsWibWitaOrWit: "Use friendly timezone labels such as WIB, WITA, or WIT.",
+    useFriendlyTimezoneLabelsSuchAsWibWitaOrWit:
+      "Use friendly timezone labels such as WIB, WITA, or WIT.",
     userCreatedSuccessfully: "User created successfully",
     usernameIsRequired: "Username is required",
     users: "Users",
     userUpdatedSuccessfully: "User updated successfully",
-    useTheOwnerDashboardAsTheOverviewThenOpenResourcePagesForDeeperOperations: "Use the owner dashboard as the overview, then open resource pages for deeper operations.",
-    useThePhotoToQuicklyVerifyThatTheRecordMatchesTheEmployeeSubmission: "Use the photo to quickly verify that the record matches the employee submission.",
-    useThisFlowForAdminAccountAccessWhileUsersStayHiddenFromTheMainProductNavigation: "Use this flow for admin account access while users stay hidden from the main product navigation.",
+    useTheOwnerDashboardAsTheOverviewThenOpenResourcePagesForDeeperOperations:
+      "Use the owner dashboard as the overview, then open resource pages for deeper operations.",
+    useThePhotoToQuicklyVerifyThatTheRecordMatchesTheEmployeeSubmission:
+      "Use the photo to quickly verify that the record matches the employee submission.",
+    useThisFlowForAdminAccountAccessWhileUsersStayHiddenFromTheMainProductNavigation:
+      "Use this flow for admin account access while users stay hidden from the main product navigation.",
     viewPhoto: "View Photo",
     waitingForFile: "Waiting for file",
     web: "Web",
-    weSentTheActivationEmailToThisEmployeeTheyCanSetTheirPasswordDirectlyFromTheirInbox: "We sent the activation email to this employee. They can set their password directly from their inbox.",
+    weSentTheActivationEmailToThisEmployeeTheyCanSetTheirPasswordDirectlyFromTheirInbox:
+      "We sent the activation email to this employee. They can set their password directly from their inbox.",
     whoTheAttendanceRecordBelongsTo: "Who the attendance record belongs to.",
     withoutPhoto: "Without Photo",
     withPhoto: "With Photo",
@@ -1305,7 +1582,8 @@ export default {
     allEmployees: "All employees",
     attendanceLogId: "Attendance Log ID",
     attendanceOverviewForDate: "Attendance overview for {date}",
-    attendanceTrendDescription: "Checked in, checked out, late check in, and missing check out counts for the last {days} days.",
+    attendanceTrendDescription:
+      "Checked in, checked out, late check in, and missing check out counts for the last {days} days.",
     attendanceType: "Attendance Type",
     branch: "Branch",
     createProduct: "Create Product",
@@ -1316,7 +1594,8 @@ export default {
     deviceName: "Device Name",
     division: "Division",
     employeeId: "Employee ID",
-    employeeInvitationCreatedSuccessfully: "Employee invitation created successfully",
+    employeeInvitationCreatedSuccessfully:
+      "Employee invitation created successfully",
     employeeName: "Employee Name",
     employeeNo: "Employee No",
     exportHistory: "Export History",
@@ -1343,12 +1622,14 @@ export default {
     updatedAt: "Updated At",
     yesterday: "Yesterday",
     clear: "Clear",
+    active: "Active",
+    inactive: "Inactive",
     end: "End",
     noOptions: "No options",
     openFilters: "Open filters",
     pickAStartDateThenAnEndDate: "Pick a start date, then an end date.",
     selectDateRange: "Select date range",
     selected: "Selected",
-    start: "Start"
-  }
-}
+    start: "Start",
+  },
+};

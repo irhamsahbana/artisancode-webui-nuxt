@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { Menu, X } from 'lucide-vue-next'
+import type { Product } from '~/utils/product-mode'
 
 type LayoutNavItem = {
   label: string
@@ -13,7 +14,13 @@ type LayoutNavGroup = {
   items: LayoutNavItem[]
 }
 
+type ProductOption = {
+  value: Product
+  label: string
+}
+
 defineProps<{
+  activeProduct: Product
   appName: string
   currentLocaleBadge: string
   currentPageGroup: string
@@ -27,7 +34,9 @@ defineProps<{
   mobileAccountMenuOpen: boolean
   mobileNavOpen: boolean
   navGroups: LayoutNavGroup[]
+  productOptions: ProductOption[]
   sessionActive: boolean
+  showProductSwitcher: boolean
   userDisplayName: string
   userTenantName: string
 }>()
@@ -36,6 +45,7 @@ defineEmits<{
   closeMobileNav: []
   logout: []
   openMobileNav: []
+  switchProduct: [value: Product]
   switchLocale: []
   toggleDesktopAccountMenu: []
   toggleMobileAccountMenu: []
@@ -106,14 +116,34 @@ const { t } = useLocale()
               >
                 <Menu class="h-4 w-4" />
               </Button>
-              <div class="space-y-1">
-                <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  {{ currentPageGroup }}
-                </div>
-                <div class="text-lg font-semibold tracking-tight">
-                  {{ currentPageTitle }}
-                </div>
+            <div class="space-y-1">
+              <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {{ currentPageGroup }}
               </div>
+              <div class="text-lg font-semibold tracking-tight">
+                {{ currentPageTitle }}
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div
+              v-if="showProductSwitcher"
+              class="flex items-center rounded-2xl border border-border/70 bg-muted/35 p-1 shadow-sm"
+              :aria-label="t('layout.productSwitch')"
+            >
+              <button
+                v-for="option in productOptions"
+                :key="option.value"
+                type="button"
+                class="rounded-xl px-3 py-2 text-sm font-medium transition-colors"
+                :class="activeProduct === option.value
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'"
+                @click="$emit('switchProduct', option.value)"
+              >
+                {{ option.label }}
+              </button>
             </div>
 
             <Button
@@ -130,6 +160,7 @@ const { t } = useLocale()
                 {{ currentThemeLabel }}
               </span>
             </Button>
+          </div>
           </div>
         </div>
 

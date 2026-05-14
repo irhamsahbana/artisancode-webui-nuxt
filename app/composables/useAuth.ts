@@ -2,6 +2,7 @@ import { navigateTo, useCookie } from "#app";
 
 import type { ApiResponse } from "~/types/api";
 import { useApi } from "./useApi";
+import { resolveProductAccess } from "~/utils/product-mode";
 
 type LoginPayload = {
   email: string;
@@ -69,10 +70,13 @@ export const useAuth = () => {
     try {
       const payload = token.value.split(".")[1];
       const decoded = JSON.parse(atob(payload || ""));
+      const productAccess = resolveProductAccess(decoded);
       return {
         id: decoded.user_id,
         tenant_id: decoded.tenant_id,
         tenant_name: decoded.tenant_name,
+        primary_product: productAccess.primaryProduct,
+        enabled_products: productAccess.enabledProducts,
         username: decoded.user_name,
         roles: decoded.roles,
         name: decoded.user_name, // fallback for UI
@@ -177,6 +181,19 @@ export const useAuth = () => {
     }) as Promise<ApiResponse<EmptyResponse>>;
   };
 
+  const refreshAccessToken = async () => {
+    const response = await apiFetch<AuthTokenResponse>("/users/refresh-token", {
+      method: "POST",
+      body: {},
+    });
+
+    if (response.success && response.data?.access_token) {
+      token.value = response.data.access_token;
+    }
+
+    return response as ApiResponse<AuthTokenResponse>;
+  };
+
   const logout = async () => {
     await apiFetch<EmptyResponse>("/users/logout", {
       method: "POST",
@@ -198,6 +215,7 @@ export const useAuth = () => {
     resendVerificationEmail,
     forgotPassword,
     resetPassword,
+    refreshAccessToken,
     logout,
   };
 };

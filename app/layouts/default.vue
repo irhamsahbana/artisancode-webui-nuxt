@@ -3,6 +3,7 @@ defineOptions({ name: 'DefaultLayout' })
 
 const {
   activeSessionToken,
+  activeProduct,
   appName,
   currentLocaleBadge,
   currentPageGroup,
@@ -20,7 +21,10 @@ const {
   mobileAccountMenuOpen,
   mobileNavOpen,
   navGroups,
+  productOptions,
+  showProductSwitcher,
   switchLocale,
+  switchProduct,
   t,
   toggleDesktopAccountMenu,
   toggleMobileAccountMenu,
@@ -59,6 +63,7 @@ const {
     <LayoutAppShell
       v-else
       :app-name="appName"
+      :active-product="activeProduct"
       :current-locale-badge="currentLocaleBadge"
       :current-page-group="currentPageGroup"
       :current-page-title="currentPageTitle"
@@ -71,12 +76,15 @@ const {
       :mobile-account-menu-open="mobileAccountMenuOpen"
       :mobile-nav-open="mobileNavOpen"
       :nav-groups="navGroups"
+      :product-options="productOptions"
       :session-active="Boolean(activeSessionToken)"
+      :show-product-switcher="showProductSwitcher"
       :user-display-name="userDisplayName"
       :user-tenant-name="userTenantName"
       @close-mobile-nav="mobileNavOpen = false"
       @logout="handleLogout"
       @open-mobile-nav="mobileNavOpen = true"
+      @switch-product="switchProduct"
       @switch-locale="switchLocale()"
       @toggle-desktop-account-menu="toggleDesktopAccountMenu"
       @toggle-mobile-account-menu="toggleMobileAccountMenu"
