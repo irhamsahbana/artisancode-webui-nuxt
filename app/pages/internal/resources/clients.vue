@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InternalClientsPage from '~/modules/resources/internal-clients/internal-clients-page.vue'
+import InternalClientsPage from '~/modules/internal/resources/clients/internal-clients-page.vue'
 
 defineOptions({ name: 'InternalClientsRoutePage' })
 

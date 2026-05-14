@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InternalUsersPage from '~/modules/resources/internal-users/internal-users-page.vue'
+import InternalUsersPage from '~/modules/internal/resources/users/internal-users-page.vue'
 
 defineOptions({ name: 'InternalUsersRoutePage' })
 

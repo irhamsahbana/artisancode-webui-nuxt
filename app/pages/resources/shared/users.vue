@@ -1,0 +1,13 @@
+<script setup lang="ts">
+import UsersPage from '~/modules/resources/shared/users/users-page.vue'
+
+defineOptions({ name: 'UsersRoutePage' })
+
+definePageMeta({
+  path: '/app/resources/users/:id?',
+})
+</script>
+
+<template>
+  <UsersPage />
+</template>

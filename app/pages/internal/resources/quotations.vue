@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InternalCommerceListPage from '~/modules/internal-commerce/admin/internal-commerce-list-page.vue'
+import InternalCommerceListPage from '~/modules/internal/resources/commerce/admin/internal-commerce-list-page.vue'
 
 defineOptions({ name: 'InternalCommerceQuotationsRoutePage' })
 
