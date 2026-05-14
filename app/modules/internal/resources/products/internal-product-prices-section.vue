@@ -364,21 +364,21 @@ const formatPriceRangeSummary = (price: InternalProductPrice) => {
               <div class="grid gap-4 md:grid-cols-2">
                 <div class="space-y-2">
                   <Label for="internal-price-currency">{{ t('ui.currency') }}</Label>
-                <SearchableSelect
-                  id="internal-price-currency"
-                  v-model="model.currency_code"
-                  :options="currencyOptions"
-                  :disabled="currencyOptions.length === 0"
-                  :placeholder="t('internalProducts.prices.currencyPlaceholder')"
-                  :search-placeholder="t('internalProducts.prices.currencySearchPlaceholder')"
-                />
-                <p
-                  v-if="currencyOptions.length === 0"
-                  class="text-xs text-destructive"
-                >
-                  {{ t('billingSettings.currencies.noActiveCurrency') }}
-                </p>
-              </div>
+                  <SearchableSelect
+                    id="internal-price-currency"
+                    v-model="model.currency_code"
+                    :options="currencyOptions"
+                    :disabled="currencyOptions.length === 0"
+                    :placeholder="t('internalProducts.prices.currencyPlaceholder')"
+                    :search-placeholder="t('internalProducts.prices.currencySearchPlaceholder')"
+                  />
+                  <p
+                    v-if="currencyOptions.length === 0"
+                    class="text-xs text-destructive"
+                  >
+                    {{ t('billingSettings.currencies.noActiveCurrency') }}
+                  </p>
+                </div>
 
                 <div class="space-y-2">
                   <Label for="internal-price-amount">{{ t('internalProducts.prices.amountLabel') }}</Label>

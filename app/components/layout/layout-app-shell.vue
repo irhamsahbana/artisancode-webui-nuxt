@@ -116,51 +116,51 @@ const { t } = useLocale()
               >
                 <Menu class="h-4 w-4" />
               </Button>
-            <div class="space-y-1">
-              <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                {{ currentPageGroup }}
-              </div>
-              <div class="text-lg font-semibold tracking-tight">
-                {{ currentPageTitle }}
+              <div class="space-y-1">
+                <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  {{ currentPageGroup }}
+                </div>
+                <div class="text-lg font-semibold tracking-tight">
+                  {{ currentPageTitle }}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="flex items-center gap-3">
-            <div
-              v-if="showProductSwitcher"
-              class="flex items-center rounded-2xl border border-border/70 bg-muted/35 p-1 shadow-sm"
-              :aria-label="t('layout.productSwitch')"
-            >
-              <button
-                v-for="option in productOptions"
-                :key="option.value"
-                type="button"
-                class="rounded-xl px-3 py-2 text-sm font-medium transition-colors"
-                :class="activeProduct === option.value
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'"
-                @click="$emit('switchProduct', option.value)"
+            <div class="flex items-center gap-3">
+              <div
+                v-if="showProductSwitcher"
+                class="flex items-center rounded-2xl border border-border/70 bg-muted/35 p-1 shadow-sm"
+                :aria-label="t('layout.productSwitch')"
               >
-                {{ option.label }}
-              </button>
-            </div>
+                <button
+                  v-for="option in productOptions"
+                  :key="option.value"
+                  type="button"
+                  class="rounded-xl px-3 py-2 text-sm font-medium transition-colors"
+                  :class="activeProduct === option.value
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'"
+                  @click="$emit('switchProduct', option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
 
-            <Button
-              variant="outline"
-              class="shrink-0 rounded-2xl border-border/70 bg-background/88 px-3 shadow-sm backdrop-blur-xl"
-              :aria-label="t('layout.preferences')"
-              @click="$emit('toggleTheme')"
-            >
-              <component
-                :is="currentThemeIcon"
-                class="h-4 w-4"
-              />
-              <span class="hidden sm:inline">
-                {{ currentThemeLabel }}
-              </span>
-            </Button>
-          </div>
+              <Button
+                variant="outline"
+                class="shrink-0 rounded-2xl border-border/70 bg-background/88 px-3 shadow-sm backdrop-blur-xl"
+                :aria-label="t('layout.preferences')"
+                @click="$emit('toggleTheme')"
+              >
+                <component
+                  :is="currentThemeIcon"
+                  class="h-4 w-4"
+                />
+                <span class="hidden sm:inline">
+                  {{ currentThemeLabel }}
+                </span>
+              </Button>
+            </div>
           </div>
         </div>
 
