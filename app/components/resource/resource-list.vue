@@ -7,6 +7,7 @@ import type { ApiResponse, ListResponse } from "~/types/api";
 import { useApi } from "~/composables/useApi";
 import { useBanner } from "~/composables/useBanner";
 import { formatIsoDateValue, resolveDateLocale } from "~/utils/date-time";
+import { appendResourceIdToEndpoint } from "./resource-list-endpoint";
 
 type Column = {
   key: string;
@@ -402,8 +403,9 @@ const openDetailById = async (id: string) => {
   detailRow.value = null;
   detailRequestController.value?.abort();
   detailRequestController.value = import.meta.client ? new AbortController() : null;
+  const detailEndpoint = appendResourceIdToEndpoint(props.endpoint, id);
   const response = await apiFetch<Record<string, unknown>>(
-    `${props.endpoint}/${id}`,
+    detailEndpoint,
     {
       signal: detailRequestController.value?.signal,
       authMode: props.authMode,
@@ -478,7 +480,8 @@ const confirmDelete = async () => {
     return;
   }
   deleteLoading.value = true;
-  const response = await apiFetch(`${props.endpoint}/${id}`, {
+  const deleteEndpoint = appendResourceIdToEndpoint(props.endpoint, String(id));
+  const response = await apiFetch(deleteEndpoint, {
     method: "DELETE",
     authMode: props.authMode,
   });
