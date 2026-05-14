@@ -17,6 +17,7 @@ This file is the entry point for work in `webui/`. Keep it lean. Put durable det
 - Prefer the `pnpm` workflows documented in `docs/frontend-reference.md` and `docs/testing-and-verification.md`. Keep this file focused on routing and durable agent rules.
 - Stay within the current Nuxt 4, Vue 3 Composition API, TypeScript, and Tailwind patterns already used in the repo.
 - Keep `app/pages/` thin. Put non-trivial feature code in `app/modules/`.
+- When a route family is split by area such as `resources/hr`, `resources/crm`, `resources/shared`, or `internal/resources`, keep the matching feature modules under the same area split in `app/modules/`.
 - Use `useApi().apiFetch(...)` for app API calls through the Nuxt proxy.
 - Use keyed localization through `useLocale().t(...)` or `useLocale().format(...)`. Do not add raw-string fallback maps.
 - Use `useDateTime()` or `app/utils/date-time.ts` for user-facing dates and times.

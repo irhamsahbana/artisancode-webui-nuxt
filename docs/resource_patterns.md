@@ -4,8 +4,8 @@ Use this guide for CRUD-style tenant-admin pages and internal-admin resource scr
 
 ## Route Shapes
 
-- Module file: `app/modules/resources/{resource-name}/{resource-name}-page.vue`
-- Route wrapper: `app/pages/resources/{resource-name}.vue`
+- Module file: `app/modules/resources/{area}/{resource-name}/{resource-name}-page.vue`
+- Route wrapper: place thin wrappers under the product bucket that owns the route: `app/pages/resources/crm/`, `app/pages/resources/hr/`, or `app/pages/resources/shared/`
 - Client admin routes should be exposed under `/app/resources/*` with `definePageMeta({ path: ... })`.
 - Keep route wrappers thin and place feature logic in the module page.
 
@@ -13,15 +13,23 @@ Use this guide for CRUD-style tenant-admin pages and internal-admin resource scr
 
 Dedicated detail/manage pages currently include:
 
-- `app/pages/resources/companies/[id].vue` -> `companies-manage-page.vue`
-- `app/pages/resources/org-units/[id].vue` -> `org-unit-detail-page.vue`
+- `app/pages/resources/shared/companies/[id].vue` -> `companies-manage-page.vue`
+- `app/pages/resources/hr/org-units/[id].vue` -> `org-unit-detail-page.vue`
 
 Optional-id wrappers currently include:
 
-- `app/pages/resources/users.vue` -> `/app/resources/users/:id?`
-- `app/pages/resources/roles.vue` -> `/app/resources/roles/:id?`
-- `app/pages/resources/categories.vue` -> `/app/resources/categories/:id?`
-- `app/pages/resources/invoices.vue` -> `/app/resources/invoices/:id?`
+- `app/pages/resources/shared/users.vue` -> `/app/resources/users/:id?`
+- `app/pages/resources/hr/roles.vue` -> `/app/resources/roles/:id?`
+- `app/pages/resources/shared/invoices.vue` -> `/app/resources/invoices/:id?`
+
+CRM category resources are split by group:
+
+- `app/pages/resources/crm/customer-types.vue` -> `/app/resources/customer-types/:id?`
+- `app/pages/resources/crm/segments.vue` -> `/app/resources/segments/:id?`
+- `app/pages/resources/crm/areas.vue` -> `/app/resources/areas/:id?`
+- `app/pages/resources/crm/relationship-statuses.vue` -> `/app/resources/relationship-statuses/:id?`
+
+`app/pages/resources/crm/categories.vue` remains as a legacy alias to the customer type page.
 
 Prefer matching the feature's existing route pattern rather than forcing every resource into one template.
 

@@ -31,7 +31,7 @@ pnpm histoire:build
 ## Project Shape
 
 - `app/pages/`: thin route wrappers
-- `app/modules/`: feature modules and page implementations
+- `app/modules/`: feature modules and page implementations, grouped by route family when the feature belongs to a segmented area
 - `app/components/`: shared UI primitives and reusable shells
 - `app/composables/`: shared app behavior such as auth, API, locale, and banners
 - `app/utils/`: pure helpers and formatters
@@ -48,6 +48,7 @@ Nuxt-specific reminders:
 
 - Prefer existing repo patterns over introducing a new abstraction style.
 - Keep route files small and move feature logic into `app/modules/`.
+- When working on segmented route families, mirror the route grouping inside modules such as `app/modules/resources/hr/`, `app/modules/resources/crm/`, `app/modules/resources/shared/`, and `app/modules/internal/resources/`.
 - Use Nuxt auto-imports where the repo already relies on them.
 - Prefer `useApi().apiFetch(...)` over direct `$fetch` in app code.
 - Use explicit local or shared types instead of `any`.
